@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 abstract class IFileService {
   Future<String?> pickFile({
     List<String>? allowedExtensions,
@@ -15,5 +17,13 @@ abstract class IFileService {
   Future<void> writeFile({
     required String filePath,
     required String content,
+  });
+
+  // Binary file operations for backup files
+  Future<Uint8List> readBinaryFile(String filePath);
+
+  Future<void> writeBinaryFile({
+    required String filePath,
+    required Uint8List data,
   });
 }
