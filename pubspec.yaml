@@ -20,6 +20,7 @@ dependencies:
   
   # Date and time utilities
   intl: ^0.20.2
+  dart_json_mapper: ^2.2.16
 
 dev_dependencies:
   flutter_test:

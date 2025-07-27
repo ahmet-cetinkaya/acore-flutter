@@ -1,4 +1,7 @@
+import 'package:dart_json_mapper/dart_json_mapper.dart';
+
 /// Base entity class providing common properties for all entities.
+@jsonSerializable
 abstract class BaseEntity<TId> {
   BaseEntity({
     required this.id,
@@ -13,4 +16,24 @@ abstract class BaseEntity<TId> {
   DateTime? deletedDate;
 
   bool get isDeleted => deletedDate != null;
+
+  /// Convert BaseEntity to JSON map
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'createdDate': createdDate.toIso8601String(),
+        'modifiedDate': modifiedDate?.toIso8601String(),
+        'deletedDate': deletedDate?.toIso8601String(),
+      };
+
+  /// Create BaseEntity from JSON map (used by subclasses)
+  static Map<String, dynamic> baseFromJson(Map<String, dynamic> json) => {
+        'id': json['id'],
+        'createdDate': DateTime.parse(json['createdDate'] as String),
+        'modifiedDate': json['modifiedDate'] != null 
+            ? DateTime.parse(json['modifiedDate'] as String) 
+            : null,
+        'deletedDate': json['deletedDate'] != null 
+            ? DateTime.parse(json['deletedDate'] as String) 
+            : null,
+      };
 }
