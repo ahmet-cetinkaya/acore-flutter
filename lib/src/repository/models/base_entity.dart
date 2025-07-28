@@ -29,11 +29,7 @@ abstract class BaseEntity<TId> {
   static Map<String, dynamic> baseFromJson(Map<String, dynamic> json) => {
         'id': json['id'],
         'createdDate': DateTime.parse(json['createdDate'] as String),
-        'modifiedDate': json['modifiedDate'] != null 
-            ? DateTime.parse(json['modifiedDate'] as String) 
-            : null,
-        'deletedDate': json['deletedDate'] != null 
-            ? DateTime.parse(json['deletedDate'] as String) 
-            : null,
+        'modifiedDate': json['modifiedDate'] != null ? DateTime.parse(json['modifiedDate'] as String) : null,
+        'deletedDate': json['deletedDate'] != null ? DateTime.parse(json['deletedDate'] as String) : null,
       };
 }
