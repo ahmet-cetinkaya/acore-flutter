@@ -42,9 +42,9 @@ class ColorContrastHelper {
   /// Calculates the relative luminance of a color using the WCAG formula
   static double _calculateLuminance(Color color) {
     // Convert RGB values to relative values (0-1)
-    double r = color.red / 255.0;
-    double g = color.green / 255.0;
-    double b = color.blue / 255.0;
+    double r = color.r / 255.0;
+    double g = color.g / 255.0;
+    double b = color.b / 255.0;
 
     // Apply gamma correction
     r = r <= 0.03928 ? r / 12.92 : pow((r + 0.055) / 1.055, 2.4).toDouble();
