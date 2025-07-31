@@ -6,14 +6,26 @@ class ColorContrastHelper {
   /// Calculates the appropriate text color for a given background color
   /// to ensure proper contrast ratio for accessibility
   static Color getContrastingTextColor(Color backgroundColor) {
-    // Calculate relative luminance using the WCAG formula
-    double luminance = _calculateLuminance(backgroundColor);
+    // Calculate contrast ratio with black and white text
+    final double contrastWithBlack = calculateContrastRatio(Colors.black, backgroundColor);
+    final double contrastWithWhite = calculateContrastRatio(Colors.white, backgroundColor);
 
-    // Use a more accurate threshold for better contrast detection
-    // Luminance values: 0 = black, 1 = white
-    // Threshold of 0.179 is based on WCAG guidelines for optimal contrast
-    // This ensures white backgrounds get black text and dark backgrounds get white text
-    return luminance > 0.179 ? Colors.black : Colors.white;
+    // Determine if the contrast ratios meet the WCAG AA minimum (4.5 for normal text)
+    final bool blackMeets = contrastWithBlack >= 4.5;
+    final bool whiteMeets = contrastWithWhite >= 4.5;
+
+    // 1. Prefer the text color(s) that meet the WCAG requirement.
+    // 2. If both meet, choose the one with the higher ratio.
+    // 3. If neither meet, fall back to the one with the higher ratio anyway.
+    if (blackMeets && whiteMeets) {
+      return contrastWithBlack >= contrastWithWhite ? Colors.black : Colors.white;
+    } else if (blackMeets) {
+      return Colors.black;
+    } else if (whiteMeets) {
+      return Colors.white;
+    } else {
+      return contrastWithBlack >= contrastWithWhite ? Colors.black : Colors.white;
+    }
   }
 
   /// Calculates the contrast ratio between two colors
