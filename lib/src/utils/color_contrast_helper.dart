@@ -8,7 +8,7 @@ class ColorContrastHelper {
   static Color getContrastingTextColor(Color backgroundColor) {
     // Calculate relative luminance using the WCAG formula
     double luminance = _calculateLuminance(backgroundColor);
-    
+
     // Use a more accurate threshold for better contrast detection
     // Luminance values: 0 = black, 1 = white
     // Threshold of 0.179 is based on WCAG guidelines for optimal contrast
@@ -21,11 +21,11 @@ class ColorContrastHelper {
   static double calculateContrastRatio(Color color1, Color color2) {
     double luminance1 = _calculateLuminance(color1);
     double luminance2 = _calculateLuminance(color2);
-    
+
     // Ensure the lighter color is in the numerator
     double lighter = max(luminance1, luminance2);
     double darker = min(luminance1, luminance2);
-    
+
     return (lighter + 0.05) / (darker + 0.05);
   }
 
