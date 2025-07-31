@@ -9,9 +9,11 @@ class ColorContrastHelper {
     // Calculate relative luminance using the WCAG formula
     double luminance = _calculateLuminance(backgroundColor);
     
-    // Use white text for dark backgrounds, black text for light backgrounds
-    // The threshold of 0.5 provides good contrast in most cases
-    return luminance > 0.5 ? Colors.black : Colors.white;
+    // Use a more accurate threshold for better contrast detection
+    // Luminance values: 0 = black, 1 = white
+    // Threshold of 0.179 is based on WCAG guidelines for optimal contrast
+    // This ensures white backgrounds get black text and dark backgrounds get white text
+    return luminance > 0.179 ? Colors.black : Colors.white;
   }
 
   /// Calculates the contrast ratio between two colors
@@ -40,9 +42,9 @@ class ColorContrastHelper {
   /// Calculates the relative luminance of a color using the WCAG formula
   static double _calculateLuminance(Color color) {
     // Convert RGB values to relative values (0-1)
-    double r = color.r / 255.0;
-    double g = color.g / 255.0;
-    double b = color.b / 255.0;
+    double r = color.red / 255.0;
+    double g = color.green / 255.0;
+    double b = color.blue / 255.0;
 
     // Apply gamma correction
     r = r <= 0.03928 ? r / 12.92 : pow((r + 0.055) / 1.055, 2.4).toDouble();
