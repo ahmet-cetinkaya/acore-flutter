@@ -193,9 +193,31 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   Future<void> _selectTime(DateTime date, bool isStartDate) async {
     if (!widget.config.showTime) return;
 
+    // Check if the selected date is before minDate and handle time constraints
+    TimeOfDay? initialTime = TimeOfDay.fromDateTime(date);
+    TimeOfDay? earliestTime;
+    
+    if (widget.config.minDate != null) {
+      final minDate = widget.config.minDate!;
+      final selectedDateOnly = DateTime(date.year, date.month, date.day);
+      final minDateOnly = DateTime(minDate.year, minDate.month, minDate.day);
+      
+      // If selected date is the same as minDate, restrict time to be >= minDate time
+      if (selectedDateOnly.isAtSameMomentAs(minDateOnly)) {
+        earliestTime = TimeOfDay.fromDateTime(minDate);
+        
+        // If current time is before earliest allowed time, set to earliest time
+        // Since minDate is start of day (00:00:00), allow any time for today
+        if (initialTime.hour < earliestTime.hour || 
+            (initialTime.hour == earliestTime.hour && initialTime.minute < earliestTime.minute)) {
+          initialTime = earliestTime;
+        }
+      }
+    }
+
     final timeOfDay = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(date),
+      initialTime: initialTime,
     );
 
     if (timeOfDay != null && mounted) {
@@ -206,6 +228,29 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         timeOfDay.hour,
         timeOfDay.minute,
       );
+
+      // Validate that the selected time is not before minDate (must be >= minDate)
+      if (widget.config.minDate != null && updatedDate.isBefore(widget.config.minDate!)) {
+        // If selected time is before minDate, set to minDate time
+        final correctedDate = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          widget.config.minDate!.hour,
+          widget.config.minDate!.minute,
+        );
+        
+        setState(() {
+          if (widget.config.selectionMode == DateSelectionMode.single) {
+            _selectedDate = correctedDate;
+          } else if (isStartDate) {
+            _selectedStartDate = correctedDate;
+          } else {
+            _selectedEndDate = correctedDate;
+          }
+        });
+        return;
+      }
 
       setState(() {
         if (widget.config.selectionMode == DateSelectionMode.single) {
@@ -273,7 +318,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           _getLocalizedText(
             'date_picker_title', 
             widget.config.selectionMode == DateSelectionMode.single 
-                ? 'Select Date' 
+                ? 'Select Date & Time' 
                 : 'Select Date Range'
           ),
         ),
@@ -325,28 +370,71 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       
       return Padding(
         padding: const EdgeInsets.only(bottom: 12.0),
-        child: Row(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              widget.config.showTime ? Icons.event_note : Icons.event,
-              color: _selectedDate != null 
-                  ? Theme.of(context).primaryColor
-                  : Theme.of(context).disabledColor,
-              size: 16,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              displayText,
-              style: TextStyle(
-                color: _selectedDate != null 
-                    ? Theme.of(context).primaryColor
-                    : Theme.of(context).disabledColor,
-                fontWeight: _selectedDate != null ? FontWeight.bold : FontWeight.normal,
-                fontSize: 16,
-              ),
-              textAlign: TextAlign.center,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  widget.config.showTime ? Icons.event_note : Icons.event,
+                  color: _selectedDate != null 
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).disabledColor,
+                  size: 16,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  displayText,
+                  style: TextStyle(
+                    color: _selectedDate != null 
+                        ? Theme.of(context).primaryColor
+                        : Theme.of(context).disabledColor,
+                    fontWeight: _selectedDate != null ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                // Add time button right next to the date text
+                if (widget.config.showTime && _selectedDate != null) ...[
+                  const SizedBox(width: 8),
+                  InkWell(
+                    onTap: () async {
+                      await _selectTime(_selectedDate!, true);
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.access_time,
+                            size: 14,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Set Time',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),
@@ -438,6 +526,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         centerAlignModePicker: true,
         selectedYearTextStyle: const TextStyle(fontWeight: FontWeight.bold),
         rangeBidirectional: true,
+        // toggleDateOnTap: true, // Removed - causes deselection issues
       ),
       value: widget.config.selectionMode == DateSelectionMode.single
           ? (_selectedDate != null ? [_selectedDate] : [])
@@ -449,13 +538,34 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       onValueChanged: (dates) async {
         if (widget.config.selectionMode == DateSelectionMode.single) {
           if (dates.isNotEmpty) {
+            DateTime selectedDate = dates.first;
+            
+            // If there's a minDate constraint and selected date is on the same day as minDate,
+            // ensure the time is not before minDate time
+            if (widget.config.minDate != null && widget.config.showTime) {
+              final minDate = widget.config.minDate!;
+              final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+              final minDateOnly = DateTime(minDate.year, minDate.month, minDate.day);
+              
+              if (selectedDateOnly.isAtSameMomentAs(minDateOnly)) {
+                // Set the time to minDate time if selecting today
+                selectedDate = DateTime(
+                  selectedDate.year,
+                  selectedDate.month,
+                  selectedDate.day,
+                  minDate.hour,
+                  minDate.minute,
+                );
+              }
+            }
+            
             setState(() {
-              _selectedDate = dates.first;
+              _selectedDate = selectedDate;
             });
             
             // If time selection is enabled, automatically show time picker
             if (widget.config.showTime) {
-              await _selectTime(dates.first, true);
+              await _selectTime(selectedDate, true);
             }
           }
         } else {
