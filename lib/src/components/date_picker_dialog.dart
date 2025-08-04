@@ -323,6 +323,8 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = widget.config.theme ?? Theme.of(context);
+    final isCompactScreen = _isCompactScreen(context);
+    final dialogWidth = isCompactScreen ? 350.0 : 420.0;
     
     return Theme(
       data: theme,
@@ -337,38 +339,45 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           ),
         ),
         content: SizedBox(
-          width: 320,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildSelectedDateDisplay(),
-              if (widget.config.showQuickRanges && widget.config.quickRanges != null)
-                _buildQuickRangesSection(),
-              _buildCalendarSection(),
-            ],
+          width: dialogWidth,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 500),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildSelectedDateDisplay(),
+                  if (widget.config.showQuickRanges && widget.config.quickRanges != null)
+                    _buildQuickRangesSection(),
+                  _buildCalendarSection(),
+                ],
+              ),
+            ),
           ),
         ),
         actions: [
-          TextButton(
+          _buildActionButton(
+            context: context,
             onPressed: _onCancel,
-            child: Text(
-              widget.config.cancelButtonText ?? 
-              _getLocalizedText('cancel', 'Cancel'),
-            ),
+            text: widget.config.cancelButtonText ?? 
+                  _getLocalizedText('cancel', 'Cancel'),
+            icon: Icons.cancel_outlined,
           ),
-          TextButton(
+          _buildActionButton(
+            context: context,
             onPressed: _hasSelection() ? _onClear : null,
-            child: Text(
-              _getLocalizedText('clear', 'Clear'),
-            ),
+            text: _getLocalizedText('clear', 'Clear'),
+            icon: Icons.backspace_outlined,
           ),
-          TextButton(
+          _buildActionButton(
+            context: context,
             onPressed: _isValidSelection() ? _onConfirm : null,
-            child: Text(
-              widget.config.confirmButtonText ?? 
-              _getLocalizedText('confirm', 'Confirm'),
-            ),
+            text: widget.config.confirmButtonText ?? 
+                  _getLocalizedText('confirm', 'Confirm'),
+            icon: Icons.check,
+            isPrimary: true,
+            forceTextButton: true,
           ),
         ],
       ),
@@ -387,32 +396,44 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 6,
+              runSpacing: 8,
               children: [
-                Icon(
-                  widget.config.showTime ? Icons.event_note : Icons.event,
-                  color: _selectedDate != null 
-                      ? Theme.of(context).primaryColor
-                      : Theme.of(context).disabledColor,
-                  size: 16,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  displayText,
-                  style: TextStyle(
-                    color: _selectedDate != null 
-                        ? Theme.of(context).primaryColor
-                        : Theme.of(context).disabledColor,
-                    fontWeight: _selectedDate != null ? FontWeight.bold : FontWeight.normal,
-                    fontSize: 16,
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: _isCompactScreen(context) ? 280 : 350),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        widget.config.showTime ? Icons.event_note : Icons.event,
+                        color: _selectedDate != null 
+                            ? Theme.of(context).primaryColor
+                            : Theme.of(context).disabledColor,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          displayText,
+                          style: TextStyle(
+                            color: _selectedDate != null 
+                                ? Theme.of(context).primaryColor
+                                : Theme.of(context).disabledColor,
+                            fontWeight: _selectedDate != null ? FontWeight.bold : FontWeight.normal,
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                  textAlign: TextAlign.center,
                 ),
-                // Add time button right next to the date text
-                if (widget.config.showTime && _selectedDate != null) ...[
-                  const SizedBox(width: 8),
+                // Add time button that can wrap to next line on small screens
+                if (widget.config.showTime && _selectedDate != null)
                   InkWell(
                     onTap: () async {
                       await _selectTime(_selectedDate!, true);
@@ -447,7 +468,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                       ),
                     ),
                   ),
-                ],
               ],
             ),
           ],
@@ -466,9 +486,11 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       
       return Padding(
         padding: const EdgeInsets.only(bottom: 12.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 6,
+          runSpacing: 8,
           children: [
             Icon(
               Icons.date_range,
@@ -477,8 +499,8 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                   : Theme.of(context).disabledColor,
               size: 16,
             ),
-            const SizedBox(width: 6),
-            Flexible(
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: _isCompactScreen(context) ? 280 : 350),
               child: Text(
                 displayText,
                 style: TextStyle(
@@ -528,8 +550,52 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     );
   }
 
+  bool _isCompactScreen(BuildContext context) {
+    return MediaQuery.of(context).size.width < 600;
+  }
+  
+  Widget _buildActionButton({
+    required BuildContext context,
+    required VoidCallback? onPressed,
+    required String text,
+    required IconData icon,
+    bool isPrimary = false,
+    bool forceTextButton = false,
+  }) {
+    final isCompact = _isCompactScreen(context);
+    
+    if (forceTextButton || !isCompact) {
+      return TextButton(
+        onPressed: onPressed,
+        style: isPrimary ? TextButton.styleFrom(
+          foregroundColor: Theme.of(context).primaryColor,
+        ) : null,
+        child: Text(text),
+      );
+    } else {
+      return IconButton(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 18),
+        tooltip: text,
+        iconSize: 18,
+        style: IconButton.styleFrom(
+          foregroundColor: isPrimary 
+              ? Theme.of(context).primaryColor 
+              : null,
+          padding: const EdgeInsets.all(8),
+        ),
+      );
+    }
+  }
+
   Widget _buildCalendarSection() {
-    return CalendarDatePicker2(
+    final isCompactScreen = _isCompactScreen(context);
+    final calendarWidth = isCompactScreen ? 350.0 : 420.0;
+    
+    return Container(
+      width: calendarWidth,
+      constraints: BoxConstraints(maxWidth: calendarWidth),
+      child: CalendarDatePicker2(
       config: CalendarDatePicker2Config(
         calendarType: widget.config.selectionMode == DateSelectionMode.single
             ? CalendarDatePicker2Type.single
@@ -540,6 +606,12 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         centerAlignModePicker: true,
         selectedYearTextStyle: const TextStyle(fontWeight: FontWeight.bold),
         rangeBidirectional: true,
+        // Size control configurations to prevent overflow
+        dayMaxWidth: 48.0, // Control max width of each day cell
+        controlsHeight: 40.0, // Reduce height of controls
+        modePickersGap: 4.0, // Reduce gap between month/year pickers
+        useAbbrLabelForMonthModePicker: true, // Use shorter labels for month picker
+        controlsTextStyle: const TextStyle(fontSize: 12), // Smaller text for controls
         // toggleDateOnTap: true, // Removed - causes deselection issues
       ),
       value: widget.config.selectionMode == DateSelectionMode.single
@@ -607,6 +679,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           }
         }
       },
+        ),
     );
   }
 }
