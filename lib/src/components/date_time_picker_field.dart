@@ -55,12 +55,12 @@ class DateTimePickerField extends StatelessWidget {
   Future<void> _selectDateTime(BuildContext context) async {
     // Parse the current date from the controller or use now
     DateTime? initialDate;
-    
+
     try {
       if (controller.text.isNotEmpty) {
         initialDate = DateFormatService.parseFromInput(
-          controller.text, 
-          context, 
+          controller.text,
+          context,
           type: DateFormatType.dateTime,
         );
       }
@@ -98,7 +98,7 @@ class DateTimePickerField extends StatelessWidget {
 
     if (result != null && result.isConfirmed && result.selectedDate != null && context.mounted) {
       final selectedDateTime = result.selectedDate!;
-      
+
       // Validate the selected date is within bounds
       if ((minDateTime != null && _isBeforeIgnoringSeconds(selectedDateTime, minDateTime!)) ||
           (maxDateTime != null && _isAfterIgnoringSeconds(selectedDateTime, maxDateTime!))) {

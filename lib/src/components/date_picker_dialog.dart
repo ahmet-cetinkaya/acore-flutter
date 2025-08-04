@@ -137,7 +137,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   late DateTime? _selectedDate;
   late DateTime? _selectedStartDate;
   late DateTime? _selectedEndDate;
-  
+
   @override
   void initState() {
     super.initState();
@@ -169,7 +169,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     return widget.config.translations?[key] ?? fallback;
   }
 
-
   void _selectQuickRange(QuickDateRange range) {
     if (widget.config.selectionMode != DateSelectionMode.range) return;
 
@@ -184,20 +183,16 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
 
   bool _isQuickRangeSelected(QuickDateRange range) {
     if (_selectedStartDate == null || _selectedEndDate == null) return false;
-    
+
     final calculatedStart = range.startDateCalculator();
     final calculatedEnd = range.endDateCalculator();
-    
-    return _isSameDay(_selectedStartDate!, calculatedStart) && 
-           _isSameDay(_selectedEndDate!, calculatedEnd);
+
+    return _isSameDay(_selectedStartDate!, calculatedStart) && _isSameDay(_selectedEndDate!, calculatedEnd);
   }
 
   bool _isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year && 
-           date1.month == date2.month && 
-           date1.day == date2.day;
+    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
   }
-
 
   Future<void> _selectTime(DateTime date, bool isStartDate) async {
     if (!widget.config.showTime) return;
@@ -205,19 +200,19 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     // Check if the selected date is before minDate and handle time constraints
     TimeOfDay? initialTime = TimeOfDay.fromDateTime(date);
     TimeOfDay? earliestTime;
-    
+
     if (widget.config.minDate != null) {
       final minDate = widget.config.minDate!;
       final selectedDateOnly = DateTime(date.year, date.month, date.day);
       final minDateOnly = DateTime(minDate.year, minDate.month, minDate.day);
-      
+
       // If selected date is the same as minDate, restrict time to be >= minDate time
       if (selectedDateOnly.isAtSameMomentAs(minDateOnly)) {
         earliestTime = TimeOfDay.fromDateTime(minDate);
-        
+
         // If current time is before earliest allowed time, set to earliest time
         // Since minDate is start of day (00:00:00), allow any time for today
-        if (initialTime.hour < earliestTime.hour || 
+        if (initialTime.hour < earliestTime.hour ||
             (initialTime.hour == earliestTime.hour && initialTime.minute < earliestTime.minute)) {
           initialTime = earliestTime;
         }
@@ -248,7 +243,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           widget.config.minDate!.hour,
           widget.config.minDate!.minute,
         );
-        
+
         setState(() {
           if (widget.config.selectionMode == DateSelectionMode.single) {
             _selectedDate = correctedDate;
@@ -269,7 +264,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         } else {
           _selectedEndDate = updatedDate;
         }
-        });
+      });
     }
   }
 
@@ -325,18 +320,14 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     final theme = widget.config.theme ?? Theme.of(context);
     final isCompactScreen = _isCompactScreen(context);
     final dialogWidth = isCompactScreen ? 350.0 : 420.0;
-    
+
     return Theme(
       data: theme,
       child: AlertDialog(
         title: Text(
-          widget.config.titleText ?? 
-          _getLocalizedText(
-            'date_picker_title', 
-            widget.config.selectionMode == DateSelectionMode.single 
-                ? 'Select Date & Time' 
-                : 'Select Date Range'
-          ),
+          widget.config.titleText ??
+              _getLocalizedText('date_picker_title',
+                  widget.config.selectionMode == DateSelectionMode.single ? 'Select Date & Time' : 'Select Date Range'),
         ),
         content: SizedBox(
           width: dialogWidth,
@@ -348,8 +339,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildSelectedDateDisplay(),
-                  if (widget.config.showQuickRanges && widget.config.quickRanges != null)
-                    _buildQuickRangesSection(),
+                  if (widget.config.showQuickRanges && widget.config.quickRanges != null) _buildQuickRangesSection(),
                   _buildCalendarSection(),
                 ],
               ),
@@ -360,8 +350,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           _buildActionButton(
             context: context,
             onPressed: _onCancel,
-            text: widget.config.cancelButtonText ?? 
-                  _getLocalizedText('cancel', 'Cancel'),
+            text: widget.config.cancelButtonText ?? _getLocalizedText('cancel', 'Cancel'),
             icon: Icons.cancel_outlined,
           ),
           _buildActionButton(
@@ -373,8 +362,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           _buildActionButton(
             context: context,
             onPressed: _isValidSelection() ? _onConfirm : null,
-            text: widget.config.confirmButtonText ?? 
-                  _getLocalizedText('confirm', 'Confirm'),
+            text: widget.config.confirmButtonText ?? _getLocalizedText('confirm', 'Confirm'),
             icon: Icons.check,
             isPrimary: true,
             forceTextButton: true,
@@ -384,13 +372,12 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     );
   }
 
-
   Widget _buildSelectedDateDisplay() {
     if (widget.config.selectionMode == DateSelectionMode.single) {
-      final displayText = _selectedDate != null 
+      final displayText = _selectedDate != null
           ? _formatDateForDisplay(_selectedDate)
           : _getLocalizedText('no_date_selected', 'No date selected');
-      
+
       return Padding(
         padding: const EdgeInsets.only(bottom: 12.0),
         child: Column(
@@ -409,9 +396,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                     children: [
                       Icon(
                         widget.config.showTime ? Icons.event_note : Icons.event,
-                        color: _selectedDate != null 
-                            ? Theme.of(context).primaryColor
-                            : Theme.of(context).disabledColor,
+                        color: _selectedDate != null ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
                         size: 16,
                       ),
                       const SizedBox(width: 6),
@@ -419,7 +404,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                         child: Text(
                           displayText,
                           style: TextStyle(
-                            color: _selectedDate != null 
+                            color: _selectedDate != null
                                 ? Theme.of(context).primaryColor
                                 : Theme.of(context).disabledColor,
                             fontWeight: _selectedDate != null ? FontWeight.bold : FontWeight.normal,
@@ -479,11 +464,12 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       if (_selectedStartDate != null && _selectedEndDate != null) {
         displayText = '${_formatDateForDisplay(_selectedStartDate)} - ${_formatDateForDisplay(_selectedEndDate)}';
       } else if (_selectedStartDate != null) {
-        displayText = '${_formatDateForDisplay(_selectedStartDate)} - ${_getLocalizedText('select_end_date', 'Select end date')}';
+        displayText =
+            '${_formatDateForDisplay(_selectedStartDate)} - ${_getLocalizedText('select_end_date', 'Select end date')}';
       } else {
         displayText = _getLocalizedText('no_dates_selected', 'No dates selected');
       }
-      
+
       return Padding(
         padding: const EdgeInsets.only(bottom: 12.0),
         child: Wrap(
@@ -507,9 +493,8 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                   color: (_selectedStartDate != null && _selectedEndDate != null)
                       ? Theme.of(context).primaryColor
                       : Theme.of(context).disabledColor,
-                  fontWeight: (_selectedStartDate != null && _selectedEndDate != null) 
-                      ? FontWeight.bold 
-                      : FontWeight.normal,
+                  fontWeight:
+                      (_selectedStartDate != null && _selectedEndDate != null) ? FontWeight.bold : FontWeight.normal,
                   fontSize: 16,
                 ),
                 textAlign: TextAlign.center,
@@ -553,7 +538,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   bool _isCompactScreen(BuildContext context) {
     return MediaQuery.of(context).size.width < 600;
   }
-  
+
   Widget _buildActionButton({
     required BuildContext context,
     required VoidCallback? onPressed,
@@ -563,13 +548,15 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     bool forceTextButton = false,
   }) {
     final isCompact = _isCompactScreen(context);
-    
+
     if (forceTextButton || !isCompact) {
       return TextButton(
         onPressed: onPressed,
-        style: isPrimary ? TextButton.styleFrom(
-          foregroundColor: Theme.of(context).primaryColor,
-        ) : null,
+        style: isPrimary
+            ? TextButton.styleFrom(
+                foregroundColor: Theme.of(context).primaryColor,
+              )
+            : null,
         child: Text(text),
       );
     } else {
@@ -579,9 +566,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         tooltip: text,
         iconSize: 18,
         style: IconButton.styleFrom(
-          foregroundColor: isPrimary 
-              ? Theme.of(context).primaryColor 
-              : null,
+          foregroundColor: isPrimary ? Theme.of(context).primaryColor : null,
           padding: const EdgeInsets.all(8),
         ),
       );
@@ -591,95 +576,95 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   Widget _buildCalendarSection() {
     final isCompactScreen = _isCompactScreen(context);
     final calendarWidth = isCompactScreen ? 350.0 : 420.0;
-    
+
     return Container(
       width: calendarWidth,
       constraints: BoxConstraints(maxWidth: calendarWidth),
       child: CalendarDatePicker2(
-      config: CalendarDatePicker2Config(
-        calendarType: widget.config.selectionMode == DateSelectionMode.single
-            ? CalendarDatePicker2Type.single
-            : CalendarDatePicker2Type.range,
-        selectedDayHighlightColor: Theme.of(context).primaryColor,
-        firstDate: widget.config.minDate ?? DateTime(1900),
-        lastDate: widget.config.maxDate ?? DateTime(2100),
-        centerAlignModePicker: true,
-        selectedYearTextStyle: const TextStyle(fontWeight: FontWeight.bold),
-        rangeBidirectional: true,
-        // Size control configurations to prevent overflow
-        dayMaxWidth: 48.0, // Control max width of each day cell
-        controlsHeight: 40.0, // Reduce height of controls
-        modePickersGap: 4.0, // Reduce gap between month/year pickers
-        useAbbrLabelForMonthModePicker: true, // Use shorter labels for month picker
-        controlsTextStyle: const TextStyle(fontSize: 12), // Smaller text for controls
-        // toggleDateOnTap: true, // Removed - causes deselection issues
-      ),
-      value: widget.config.selectionMode == DateSelectionMode.single
-          ? (_selectedDate != null ? [_selectedDate] : [])
-          : (_selectedStartDate != null && _selectedEndDate != null
-              ? [_selectedStartDate, _selectedEndDate]
-              : _selectedStartDate != null 
-                ? [_selectedStartDate]
-                : []),
-      onValueChanged: (dates) async {
-        if (widget.config.selectionMode == DateSelectionMode.single) {
-          if (dates.isNotEmpty) {
-            DateTime selectedDate = dates.first;
-            
-            // If there's a minDate constraint and selected date is on the same day as minDate,
-            // ensure the time is not before minDate time
-            if (widget.config.minDate != null && widget.config.showTime) {
-              final minDate = widget.config.minDate!;
-              final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-              final minDateOnly = DateTime(minDate.year, minDate.month, minDate.day);
-              
-              if (selectedDateOnly.isAtSameMomentAs(minDateOnly)) {
-                // Set the time to minDate time if selecting today
-                selectedDate = DateTime(
-                  selectedDate.year,
-                  selectedDate.month,
-                  selectedDate.day,
-                  minDate.hour,
-                  minDate.minute,
-                );
+        config: CalendarDatePicker2Config(
+          calendarType: widget.config.selectionMode == DateSelectionMode.single
+              ? CalendarDatePicker2Type.single
+              : CalendarDatePicker2Type.range,
+          selectedDayHighlightColor: Theme.of(context).primaryColor,
+          firstDate: widget.config.minDate ?? DateTime(1900),
+          lastDate: widget.config.maxDate ?? DateTime(2100),
+          centerAlignModePicker: true,
+          selectedYearTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+          rangeBidirectional: true,
+          // Size control configurations to prevent overflow
+          dayMaxWidth: 48.0, // Control max width of each day cell
+          controlsHeight: 40.0, // Reduce height of controls
+          modePickersGap: 4.0, // Reduce gap between month/year pickers
+          useAbbrLabelForMonthModePicker: true, // Use shorter labels for month picker
+          controlsTextStyle: const TextStyle(fontSize: 12), // Smaller text for controls
+          // toggleDateOnTap: true, // Removed - causes deselection issues
+        ),
+        value: widget.config.selectionMode == DateSelectionMode.single
+            ? (_selectedDate != null ? [_selectedDate] : [])
+            : (_selectedStartDate != null && _selectedEndDate != null
+                ? [_selectedStartDate, _selectedEndDate]
+                : _selectedStartDate != null
+                    ? [_selectedStartDate]
+                    : []),
+        onValueChanged: (dates) async {
+          if (widget.config.selectionMode == DateSelectionMode.single) {
+            if (dates.isNotEmpty) {
+              DateTime selectedDate = dates.first;
+
+              // If there's a minDate constraint and selected date is on the same day as minDate,
+              // ensure the time is not before minDate time
+              if (widget.config.minDate != null && widget.config.showTime) {
+                final minDate = widget.config.minDate!;
+                final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+                final minDateOnly = DateTime(minDate.year, minDate.month, minDate.day);
+
+                if (selectedDateOnly.isAtSameMomentAs(minDateOnly)) {
+                  // Set the time to minDate time if selecting today
+                  selectedDate = DateTime(
+                    selectedDate.year,
+                    selectedDate.month,
+                    selectedDate.day,
+                    minDate.hour,
+                    minDate.minute,
+                  );
+                }
+              }
+
+              setState(() {
+                _selectedDate = selectedDate;
+              });
+
+              // If time selection is enabled, automatically show time picker
+              if (widget.config.showTime) {
+                await _selectTime(selectedDate, true);
               }
             }
-            
-            setState(() {
-              _selectedDate = selectedDate;
-            });
-            
-            // If time selection is enabled, automatically show time picker
-            if (widget.config.showTime) {
-              await _selectTime(selectedDate, true);
+          } else {
+            // Range selection
+            if (dates.length == 2) {
+              final startDate = dates[0];
+              final endDate = DateTime(
+                dates[1].year,
+                dates[1].month,
+                dates[1].day,
+                23,
+                59,
+                59,
+              );
+
+              setState(() {
+                _selectedStartDate = startDate;
+                _selectedEndDate = endDate;
+              });
+            } else if (dates.length == 1) {
+              setState(() {
+                _selectedStartDate = dates[0];
+                _selectedEndDate = null;
+              });
             }
           }
-        } else {
-          // Range selection
-          if (dates.length == 2) {
-            final startDate = dates[0];
-            final endDate = DateTime(
-              dates[1].year,
-              dates[1].month,
-              dates[1].day,
-              23,
-              59,
-              59,
-            );
-            
-            setState(() {
-              _selectedStartDate = startDate;
-              _selectedEndDate = endDate;
-            });
-          } else if (dates.length == 1) {
-            setState(() {
-              _selectedStartDate = dates[0];
-              _selectedEndDate = null;
-            });
-          }
-        }
-      },
-        ),
+        },
+      ),
     );
   }
 }
