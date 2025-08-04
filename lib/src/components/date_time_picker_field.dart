@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide DatePickerDialog;
 import '../time/date_format_service.dart';
+import 'date_picker_dialog.dart';
 
 class DateTimePickerField extends StatelessWidget {
   final TextEditingController controller;
@@ -7,8 +8,6 @@ class DateTimePickerField extends StatelessWidget {
   final void Function(DateTime?) onConfirm;
   final DateTime? minDateTime;
   final DateTime? maxDateTime;
-  final bool showClearButton;
-  final String? clearButtonTooltip;
   final TextStyle? textStyle;
   final TextStyle? hintStyle;
   final InputDecoration? decoration;
@@ -22,8 +21,6 @@ class DateTimePickerField extends StatelessWidget {
     required this.onConfirm,
     this.minDateTime,
     this.maxDateTime,
-    this.showClearButton = true,
-    this.clearButtonTooltip,
     this.textStyle,
     this.hintStyle,
     this.decoration,
@@ -56,84 +53,68 @@ class DateTimePickerField extends StatelessWidget {
   }
 
   Future<void> _selectDateTime(BuildContext context) async {
-    final now = DateTime.now();
-
     // Parse the current date from the controller or use now
-    DateTime initialDate;
-
+    DateTime? initialDate;
+    
     try {
       if (controller.text.isNotEmpty) {
-        final parsedDate = DateTime.tryParse(controller.text);
-        initialDate = parsedDate ?? now;
-      } else {
-        initialDate = now;
-      }
-    } catch (e) {
-      initialDate = now;
-    }
-
-    // Ensure initialDate is not before minDateTime
-    if (minDateTime != null && _isBeforeIgnoringSeconds(initialDate, minDateTime!)) {
-      initialDate = minDateTime!;
-    }
-
-    // Ensure initialDate is not after maxDateTime
-    if (maxDateTime != null && _isAfterIgnoringSeconds(initialDate, maxDateTime!)) {
-      initialDate = maxDateTime!;
-    }
-
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: minDateTime ?? DateTime(1980),
-      lastDate: maxDateTime ?? DateTime(2101),
-    );
-
-    if (pickedDate != null && context.mounted) {
-      // Get current time from controller or use now
-      DateTime currentDateTime = DateTime.tryParse(controller.text) ?? now;
-
-      // If the current date is invalid, use the picked date with current time
-      if (currentDateTime.year < 2000) {
-        currentDateTime = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          now.hour,
-          now.minute,
-        );
-      }
-
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(currentDateTime),
-      );
-
-      if (pickedTime != null && context.mounted) {
-        final DateTime pickedDateTime = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          pickedTime.hour,
-          pickedTime.minute,
-        );
-
-        if ((minDateTime != null && _isBeforeIgnoringSeconds(pickedDateTime, minDateTime!)) ||
-            (maxDateTime != null && _isAfterIgnoringSeconds(pickedDateTime, maxDateTime!))) {
-          return;
-        }
-
-        // Format the date for display using centralized service
-        final String formattedDateTime = DateFormatService.formatForInput(
-          pickedDateTime,
-          context,
+        initialDate = DateFormatService.parseFromInput(
+          controller.text, 
+          context, 
           type: DateFormatType.dateTime,
         );
-        controller.text = formattedDateTime;
-
-        // Call the callback with the selected date in local timezone
-        onConfirm(pickedDateTime);
       }
+    } catch (e) {
+      // Use null if parsing fails
+    }
+
+    // Ensure initialDate is within bounds
+    if (initialDate != null) {
+      if (minDateTime != null && _isBeforeIgnoringSeconds(initialDate, minDateTime!)) {
+        initialDate = minDateTime!;
+      }
+      if (maxDateTime != null && _isAfterIgnoringSeconds(initialDate, maxDateTime!)) {
+        initialDate = maxDateTime!;
+      }
+    }
+
+    final config = DatePickerConfig(
+      selectionMode: DateSelectionMode.single,
+      initialDate: initialDate,
+      minDate: minDateTime,
+      maxDate: maxDateTime,
+      formatType: DateFormatType.dateTime,
+      showTime: true,
+      enableManualInput: true,
+      titleText: 'Select Date & Time',
+      confirmButtonText: 'Confirm',
+      cancelButtonText: 'Cancel',
+    );
+
+    final result = await DatePickerDialog.show(
+      context: context,
+      config: config,
+    );
+
+    if (result != null && result.isConfirmed && result.selectedDate != null && context.mounted) {
+      final selectedDateTime = result.selectedDate!;
+      
+      // Validate the selected date is within bounds
+      if ((minDateTime != null && _isBeforeIgnoringSeconds(selectedDateTime, minDateTime!)) ||
+          (maxDateTime != null && _isAfterIgnoringSeconds(selectedDateTime, maxDateTime!))) {
+        return;
+      }
+
+      // Format the date for display using centralized service
+      final String formattedDateTime = DateFormatService.formatForInput(
+        selectedDateTime,
+        context,
+        type: DateFormatType.dateTime,
+      );
+      controller.text = formattedDateTime;
+
+      // Call the callback with the selected date in local timezone
+      onConfirm(selectedDateTime);
     }
   }
 
@@ -156,13 +137,14 @@ class DateTimePickerField extends StatelessWidget {
             hintText: hintText,
             hintStyle: effectiveHintStyle,
             suffixIcon: _buildSuffixIcons(context, effectiveIconSize, effectiveIconColor),
+            contentPadding: const EdgeInsets.only(left: 8.0),
           ) ??
           InputDecoration(
             hintText: hintText,
             hintStyle: effectiveHintStyle,
             suffixIcon: _buildSuffixIcons(context, effectiveIconSize, effectiveIconColor),
             isDense: true,
-            contentPadding: const EdgeInsets.all(0),
+            contentPadding: const EdgeInsets.only(left: 8.0),
           ),
       onTap: () async {
         await _selectDateTime(context);
@@ -171,50 +153,21 @@ class DateTimePickerField extends StatelessWidget {
   }
 
   Widget _buildSuffixIcons(BuildContext context, double iconSize, Color? iconColor) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        // Clear button
-        if (showClearButton && controller.text.isNotEmpty)
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () {
-                controller.clear();
-                onConfirm(null);
-              },
-              child: Tooltip(
-                message: clearButtonTooltip,
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Icon(
-                    Icons.clear,
-                    size: iconSize,
-                    color: iconColor,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        // Edit button
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () async {
-              await _selectDateTime(context);
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Icon(
-                Icons.edit,
-                size: iconSize,
-                color: iconColor,
-              ),
-            ),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () async {
+          await _selectDateTime(context);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Icon(
+            Icons.edit,
+            size: iconSize,
+            color: iconColor,
           ),
         ),
-      ],
+      ),
     );
   }
 }
