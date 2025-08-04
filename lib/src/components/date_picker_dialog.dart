@@ -22,6 +22,7 @@ class DatePickerConfig {
   final ThemeData? theme;
   final Locale? locale;
   final Map<String, String>? translations;
+  final bool allowNullConfirm;
 
   const DatePickerConfig({
     required this.selectionMode,
@@ -42,6 +43,7 @@ class DatePickerConfig {
     this.theme,
     this.locale,
     this.translations,
+    this.allowNullConfirm = false,
   });
 }
 
@@ -95,6 +97,13 @@ class DatePickerResult {
     return DatePickerResult(
       startDate: startDate,
       endDate: endDate,
+      isConfirmed: true,
+    );
+  }
+
+  factory DatePickerResult.cleared() {
+    return const DatePickerResult(
+      selectedDate: null,
       isConfirmed: true,
     );
   }
@@ -266,7 +275,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
 
   bool _isValidSelection() {
     if (widget.config.selectionMode == DateSelectionMode.single) {
-      return _selectedDate != null;
+      return _selectedDate != null || widget.config.allowNullConfirm;
     }
     return _selectedStartDate != null && _selectedEndDate != null;
   }
@@ -283,7 +292,12 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
 
     DatePickerResult result;
     if (widget.config.selectionMode == DateSelectionMode.single) {
-      result = DatePickerResult.single(_selectedDate!);
+      if (_selectedDate != null) {
+        result = DatePickerResult.single(_selectedDate!);
+      } else {
+        // Date was cleared
+        result = DatePickerResult.cleared();
+      }
     } else {
       result = DatePickerResult.range(_selectedStartDate!, _selectedEndDate!);
     }

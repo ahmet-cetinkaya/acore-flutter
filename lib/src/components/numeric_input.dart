@@ -64,8 +64,8 @@ class _NumericInputState extends State<NumericInput> {
     if (value == null) return;
 
     int nextValue = value - widget.decrementValue;
-    final minValue = widget.minValue;
-    if (minValue != null && nextValue < minValue) {
+    final minValue = widget.minValue ?? 0; // Default minimum is 0
+    if (nextValue < minValue) {
       nextValue = minValue;
     }
 
@@ -80,47 +80,59 @@ class _NumericInputState extends State<NumericInput> {
   @override
   Widget build(BuildContext context) {
     final currentValue = int.tryParse(_controller.text) ?? 0;
-    final minValue = widget.minValue;
+    final minValue = widget.minValue ?? 0; // Default minimum is 0
     final maxValue = widget.maxValue;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(
-          icon: Icon(
-            Icons.remove,
-            size: widget.iconSize,
-            color: widget.iconColor,
+        Container(
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
           ),
-          onPressed: minValue == null || currentValue > minValue ? _decrement : null,
-          tooltip: widget.decrementTooltip ?? 'Decrease',
+          child: IconButton(
+            icon: Icon(
+              Icons.remove,
+              size: widget.iconSize,
+              color: widget.iconColor,
+            ),
+            onPressed: currentValue > minValue ? _decrement : null,
+            tooltip: widget.decrementTooltip ?? 'Decrease',
+            style: IconButton.styleFrom(
+              shape: const CircleBorder(),
+            ),
+          ),
         ),
         SizedBox(
-          width: _controller.text.length * 10.0, // Adjust width based on text length
+          width: (_controller.text.length * 12.0).clamp(50.0, 100.0), // Minimum 50, maximum 100 width
           child: TextField(
             controller: _controller,
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.all(0),
+              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               isDense: true,
             ),
             style: Theme.of(context).textTheme.bodyMedium,
             onChanged: (value) {
               int? newValue = int.tryParse(value);
-              if (newValue == null) return;
+              if (newValue == null || newValue < 0) return; // Prevent negative values
 
-              final minValue = widget.minValue;
+              final minValue = widget.minValue ?? 0; // Default minimum is 0
               final maxValue = widget.maxValue;
 
-              if (minValue != null && newValue < minValue) {
-                _controller.value = TextEditingValue(text: minValue.toString());
+              if (newValue < minValue) {
+                setState(() {
+                  _controller.value = TextEditingValue(text: minValue.toString());
+                });
                 newValue = minValue;
               }
               if (maxValue != null && newValue > maxValue) {
-                _controller.value = TextEditingValue(text: maxValue.toString());
+                setState(() {
+                  _controller.value = TextEditingValue(text: maxValue.toString());
+                });
                 newValue = maxValue;
               }
 
@@ -140,14 +152,22 @@ class _NumericInputState extends State<NumericInput> {
               ),
             ),
           ),
-        IconButton(
-          icon: Icon(
-            Icons.add,
-            size: widget.iconSize,
-            color: widget.iconColor,
+        Container(
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
           ),
-          onPressed: maxValue == null || currentValue < maxValue ? _increment : null,
-          tooltip: widget.incrementTooltip ?? 'Increase',
+          child: IconButton(
+            icon: Icon(
+              Icons.add,
+              size: widget.iconSize,
+              color: widget.iconColor,
+            ),
+            onPressed: maxValue == null || currentValue < maxValue ? _increment : null,
+            tooltip: widget.incrementTooltip ?? 'Increase',
+            style: IconButton.styleFrom(
+              shape: const CircleBorder(),
+            ),
+          ),
         ),
       ],
     );
