@@ -113,7 +113,7 @@ class DateFormatService {
     }
   }
 
-  /// Formats DateTime for input fields (locale-aware but stable)
+  /// Formats DateTime for input fields (human-readable, locale-aware format)
   static String formatForInput(
     DateTime? dateTime,
     BuildContext context, {
@@ -126,10 +126,12 @@ class DateFormatService {
 
     switch (type) {
       case DateFormatType.dateTime:
-        return DateTimeHelper.formatDateTime(localDateTime, locale: locale);
+        // Use medium format for better readability in input fields
+        return DateTimeHelper.formatDateTimeMedium(localDateTime, locale: locale);
 
       case DateFormatType.date:
-        return DateTimeHelper.formatDate(localDateTime, locale: locale);
+        // Use medium format for better readability in input fields  
+        return DateTimeHelper.formatDateMedium(localDateTime, locale: locale);
 
       case DateFormatType.time:
         return DateTimeHelper.formatTime(localDateTime, locale: locale);
