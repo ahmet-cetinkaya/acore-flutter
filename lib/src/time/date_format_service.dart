@@ -130,7 +130,7 @@ class DateFormatService {
         return DateTimeHelper.formatDateTimeMedium(localDateTime, locale: locale);
 
       case DateFormatType.date:
-        // Use medium format for better readability in input fields  
+        // Use medium format for better readability in input fields
         return DateTimeHelper.formatDateMedium(localDateTime, locale: locale);
 
       case DateFormatType.time:
