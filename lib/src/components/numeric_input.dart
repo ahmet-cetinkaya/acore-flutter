@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class NumericInput extends StatefulWidget {
   final int initialValue;
@@ -146,6 +147,9 @@ class _NumericInputState extends State<NumericInput> {
             controller: _controller,
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')), // Only allow digits
+            ],
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
