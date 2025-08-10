@@ -77,6 +77,42 @@ class _NumericInputState extends State<NumericInput> {
     widget.onValueChanged(nextValue);
   }
 
+  void _onValueChanged(String value) {
+    int? newValue = int.tryParse(value);
+    if (newValue == null) return;
+
+    final minValue = widget.minValue ?? 0; // Default minimum is 0
+    final maxValue = widget.maxValue;
+
+    // Enforce minimum value constraint
+    if (newValue < minValue) {
+      setState(() {
+        _controller.value = TextEditingValue(
+          text: minValue.toString(),
+          selection: TextSelection.fromPosition(
+            TextPosition(offset: minValue.toString().length),
+          ),
+        );
+      });
+      newValue = minValue;
+    }
+    
+    // Enforce maximum value constraint
+    if (maxValue != null && newValue > maxValue) {
+      setState(() {
+        _controller.value = TextEditingValue(
+          text: maxValue.toString(),
+          selection: TextSelection.fromPosition(
+            TextPosition(offset: maxValue.toString().length),
+          ),
+        );
+      });
+      newValue = maxValue;
+    }
+
+    widget.onValueChanged(newValue);
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentValue = int.tryParse(_controller.text) ?? 0;
@@ -116,28 +152,7 @@ class _NumericInputState extends State<NumericInput> {
               isDense: true,
             ),
             style: Theme.of(context).textTheme.bodyMedium,
-            onChanged: (value) {
-              int? newValue = int.tryParse(value);
-              if (newValue == null || newValue < 0) return; // Prevent negative values
-
-              final minValue = widget.minValue ?? 0; // Default minimum is 0
-              final maxValue = widget.maxValue;
-
-              if (newValue < minValue) {
-                setState(() {
-                  _controller.value = TextEditingValue(text: minValue.toString());
-                });
-                newValue = minValue;
-              }
-              if (maxValue != null && newValue > maxValue) {
-                setState(() {
-                  _controller.value = TextEditingValue(text: maxValue.toString());
-                });
-                newValue = maxValue;
-              }
-
-              widget.onValueChanged(newValue);
-            },
+            onChanged: _onValueChanged,
           ),
         ),
         if (widget.valueSuffix != null)
