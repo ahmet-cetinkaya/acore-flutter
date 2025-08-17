@@ -97,7 +97,7 @@ class _NumericInputState extends State<NumericInput> {
       });
       newValue = minValue;
     }
-    
+
     // Enforce maximum value constraint
     if (maxValue != null && newValue > maxValue) {
       setState(() {
