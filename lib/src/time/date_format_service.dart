@@ -169,12 +169,10 @@ class DateFormatService {
       }
     }
 
-    // Try Turkish month name replacement if locale is Turkish
-    if (locale?.toString().startsWith('tr') == true) {
-      final turkishParsed = _parseTurkishDate(trimmedStr, assumeLocal: assumeLocal);
-      if (turkishParsed != null) {
-        return turkishParsed;
-      }
+    // Try alternative format parsing for all locales (not language-specific)
+    final alternativeParsed = _parseAlternativeFormats(trimmedStr, assumeLocal: assumeLocal);
+    if (alternativeParsed != null) {
+      return alternativeParsed;
     }
 
     // Try DateTime.tryParse as fallback (handles ISO formats)
@@ -381,21 +379,40 @@ class DateFormatService {
     ];
   }
 
-  /// Alternative parsing for complex date formats
+  /// Alternative parsing for complex date formats (language-agnostic)
   static DateTime? _parseAlternativeFormats(String dateStr, {bool assumeLocal = true}) {
     try {
-      // Handle medium format patterns that might not be in the main list
+      final trimmedStr = dateStr.trim();
+      
+      // Handle medium format patterns with Unicode-safe month names
+      // Use \S+ instead of \w+ to handle Unicode characters properly (like Turkish "Ağu")
+      
+      // Format: "28 Ağu 2025" or "28 Ağu 2025 14:30" (day month year)
+      final dayMonthYearPattern = RegExp(r'^(\d{1,2})\s+(\S+)\s+(\d{4})(?:\s+(\d{1,2}):(\d{2}))?$');
+      final dayMonthMatch = dayMonthYearPattern.firstMatch(trimmedStr);
+      if (dayMonthMatch != null) {
+        final day = int.parse(dayMonthMatch.group(1)!);
+        final monthStr = dayMonthMatch.group(2)!;
+        final year = int.parse(dayMonthMatch.group(3)!);
+        final hour = dayMonthMatch.group(4) != null ? int.parse(dayMonthMatch.group(4)!) : 0;
+        final minute = dayMonthMatch.group(5) != null ? int.parse(dayMonthMatch.group(5)!) : 0;
 
-      // Try to parse common medium formats with regex patterns
-      // Format: "Jun 5, 2025 14:30" or "Jun 5, 2025"
-      final mediumFormat1 = RegExp(r'^(\w+)\s+(\d{1,2}),\s+(\d{4})(?:\s+(\d{1,2}):(\d{2}))?$');
-      final match1 = mediumFormat1.firstMatch(dateStr);
-      if (match1 != null) {
-        final monthStr = match1.group(1)!;
-        final day = int.parse(match1.group(2)!);
-        final year = int.parse(match1.group(3)!);
-        final hour = match1.group(4) != null ? int.parse(match1.group(4)!) : 0;
-        final minute = match1.group(5) != null ? int.parse(match1.group(5)!) : 0;
+        final month = _parseMonthName(monthStr);
+        if (month != null) {
+          final result = DateTime(year, month, day, hour, minute);
+          return assumeLocal ? result : DateTimeHelper.toUtcDateTime(result);
+        }
+      }
+
+      // Format: "Jun 5, 2025 14:30" or "Jun 5, 2025" (month day, year - US format)
+      final monthDayYearPattern = RegExp(r'^(\S+)\s+(\d{1,2}),\s+(\d{4})(?:\s+(\d{1,2}):(\d{2}))?$');
+      final monthDayMatch = monthDayYearPattern.firstMatch(trimmedStr);
+      if (monthDayMatch != null) {
+        final monthStr = monthDayMatch.group(1)!;
+        final day = int.parse(monthDayMatch.group(2)!);
+        final year = int.parse(monthDayMatch.group(3)!);
+        final hour = monthDayMatch.group(4) != null ? int.parse(monthDayMatch.group(4)!) : 0;
+        final minute = monthDayMatch.group(5) != null ? int.parse(monthDayMatch.group(5)!) : 0;
 
         final month = _parseMonthName(monthStr);
         if (month != null) {
@@ -404,22 +421,6 @@ class DateFormatService {
         }
       }
 
-      // Format: "5 Jun 2025 14:30" or "5 Jun 2025"
-      final mediumFormat2 = RegExp(r'^(\d{1,2})\s+(\w+)\s+(\d{4})(?:\s+(\d{1,2}):(\d{2}))?$');
-      final match2 = mediumFormat2.firstMatch(dateStr);
-      if (match2 != null) {
-        final day = int.parse(match2.group(1)!);
-        final monthStr = match2.group(2)!;
-        final year = int.parse(match2.group(3)!);
-        final hour = match2.group(4) != null ? int.parse(match2.group(4)!) : 0;
-        final minute = match2.group(5) != null ? int.parse(match2.group(5)!) : 0;
-
-        final month = _parseMonthName(monthStr);
-        if (month != null) {
-          final result = DateTime(year, month, day, hour, minute);
-          return assumeLocal ? result : DateTimeHelper.toUtcDateTime(result);
-        }
-      }
 
       // Handle formats like "6/3/2025 03:11", "6/3/2025", etc.
 
@@ -480,36 +481,6 @@ class DateFormatService {
     return null;
   }
 
-  /// Parse Turkish date formats specifically
-  static DateTime? _parseTurkishDate(String dateStr, {bool assumeLocal = true}) {
-    if (dateStr.trim().isEmpty) return null;
-    
-    final trimmedStr = dateStr.trim();
-    
-    // Turkish date pattern: "28 Ağu 2025" or "28 Ağu 2025 14:30"
-    final turkishPattern = RegExp(r'^(\d{1,2})\s+(\w+)\s+(\d{4})(?:\s+(\d{1,2}):(\d{2}))?$');
-    final match = turkishPattern.firstMatch(trimmedStr);
-    
-    if (match != null) {
-      final day = int.parse(match.group(1)!);
-      final monthStr = match.group(2)!;
-      final year = int.parse(match.group(3)!);
-      final hour = match.group(4) != null ? int.parse(match.group(4)!) : 0;
-      final minute = match.group(5) != null ? int.parse(match.group(5)!) : 0;
-      
-      final month = _parseMonthName(monthStr);
-      if (month != null) {
-        try {
-          final result = DateTime(year, month, day, hour, minute);
-          return assumeLocal ? result : DateTimeHelper.toUtcDateTime(result);
-        } catch (e) {
-          // DateTime creation failed
-        }
-      }
-    }
-    
-    return null;
-  }
 
   /// Helper method to parse month names to month numbers
   static int? _parseMonthName(String monthStr) {
