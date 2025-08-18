@@ -160,10 +160,20 @@ class DateFormatService {
 
     for (final format in formats) {
       try {
-        final parsed = DateFormat(format).parse(trimmedStr);
+        // Create DateFormat with locale for proper parsing of locale-specific month names
+        final dateFormat = DateFormat(format, locale?.toString());
+        final parsed = dateFormat.parse(trimmedStr);
         return assumeLocal ? parsed : DateTimeHelper.toUtcDateTime(parsed);
       } catch (e) {
         // Continue to next format
+      }
+    }
+
+    // Try Turkish month name replacement if locale is Turkish
+    if (locale?.toString().startsWith('tr') == true) {
+      final turkishParsed = _parseTurkishDate(trimmedStr, assumeLocal: assumeLocal);
+      if (turkishParsed != null) {
+        return turkishParsed;
       }
     }
 
@@ -219,7 +229,7 @@ class DateFormatService {
 
     for (final format in timeFormats) {
       try {
-        final parsed = DateFormat(format).parse(trimmedStr);
+        final parsed = DateFormat(format, locale?.toString()).parse(trimmedStr);
         // Create DateTime with today's date and parsed time
         return DateTime(now.year, now.month, now.day, parsed.hour, parsed.minute, parsed.second);
       } catch (e) {
@@ -467,6 +477,37 @@ class DateFormatService {
       // Parsing failed
     }
 
+    return null;
+  }
+
+  /// Parse Turkish date formats specifically
+  static DateTime? _parseTurkishDate(String dateStr, {bool assumeLocal = true}) {
+    if (dateStr.trim().isEmpty) return null;
+    
+    final trimmedStr = dateStr.trim();
+    
+    // Turkish date pattern: "28 Ağu 2025" or "28 Ağu 2025 14:30"
+    final turkishPattern = RegExp(r'^(\d{1,2})\s+(\w+)\s+(\d{4})(?:\s+(\d{1,2}):(\d{2}))?$');
+    final match = turkishPattern.firstMatch(trimmedStr);
+    
+    if (match != null) {
+      final day = int.parse(match.group(1)!);
+      final monthStr = match.group(2)!;
+      final year = int.parse(match.group(3)!);
+      final hour = match.group(4) != null ? int.parse(match.group(4)!) : 0;
+      final minute = match.group(5) != null ? int.parse(match.group(5)!) : 0;
+      
+      final month = _parseMonthName(monthStr);
+      if (month != null) {
+        try {
+          final result = DateTime(year, month, day, hour, minute);
+          return assumeLocal ? result : DateTimeHelper.toUtcDateTime(result);
+        } catch (e) {
+          // DateTime creation failed
+        }
+      }
+    }
+    
     return null;
   }
 

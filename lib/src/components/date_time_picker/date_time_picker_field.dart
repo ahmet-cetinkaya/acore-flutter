@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide DatePickerDialog;
-import '../time/date_format_service.dart';
+import '../../time/date_format_service.dart';
 import 'date_picker_dialog.dart';
+import 'date_time_picker_translation_keys.dart';
 
 class DateTimePickerField extends StatelessWidget {
   final TextEditingController controller;
@@ -8,11 +9,13 @@ class DateTimePickerField extends StatelessWidget {
   final void Function(DateTime?) onConfirm;
   final DateTime? minDateTime;
   final DateTime? maxDateTime;
+  final DateTime? initialValue;
   final TextStyle? textStyle;
   final TextStyle? hintStyle;
   final InputDecoration? decoration;
   final double? iconSize;
   final Color? iconColor;
+  final String Function(DateTimePickerTranslationKey)? translateKey;
 
   const DateTimePickerField({
     super.key,
@@ -21,11 +24,13 @@ class DateTimePickerField extends StatelessWidget {
     required this.onConfirm,
     this.minDateTime,
     this.maxDateTime,
+    this.initialValue,
     this.textStyle,
     this.hintStyle,
     this.decoration,
     this.iconSize,
     this.iconColor,
+    this.translateKey,
   });
 
   // Helper method to normalize DateTime to minute precision (ignoring seconds and milliseconds)
@@ -53,19 +58,22 @@ class DateTimePickerField extends StatelessWidget {
   }
 
   Future<void> _selectDateTime(BuildContext context) async {
-    // Parse the current date from the controller or use now
-    DateTime? initialDate;
+    // Use initialValue first, then try to parse from controller, otherwise use null
+    DateTime? initialDate = initialValue;
 
-    try {
-      if (controller.text.isNotEmpty) {
-        initialDate = DateFormatService.parseFromInput(
-          controller.text,
-          context,
-          type: DateFormatType.dateTime,
-        );
+    // If no initialValue provided, try to parse from controller text
+    if (initialDate == null) {
+      try {
+        if (controller.text.isNotEmpty) {
+          initialDate = DateFormatService.parseFromInput(
+            controller.text,
+            context,
+            type: DateFormatType.dateTime,
+          );
+        }
+      } catch (e) {
+        // Use null if parsing fails
       }
-    } catch (e) {
-      // Use null if parsing fails
     }
 
     // Ensure initialDate is within bounds
@@ -86,9 +94,16 @@ class DateTimePickerField extends StatelessWidget {
       formatType: DateFormatType.dateTime,
       showTime: true,
       enableManualInput: true,
-      titleText: 'Select Date & Time',
-      confirmButtonText: 'Confirm',
-      cancelButtonText: 'Cancel',
+      titleText: translateKey?.call(DateTimePickerTranslationKey.title) ?? 'Select Date & Time',
+      confirmButtonText: translateKey?.call(DateTimePickerTranslationKey.confirm) ?? 'Confirm',
+      cancelButtonText: translateKey?.call(DateTimePickerTranslationKey.cancel) ?? 'Cancel',
+      translations: {
+        DateTimePickerTranslationKey.setTime:
+            translateKey?.call(DateTimePickerTranslationKey.setTime) ?? 'Set Time',
+        DateTimePickerTranslationKey.noDateSelected:
+            translateKey?.call(DateTimePickerTranslationKey.noDateSelected) ?? 'No date selected',
+        DateTimePickerTranslationKey.clear: translateKey?.call(DateTimePickerTranslationKey.clear) ?? 'Clear',
+      },
     );
 
     final result = await DatePickerDialog.show(

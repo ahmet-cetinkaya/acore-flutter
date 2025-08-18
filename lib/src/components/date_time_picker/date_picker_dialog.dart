@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
-import '../time/date_format_service.dart';
+import '../../time/date_format_service.dart';
+import 'date_time_picker_translation_keys.dart';
 
 /// Configuration for the unified date picker dialog
 class DatePickerConfig {
@@ -21,7 +22,7 @@ class DatePickerConfig {
   final String? dateFormatHint;
   final ThemeData? theme;
   final Locale? locale;
-  final Map<String, String>? translations;
+  final Map<DateTimePickerTranslationKey, String>? translations;
   final bool allowNullConfirm;
 
   const DatePickerConfig({
@@ -165,7 +166,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     );
   }
 
-  String _getLocalizedText(String key, String fallback) {
+  String _getLocalizedText(DateTimePickerTranslationKey key, String fallback) {
     return widget.config.translations?[key] ?? fallback;
   }
 
@@ -326,7 +327,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       child: AlertDialog(
         title: Text(
           widget.config.titleText ??
-              _getLocalizedText('date_picker_title',
+              _getLocalizedText(DateTimePickerTranslationKey.title,
                   widget.config.selectionMode == DateSelectionMode.single ? 'Select Date & Time' : 'Select Date Range'),
         ),
         content: SizedBox(
@@ -350,19 +351,19 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           _buildActionButton(
             context: context,
             onPressed: _onCancel,
-            text: widget.config.cancelButtonText ?? _getLocalizedText('cancel', 'Cancel'),
-            icon: Icons.cancel_outlined,
+            text: widget.config.cancelButtonText ?? _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
+            icon: Icons.close,
           ),
           _buildActionButton(
             context: context,
             onPressed: _hasSelection() ? _onClear : null,
-            text: _getLocalizedText('clear', 'Clear'),
-            icon: Icons.backspace_outlined,
+            text: _getLocalizedText(DateTimePickerTranslationKey.clear, 'Clear'),
+            icon: Icons.delete_outline,
           ),
           _buildActionButton(
             context: context,
             onPressed: _isValidSelection() ? _onConfirm : null,
-            text: widget.config.confirmButtonText ?? _getLocalizedText('confirm', 'Confirm'),
+            text: widget.config.confirmButtonText ?? _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
             icon: Icons.check,
             isPrimary: true,
             forceTextButton: true,
@@ -376,7 +377,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     if (widget.config.selectionMode == DateSelectionMode.single) {
       final displayText = _selectedDate != null
           ? _formatDateForDisplay(_selectedDate)
-          : _getLocalizedText('no_date_selected', 'No date selected');
+          : _getLocalizedText(DateTimePickerTranslationKey.noDateSelected, 'No date selected');
 
       return Padding(
         padding: const EdgeInsets.only(bottom: 12.0),
@@ -442,7 +443,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Set Time',
+                            _getLocalizedText(DateTimePickerTranslationKey.setTime, 'Set Time'),
                             style: TextStyle(
                               fontSize: 12,
                               color: Theme.of(context).primaryColor,
@@ -465,9 +466,9 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         displayText = '${_formatDateForDisplay(_selectedStartDate)} - ${_formatDateForDisplay(_selectedEndDate)}';
       } else if (_selectedStartDate != null) {
         displayText =
-            '${_formatDateForDisplay(_selectedStartDate)} - ${_getLocalizedText('select_end_date', 'Select end date')}';
+            '${_formatDateForDisplay(_selectedStartDate)} - ${_getLocalizedText(DateTimePickerTranslationKey.selectEndDate, 'Select end date')}';
       } else {
-        displayText = _getLocalizedText('no_dates_selected', 'No dates selected');
+        displayText = _getLocalizedText(DateTimePickerTranslationKey.noDatesSelected, 'No dates selected');
       }
 
       return Padding(
@@ -588,6 +589,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           selectedDayHighlightColor: Theme.of(context).primaryColor,
           firstDate: widget.config.minDate ?? DateTime(1900),
           lastDate: widget.config.maxDate ?? DateTime(2100),
+          currentDate: _selectedDate ?? DateTime.now(), // Set current date to show correct month
           centerAlignModePicker: true,
           selectedYearTextStyle: const TextStyle(fontWeight: FontWeight.bold),
           rangeBidirectional: true,
