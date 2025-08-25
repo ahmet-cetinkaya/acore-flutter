@@ -602,7 +602,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                        color: _refreshEnabled ? Theme.of(context).primaryColor.withOpacity(0.1) : null,
+                        color: _refreshEnabled ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : null,
                         borderRadius: BorderRadius.circular(8.0),
                         border: Border.all(
                           color: _refreshEnabled ? Theme.of(context).primaryColor : Theme.of(context).dividerColor,
