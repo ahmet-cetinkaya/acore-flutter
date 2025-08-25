@@ -383,10 +383,10 @@ class DateFormatService {
   static DateTime? _parseAlternativeFormats(String dateStr, {bool assumeLocal = true}) {
     try {
       final trimmedStr = dateStr.trim();
-      
+
       // Handle medium format patterns with Unicode-safe month names
       // Use \S+ instead of \w+ to handle Unicode characters properly (like Turkish "Ağu")
-      
+
       // Format: "28 Ağu 2025" or "28 Ağu 2025 14:30" (day month year)
       final dayMonthYearPattern = RegExp(r'^(\d{1,2})\s+(\S+)\s+(\d{4})(?:\s+(\d{1,2}):(\d{2}))?$');
       final dayMonthMatch = dayMonthYearPattern.firstMatch(trimmedStr);
@@ -420,7 +420,6 @@ class DateFormatService {
           return assumeLocal ? result : DateTimeHelper.toUtcDateTime(result);
         }
       }
-
 
       // Handle formats like "6/3/2025 03:11", "6/3/2025", etc.
 
@@ -480,7 +479,6 @@ class DateFormatService {
 
     return null;
   }
-
 
   /// Helper method to parse month names to month numbers
   static int? _parseMonthName(String monthStr) {

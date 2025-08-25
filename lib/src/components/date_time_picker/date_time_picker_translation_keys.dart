@@ -17,10 +17,13 @@ enum DateTimePickerTranslationKey {
 
   /// Clear button text
   clear,
-  
+
   /// Select end date text for range picker
   selectEndDate,
-  
+
   /// No dates selected text for range picker
   noDatesSelected,
+
+  /// Refresh toggle button text
+  refresh,
 }

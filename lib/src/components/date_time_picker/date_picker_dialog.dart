@@ -24,6 +24,9 @@ class DatePickerConfig {
   final Locale? locale;
   final Map<DateTimePickerTranslationKey, String>? translations;
   final bool allowNullConfirm;
+  final bool showRefreshToggle;
+  final bool initialRefreshEnabled;
+  final void Function(bool)? onRefreshToggleChanged;
 
   const DatePickerConfig({
     required this.selectionMode,
@@ -45,6 +48,9 @@ class DatePickerConfig {
     this.locale,
     this.translations,
     this.allowNullConfirm = false,
+    this.showRefreshToggle = false,
+    this.initialRefreshEnabled = false,
+    this.onRefreshToggleChanged,
   });
 }
 
@@ -75,30 +81,38 @@ class DatePickerResult {
   final DateTime? startDate;
   final DateTime? endDate;
   final bool isConfirmed;
+  final bool? isRefreshEnabled;
+  final String? quickSelectionKey;
 
   const DatePickerResult({
     this.selectedDate,
     this.startDate,
     this.endDate,
     this.isConfirmed = false,
+    this.isRefreshEnabled,
+    this.quickSelectionKey,
   });
 
   factory DatePickerResult.cancelled() {
     return const DatePickerResult(isConfirmed: false);
   }
 
-  factory DatePickerResult.single(DateTime date) {
+  factory DatePickerResult.single(DateTime date, {bool? isRefreshEnabled, String? quickSelectionKey}) {
     return DatePickerResult(
       selectedDate: date,
       isConfirmed: true,
+      isRefreshEnabled: isRefreshEnabled,
+      quickSelectionKey: quickSelectionKey,
     );
   }
 
-  factory DatePickerResult.range(DateTime startDate, DateTime endDate) {
+  factory DatePickerResult.range(DateTime startDate, DateTime endDate, {bool? isRefreshEnabled, String? quickSelectionKey}) {
     return DatePickerResult(
       startDate: startDate,
       endDate: endDate,
       isConfirmed: true,
+      isRefreshEnabled: isRefreshEnabled,
+      quickSelectionKey: quickSelectionKey,
     );
   }
 
@@ -138,11 +152,15 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   late DateTime? _selectedDate;
   late DateTime? _selectedStartDate;
   late DateTime? _selectedEndDate;
+  late bool _refreshEnabled;
+  bool _userHasSelectedQuickRange = false;
+  String? _selectedQuickRangeKey;
 
   @override
   void initState() {
     super.initState();
     _initializeValues();
+    _initializeQuickSelectionState();
   }
 
   void _initializeValues() {
@@ -154,6 +172,20 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       _selectedDate = null;
       _selectedStartDate = widget.config.initialStartDate;
       _selectedEndDate = widget.config.initialEndDate;
+    }
+    _refreshEnabled = widget.config.initialRefreshEnabled;
+  }
+
+  void _initializeQuickSelectionState() {
+    // Check if initial dates match any quick range - if so, consider it as user selected
+    if (widget.config.quickRanges != null && _selectedStartDate != null && _selectedEndDate != null) {
+      for (final range in widget.config.quickRanges!) {
+        if (_isQuickRangeSelected(range)) {
+          _userHasSelectedQuickRange = true;
+          _selectedQuickRangeKey = range.key;
+          break;
+        }
+      }
     }
   }
 
@@ -179,6 +211,8 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     setState(() {
       _selectedStartDate = startDate;
       _selectedEndDate = endDate;
+      _userHasSelectedQuickRange = true; // User has now selected a quick range
+      _selectedQuickRangeKey = range.key; // Track which quick range was selected
     });
   }
 
@@ -189,6 +223,12 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     final calculatedEnd = range.endDateCalculator();
 
     return _isSameDay(_selectedStartDate!, calculatedStart) && _isSameDay(_selectedEndDate!, calculatedEnd);
+  }
+
+  bool _hasActiveQuickSelection() {
+    // The refresh toggle should only show if the user has explicitly selected a quick range.
+    // This flag is reset to false on any manual date interaction, so checking it is sufficient.
+    return _userHasSelectedQuickRange;
   }
 
   bool _isSameDay(DateTime date1, DateTime date2) {
@@ -289,13 +329,13 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     DatePickerResult result;
     if (widget.config.selectionMode == DateSelectionMode.single) {
       if (_selectedDate != null) {
-        result = DatePickerResult.single(_selectedDate!);
+        result = DatePickerResult.single(_selectedDate!, isRefreshEnabled: _refreshEnabled, quickSelectionKey: _selectedQuickRangeKey);
       } else {
         // Date was cleared
         result = DatePickerResult.cleared();
       }
     } else {
-      result = DatePickerResult.range(_selectedStartDate!, _selectedEndDate!);
+      result = DatePickerResult.range(_selectedStartDate!, _selectedEndDate!, isRefreshEnabled: _refreshEnabled, quickSelectionKey: _selectedQuickRangeKey);
     }
 
     Navigator.of(context).pop(result);
@@ -314,6 +354,13 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         _selectedEndDate = null;
       }
     });
+  }
+
+  void _toggleRefresh() {
+    setState(() {
+      _refreshEnabled = !_refreshEnabled;
+    });
+    widget.config.onRefreshToggleChanged?.call(_refreshEnabled);
   }
 
   @override
@@ -515,23 +562,83 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 8.0,
-        runSpacing: 8.0,
-        children: widget.config.quickRanges!.map((range) {
-          final isSelected = _isQuickRangeSelected(range);
-          return FilterChip(
-            label: Text(
-              range.label,
-              style: const TextStyle(fontSize: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Quick ranges section (85% width)
+          Expanded(
+            flex: 85,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8.0,
+              runSpacing: 8.0,
+              children: widget.config.quickRanges!.map((range) {
+                final isSelected = _isQuickRangeSelected(range);
+                return FilterChip(
+                  label: Text(
+                    range.label,
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                  selected: isSelected,
+                  onSelected: (_) => _selectQuickRange(range),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                );
+              }).toList(),
             ),
-            selected: isSelected,
-            onSelected: (_) => _selectQuickRange(range),
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            visualDensity: VisualDensity.compact,
-          );
-        }).toList(),
+          ),
+          // Refresh toggle section (15% width) - only show when any quick selection is active
+          if (widget.config.showRefreshToggle && _hasActiveQuickSelection()) ...[
+            const SizedBox(width: 8.0),
+            Expanded(
+              flex: 15,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: _toggleRefresh,
+                    child: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: _refreshEnabled ? Theme.of(context).primaryColor.withOpacity(0.1) : null,
+                        borderRadius: BorderRadius.circular(8.0),
+                        border: Border.all(
+                          color: _refreshEnabled ? Theme.of(context).primaryColor : Theme.of(context).dividerColor,
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _refreshEnabled ? Icons.autorenew : Icons.refresh,
+                            size: 16,
+                            color: _refreshEnabled ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            _getLocalizedText(DateTimePickerTranslationKey.refresh, 'Refresh'),
+                            style: TextStyle(
+                              fontSize: 8,
+                              color: _refreshEnabled
+                                  ? Theme.of(context).primaryColor
+                                  : Theme.of(context).textTheme.bodySmall?.color,
+                              fontWeight: _refreshEnabled ? FontWeight.w600 : FontWeight.normal,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -634,6 +741,8 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
 
               setState(() {
                 _selectedDate = selectedDate;
+                _userHasSelectedQuickRange = false; // Manual selection, not quick range
+                _selectedQuickRangeKey = null; // Clear quick range key for manual selection
               });
 
               // If time selection is enabled, automatically show time picker
@@ -657,11 +766,15 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
               setState(() {
                 _selectedStartDate = startDate;
                 _selectedEndDate = endDate;
+                _userHasSelectedQuickRange = false; // Manual range selection, not quick range
+                _selectedQuickRangeKey = null; // Clear quick range key for manual selection
               });
             } else if (dates.length == 1) {
               setState(() {
                 _selectedStartDate = dates[0];
                 _selectedEndDate = null;
+                _userHasSelectedQuickRange = false; // Manual selection, not quick range
+                _selectedQuickRangeKey = null; // Clear quick range key for manual selection
               });
             }
           }
