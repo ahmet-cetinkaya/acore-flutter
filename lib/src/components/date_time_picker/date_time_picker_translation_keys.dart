@@ -23,4 +23,7 @@ enum DateTimePickerTranslationKey {
 
   /// No dates selected text for range picker
   noDatesSelected,
+
+  /// Refresh toggle button text
+  refresh,
 }

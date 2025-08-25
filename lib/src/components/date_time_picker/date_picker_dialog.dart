@@ -179,9 +179,12 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   void _initializeQuickSelectionState() {
     // Check if initial dates match any quick range - if so, consider it as user selected
     if (widget.config.quickRanges != null && _selectedStartDate != null && _selectedEndDate != null) {
-      final hasMatchingQuickRange = widget.config.quickRanges!.any((range) => _isQuickRangeSelected(range));
-      if (hasMatchingQuickRange) {
-        _userHasSelectedQuickRange = true;
+      for (final range in widget.config.quickRanges!) {
+        if (_isQuickRangeSelected(range)) {
+          _userHasSelectedQuickRange = true;
+          _selectedQuickRangeKey = range.key;
+          break;
+        }
       }
     }
   }
@@ -223,12 +226,9 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   }
 
   bool _hasActiveQuickSelection() {
-    if (widget.config.quickRanges == null || widget.config.quickRanges!.isEmpty) return false;
-    if (_selectedStartDate == null || _selectedEndDate == null) return false;
-
-    // Check if current selection matches any quick range AND was actually selected by user
-    // Only show refresh button if user has clicked on a FilterChip
-    return widget.config.quickRanges!.any((range) => _isQuickRangeSelected(range)) && _userHasSelectedQuickRange;
+    // The refresh toggle should only show if the user has explicitly selected a quick range.
+    // This flag is reset to false on any manual date interaction, so checking it is sufficient.
+    return _userHasSelectedQuickRange;
   }
 
   bool _isSameDay(DateTime date1, DateTime date2) {
@@ -602,7 +602,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                        color: _refreshEnabled ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : null,
+                        color: _refreshEnabled ? Theme.of(context).primaryColor.withOpacity(0.1) : null,
                         borderRadius: BorderRadius.circular(8.0),
                         border: Border.all(
                           color: _refreshEnabled ? Theme.of(context).primaryColor : Theme.of(context).dividerColor,
@@ -620,7 +620,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Yenile',
+                            _getLocalizedText(DateTimePickerTranslationKey.refresh, 'Refresh'),
                             style: TextStyle(
                               fontSize: 8,
                               color: _refreshEnabled
