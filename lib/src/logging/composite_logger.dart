@@ -15,35 +15,35 @@ class CompositeLogger implements ILogger {
 
   @override
   void debug(String message, [Object? error, StackTrace? stackTrace]) {
-    for (final logger in _loggers) {
+    for (final logger in List.of(_loggers)) {
       logger.debug(message, error, stackTrace);
     }
   }
 
   @override
   void info(String message, [Object? error, StackTrace? stackTrace]) {
-    for (final logger in _loggers) {
+    for (final logger in List.of(_loggers)) {
       logger.info(message, error, stackTrace);
     }
   }
 
   @override
   void warning(String message, [Object? error, StackTrace? stackTrace]) {
-    for (final logger in _loggers) {
+    for (final logger in List.of(_loggers)) {
       logger.warning(message, error, stackTrace);
     }
   }
 
   @override
   void error(String message, [Object? error, StackTrace? stackTrace]) {
-    for (final logger in _loggers) {
+    for (final logger in List.of(_loggers)) {
       logger.error(message, error, stackTrace);
     }
   }
 
   @override
   void fatal(String message, [Object? error, StackTrace? stackTrace]) {
-    for (final logger in _loggers) {
+    for (final logger in List.of(_loggers)) {
       logger.fatal(message, error, stackTrace);
     }
   }

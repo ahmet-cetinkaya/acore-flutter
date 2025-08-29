@@ -90,9 +90,9 @@ class FileLogger implements ILogger {
   }
 
   /// Disposes the logger and cleans up resources
-  void dispose() {
+  Future<void> dispose() async {
     _flushTimer?.cancel();
-    _flushBuffer();
+    await _flushBuffer();
   }
 
   /// Forces a flush of the buffer to disk
@@ -132,36 +132,31 @@ class FileLogger implements ILogger {
       return;
     }
 
-    final buffer = StringBuffer();
-
     // Add timestamp if enabled
     if (_includeTimestamp) {
       final now = DateTime.now();
       final timestamp = now.toIso8601String();
-      buffer.write('[$timestamp] ');
+      _buffer.write('[$timestamp] ');
     }
 
     // Add log level
-    buffer.write('[${level.name}] ');
+    _buffer.write('[${level.name}] ');
 
     // Add main message
-    buffer.write(message);
+    _buffer.write(message);
 
     // Add error information if provided
     if (error != null) {
-      buffer.write(' | Error: $error');
+      _buffer.write(' | Error: $error');
     }
 
     // Add stack trace if enabled and provided
     if (_includeStackTrace && stackTrace != null) {
-      buffer.write('\nStack trace:\n$stackTrace');
+      _buffer.write('\nStack trace:\n$stackTrace');
     }
 
     // Add newline
-    buffer.writeln();
-
-    // Add to internal buffer
-    _buffer.write(buffer.toString());
+    _buffer.writeln();
   }
 
   /// Flushes the buffer to the file
@@ -204,6 +199,13 @@ class FileLogger implements ILogger {
   /// Rotates the log file by moving it to a backup and creating a new one
   Future<void> _rotateLogFile(File currentFile) async {
     try {
+      if (_maxBackupFiles <= 0) {
+        if (await currentFile.exists()) {
+          await currentFile.delete();
+        }
+        return;
+      }
+
       // Delete the oldest backup file if it exists
       final oldestBackup = File('$_filePath.$_maxBackupFiles');
       if (await oldestBackup.exists()) {

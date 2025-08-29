@@ -65,7 +65,7 @@ class MemoryLogger implements ILogger {
 
   /// Gets all log entries as a single string
   String getAllLogs() {
-    return _logEntries.join('\n');
+    return _logEntries.join('');
   }
 
   /// Gets the current number of log entries
@@ -113,7 +113,7 @@ class MemoryLogger implements ILogger {
       buffer.write('\nStack trace:\n$stackTrace');
     }
 
-    final logEntry = buffer.toString();
+    final logEntry = (buffer..writeln()).toString();
 
     // Add to queue
     _logEntries.add(logEntry);
