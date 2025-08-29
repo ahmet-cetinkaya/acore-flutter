@@ -11,7 +11,7 @@ class CompositeLogger implements ILogger {
   /// Creates a composite logger with a list of child loggers.
   ///
   /// [loggers] - List of child loggers to forward messages to
-  const CompositeLogger(this._loggers);
+  CompositeLogger(List<ILogger> loggers) : _loggers = List.of(loggers);
 
   @override
   void debug(String message, [Object? error, StackTrace? stackTrace]) {
