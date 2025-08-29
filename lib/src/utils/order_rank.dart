@@ -47,23 +47,22 @@ class OrderRank {
 
     // Handle special cases
     if (targetPosition <= 0) {
-      // Place at beginning - use half of first item's order to ensure it comes first
+      // Place at beginning - need to be smaller than first item
       final firstOrder = existingOrders.first;
+      
       if (firstOrder > initialStep) {
-        final result = firstOrder / 2;
-        return result;
+        return firstOrder / 2;
       } else if (firstOrder > 1e-6) {
-        // If first order is small but not too small, make it 1000 times smaller
-        final result = firstOrder / 1000;
-        return result;
+        return firstOrder / 1000;
       } else if (firstOrder > 1e-10) {
-        // If first order is very small, make it even smaller
-        final result = firstOrder / 1000;
-        return result;
+        return firstOrder / 1000;
       } else {
-        // If first order is extremely small or zero, use a tiny safe value
-        final result = 1e-12;
-        return result;
+        // If first order is extremely small, zero, or negative
+        if (firstOrder <= 0) {
+          return firstOrder - initialStep;
+        } else {
+          return firstOrder / 10;
+        }
       }
     }
 
