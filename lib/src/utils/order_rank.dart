@@ -50,20 +50,9 @@ class OrderRank {
       // Place at beginning - need to be smaller than first item
       final firstOrder = existingOrders.first;
       
-      if (firstOrder > initialStep) {
-        return firstOrder / 2;
-      } else if (firstOrder > 1e-6) {
-        return firstOrder / 1000;
-      } else if (firstOrder > 1e-10) {
-        return firstOrder / 1000;
-      } else {
-        // If first order is extremely small, zero, or negative
-        if (firstOrder <= 0) {
-          return firstOrder - initialStep;
-        } else {
-          return firstOrder / 10;
-        }
-      }
+      // For any first order value, subtract initialStep to ensure it comes first
+      // This handles all cases: positive, negative, zero, or extremely small values
+      return firstOrder - initialStep;
     }
 
     if (targetPosition >= existingOrders.length) {
