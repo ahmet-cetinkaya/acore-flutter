@@ -34,7 +34,7 @@ class FileLogger implements ILogger {
   Timer? _flushTimer;
 
   /// Lock for file operations
-  final _fileLock = Completer<void>()..complete();
+  var _fileLock = Future<void>.value();
 
   /// Creates a file logger with configurable options.
   ///
@@ -166,68 +166,56 @@ class FileLogger implements ILogger {
 
   /// Flushes the buffer to the file
   Future<void> _flushBuffer() async {
-    if (_buffer.isEmpty) return;
+    // Chain this operation to run after the previous one completes.
+    _fileLock = _fileLock.then((_) async {
+      if (_buffer.isEmpty) return;
 
-    // Wait for any ongoing file operations to complete
-    await _fileLock.future;
-
-    final completer = Completer<void>();
-    final currentLock = _fileLock;
-
-    try {
-      // Create file and directories if they don't exist
-      final file = File(_filePath);
-      final directory = file.parent;
-      if (!await directory.exists()) {
-        await directory.create(recursive: true);
-      }
-
-      // Check if file rotation is needed
-      if (await file.exists()) {
-        final fileSize = await file.length();
-        if (fileSize >= _maxFileSizeBytes) {
-          await _rotateLogFile(file);
-        }
-      }
-
-      // Get the content to write and clear the buffer
       final content = _buffer.toString();
       _buffer.clear();
 
-      // Write to file
-      await file.writeAsString(content, mode: FileMode.append, flush: true);
+      try {
+        // Create file and directories if they don't exist
+        final file = File(_filePath);
+        final directory = file.parent;
+        if (!await directory.exists()) {
+          await directory.create(recursive: true);
+        }
 
-      completer.complete();
-    } catch (e) {
-      // If file writing fails, we'll just ignore the error to prevent logging loops
-      // In a production app, you might want to handle this more gracefully
-      completer.complete();
-    } finally {
-      // Update the lock
-      if (identical(currentLock, _fileLock)) {
-        // Replace the current lock with the completed one
+        // Check if file rotation is needed
+        if (await file.exists()) {
+          final fileSize = await file.length();
+          if (fileSize >= _maxFileSizeBytes) {
+            await _rotateLogFile(file);
+          }
+        }
+
+        // Write to file
+        await file.writeAsString(content, mode: FileMode.append, flush: true);
+      } catch (e) {
+        // If file writing fails, we'll just ignore the error to prevent logging loops
+        // In a production app, you might want to handle this more gracefully
       }
-    }
+    });
 
-    return completer.future;
+    // Await the completion of the chained future.
+    return _fileLock;
   }
 
   /// Rotates the log file by moving it to a backup and creating a new one
   Future<void> _rotateLogFile(File currentFile) async {
     try {
-      // Move existing backup files
+      // Delete the oldest backup file if it exists
+      final oldestBackup = File('$_filePath.$_maxBackupFiles');
+      if (await oldestBackup.exists()) {
+        await oldestBackup.delete();
+      }
+
+      // Move existing backup files up by one index
       for (int i = _maxBackupFiles - 1; i >= 1; i--) {
         final currentBackup = File('$_filePath.$i');
-        final nextBackup = File('$_filePath.${i + 1}');
-
         if (await currentBackup.exists()) {
-          if (i == _maxBackupFiles - 1) {
-            // Delete the oldest backup
-            await currentBackup.delete();
-          } else {
-            // Move to next backup number
-            await currentBackup.rename(nextBackup.path);
-          }
+          final nextBackup = File('$_filePath.${i + 1}');
+          await currentBackup.rename(nextBackup.path);
         }
       }
 
