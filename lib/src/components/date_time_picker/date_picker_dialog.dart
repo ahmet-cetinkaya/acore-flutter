@@ -106,7 +106,8 @@ class DatePickerResult {
     );
   }
 
-  factory DatePickerResult.range(DateTime startDate, DateTime endDate, {bool? isRefreshEnabled, String? quickSelectionKey}) {
+  factory DatePickerResult.range(DateTime startDate, DateTime endDate,
+      {bool? isRefreshEnabled, String? quickSelectionKey}) {
     return DatePickerResult(
       startDate: startDate,
       endDate: endDate,
@@ -329,13 +330,15 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     DatePickerResult result;
     if (widget.config.selectionMode == DateSelectionMode.single) {
       if (_selectedDate != null) {
-        result = DatePickerResult.single(_selectedDate!, isRefreshEnabled: _refreshEnabled, quickSelectionKey: _selectedQuickRangeKey);
+        result = DatePickerResult.single(_selectedDate!,
+            isRefreshEnabled: _refreshEnabled, quickSelectionKey: _selectedQuickRangeKey);
       } else {
         // Date was cleared
         result = DatePickerResult.cleared();
       }
     } else {
-      result = DatePickerResult.range(_selectedStartDate!, _selectedEndDate!, isRefreshEnabled: _refreshEnabled, quickSelectionKey: _selectedQuickRangeKey);
+      result = DatePickerResult.range(_selectedStartDate!, _selectedEndDate!,
+          isRefreshEnabled: _refreshEnabled, quickSelectionKey: _selectedQuickRangeKey);
     }
 
     Navigator.of(context).pop(result);

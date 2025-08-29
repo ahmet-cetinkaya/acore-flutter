@@ -59,7 +59,7 @@ class FileLogger implements ILogger {
         _maxBackupFiles = maxBackupFiles {
     // Initialize the log file immediately
     _initializeLogFile();
-    
+
     // Start periodic flush timer (flush every 5 seconds)
     _flushTimer = Timer.periodic(const Duration(seconds: 5), (_) => _flushBuffer());
   }
@@ -105,16 +105,16 @@ class FileLogger implements ILogger {
     try {
       final file = File(_filePath);
       final directory = file.parent;
-      
+
       // Create directories if they don't exist
       if (!await directory.exists()) {
         await directory.create(recursive: true);
       }
-      
+
       // Create log file if it doesn't exist
       if (!await file.exists()) {
         await file.create();
-        
+
         // Write an initial log entry to indicate the file was created
         final timestamp = DateTime.now().toIso8601String();
         await file.writeAsString('[$timestamp] [INFO] Debug logging initialized\n');

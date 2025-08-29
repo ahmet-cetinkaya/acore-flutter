@@ -49,7 +49,7 @@ class OrderRank {
     if (targetPosition <= 0) {
       // Place at beginning - need to be smaller than first item
       final firstOrder = existingOrders.first;
-      
+
       // For any first order value, subtract initialStep to ensure it comes first
       // This handles all cases: positive, negative, zero, or extremely small values
       return firstOrder - initialStep;
