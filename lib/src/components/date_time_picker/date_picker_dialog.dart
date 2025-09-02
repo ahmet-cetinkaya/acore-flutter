@@ -247,10 +247,11 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     TimeOfDay? initialTime = TimeOfDay.fromDateTime(date);
     TimeOfDay? earliestTime;
     TimeOfDay? latestTime;
+    
+    final selectedDateOnly = DateTime(date.year, date.month, date.day);
 
     if (widget.config.minDate != null) {
       final minDate = widget.config.minDate!;
-      final selectedDateOnly = DateTime(date.year, date.month, date.day);
       final minDateOnly = DateTime(minDate.year, minDate.month, minDate.day);
 
       // If selected date is the same as minDate, restrict time to be >= minDate time
@@ -265,7 +266,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
 
     if (widget.config.maxDate != null) {
       final maxDate = widget.config.maxDate!;
-      final selectedDateOnly = DateTime(date.year, date.month, date.day);
       final maxDateOnly = DateTime(maxDate.year, maxDate.month, maxDate.day);
 
       // If selected date is the same as maxDate, restrict time to be <= maxDate time
@@ -339,21 +339,23 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     }
   }
 
-  bool _isValidSelection() {
-    // Debug logging removed for cleaner code - can be re-enabled if needed
+  /// Returns a list of validation error messages for the current selection
+  List<String> _getValidationErrors() {
+    List<String> validationErrors = [];
 
     if (widget.config.selectionMode == DateSelectionMode.single) {
+      // Check if we have a selection (or null is allowed)
       bool hasSelection = _selectedDate != null || widget.config.allowNullConfirm;
-      // Debug logging removed for cleaner code
-
       if (!hasSelection) {
-        return false;
+        return validationErrors; // No selection, but errors would be shown elsewhere
       }
 
       // Check custom validator
-      if (widget.config.dateTimeValidator != null && _selectedDate != null) {
-        final isValid = widget.config.dateTimeValidator!(_selectedDate);
-        if (!isValid) return false;
+      if (_selectedDate != null &&
+          widget.config.dateTimeValidator != null &&
+          !widget.config.dateTimeValidator!(_selectedDate) &&
+          widget.config.validationErrorMessage != null) {
+        validationErrors.add(widget.config.validationErrorMessage!);
       }
 
       // Check min/max date constraints (ensure consistent timezone handling)
@@ -363,77 +365,14 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         final maxLocal = widget.config.maxDate?.toLocal();
 
         if (minLocal != null && selectedLocal.isBefore(minLocal)) {
-          return false;
+          validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.selectedDateMustBeAtOrAfter, 'Selected date must be at or after ${DateFormatService.formatForInput(minLocal, context, type: DateFormatType.dateTime)}'));
         }
         if (maxLocal != null && selectedLocal.isAfter(maxLocal)) {
-          return false;
+          validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.selectedDateMustBeAtOrBefore, 'Selected date must be at or before ${DateFormatService.formatForInput(maxLocal, context, type: DateFormatType.dateTime)}'));
         }
       }
-
-      return true;
     } else {
       // Range selection validation
-      if (_selectedStartDate == null || _selectedEndDate == null) {
-        return false;
-      }
-
-      // Check if start is after end
-      final startLocal = _selectedStartDate!.toLocal();
-      final endLocal = _selectedEndDate!.toLocal();
-      final minLocal = widget.config.minDate?.toLocal();
-      final maxLocal = widget.config.maxDate?.toLocal();
-
-      if (startLocal.isAfter(endLocal)) {
-        return false;
-      }
-
-      // Check min/max constraints
-      if (minLocal != null && startLocal.isBefore(minLocal)) {
-        return false;
-      }
-      if (maxLocal != null && endLocal.isAfter(maxLocal)) {
-        return false;
-      }
-
-      return true;
-    }
-  }
-
-  bool _hasSelection() {
-    if (widget.config.selectionMode == DateSelectionMode.single) {
-      return _selectedDate != null;
-    }
-    return _selectedStartDate != null || _selectedEndDate != null;
-  }
-
-  Widget _buildValidationMessage() {
-
-    List<String> validationErrors = [];
-
-    // Check custom validator
-    if (_selectedDate != null &&
-        widget.config.dateTimeValidator != null &&
-        !widget.config.dateTimeValidator!(_selectedDate) &&
-        widget.config.validationErrorMessage != null) {
-      validationErrors.add(widget.config.validationErrorMessage!);
-    }
-
-    // Check min/max date constraints (ensure consistent timezone handling)
-    if (_selectedDate != null) {
-      final selectedLocal = _selectedDate!.toLocal();
-      final minLocal = widget.config.minDate?.toLocal();
-      final maxLocal = widget.config.maxDate?.toLocal();
-
-      if (minLocal != null && selectedLocal.isBefore(minLocal)) {
-        validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.selectedDateMustBeAtOrAfter, 'Selected date must be at or after ${DateFormatService.formatForInput(minLocal, context, type: DateFormatType.dateTime)}'));
-      }
-      if (maxLocal != null && selectedLocal.isAfter(maxLocal)) {
-        validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.selectedDateMustBeAtOrBefore, 'Selected date must be at or before ${DateFormatService.formatForInput(maxLocal, context, type: DateFormatType.dateTime)}'));
-      }
-    }
-
-    // Check range constraints for range selection
-    if (widget.config.selectionMode == DateSelectionMode.range) {
       if (_selectedStartDate != null && _selectedEndDate != null) {
         final startLocal = _selectedStartDate!.toLocal();
         final endLocal = _selectedEndDate!.toLocal();
@@ -452,8 +391,35 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       }
     }
 
-    if (validationErrors.isNotEmpty) {
+    return validationErrors;
+  }
 
+  bool _isValidSelection() {
+    // Check for presence of selection first
+    if (widget.config.selectionMode == DateSelectionMode.single) {
+      if (!(_selectedDate != null || widget.config.allowNullConfirm)) {
+        return false;
+      }
+    } else {
+      if (_selectedStartDate == null || _selectedEndDate == null) {
+        return false;
+      }
+    }
+    // Then check for validation errors
+    return _getValidationErrors().isEmpty;
+  }
+
+  bool _hasSelection() {
+    if (widget.config.selectionMode == DateSelectionMode.single) {
+      return _selectedDate != null;
+    }
+    return _selectedStartDate != null || _selectedEndDate != null;
+  }
+
+  Widget _buildValidationMessage() {
+    final validationErrors = _getValidationErrors();
+
+    if (validationErrors.isNotEmpty) {
       return Container(
         margin: const EdgeInsets.only(top: 8.0),
         padding: const EdgeInsets.all(12.0),
@@ -895,10 +861,10 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
            if (widget.config.selectionMode == DateSelectionMode.single) {
              if (dates.isNotEmpty) {
                DateTime selectedDate = dates.first;
+               final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
 
                // Validate date constraints before proceeding
                if (widget.config.minDate != null) {
-                 final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
                  final minDateOnly = DateTime(widget.config.minDate!.year, widget.config.minDate!.month, widget.config.minDate!.day);
 
                  if (selectedDateOnly.isBefore(minDateOnly)) {
@@ -907,7 +873,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                }
 
                if (widget.config.maxDate != null) {
-                 final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
                  final maxDateOnly = DateTime(widget.config.maxDate!.year, widget.config.maxDate!.month, widget.config.maxDate!.day);
 
                  if (selectedDateOnly.isAfter(maxDateOnly)) {
@@ -919,7 +884,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                // ensure the time is not before minDate time
                if (widget.config.minDate != null && widget.config.showTime) {
                  final minDate = widget.config.minDate!;
-                 final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
                  final minDateOnly = DateTime(minDate.year, minDate.month, minDate.day);
 
                  if (selectedDateOnly.isAtSameMomentAs(minDateOnly)) {
