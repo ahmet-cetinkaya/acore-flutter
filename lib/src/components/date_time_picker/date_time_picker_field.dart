@@ -86,6 +86,24 @@ class DateTimePickerField extends StatelessWidget {
       }
     }
 
+    // Show time picker first if no initial date, or if user wants to set time before date
+    TimeOfDay? selectedTime;
+    if (initialDate == null) {
+      if (!context.mounted) return;
+      selectedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (selectedTime == null) {
+        // User cancelled time selection
+        return;
+      }
+    } else {
+      // If we have an initial date, extract the time
+      selectedTime = TimeOfDay.fromDateTime(initialDate);
+    }
+
     final config = DatePickerConfig(
       selectionMode: DateSelectionMode.single,
       initialDate: initialDate,
@@ -107,17 +125,32 @@ class DateTimePickerField extends StatelessWidget {
       },
     );
 
+    if (!context.mounted) return;
     final result = await DatePickerDialog.show(
       context: context,
       config: config,
     );
 
     if (result != null && result.isConfirmed && result.selectedDate != null && context.mounted) {
-      final selectedDateTime = result.selectedDate!;
+      final selectedDate = result.selectedDate!;
 
-      // Validate the selected date is within bounds
-      if ((minDateTime != null && _isBeforeIgnoringSeconds(selectedDateTime, minDateTime!)) ||
-          (maxDateTime != null && _isAfterIgnoringSeconds(selectedDateTime, maxDateTime!))) {
+      // Combine selected date with selected time
+      final selectedDateTime = DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+        selectedTime.hour,
+        selectedTime.minute,
+      );
+
+      // Validate the selected datetime is within bounds (ensure consistent timezone handling)
+      final selectedLocal = selectedDateTime.toLocal();
+      final minLocal = minDateTime?.toLocal();
+      final maxLocal = maxDateTime?.toLocal();
+
+      if ((minLocal != null && _isBeforeIgnoringSeconds(selectedLocal, minLocal)) ||
+          (maxLocal != null && _isAfterIgnoringSeconds(selectedLocal, maxLocal))) {
+        // Invalid date/time selection - silently return without showing error
         return;
       }
 

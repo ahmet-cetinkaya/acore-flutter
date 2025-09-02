@@ -26,4 +26,24 @@ enum DateTimePickerTranslationKey {
 
   /// Refresh toggle button text
   refresh,
+
+  /// Date/time constraint error messages
+  cannotSelectTimeBeforeMinDate,
+  cannotSelectTimeAfterMaxDate,
+  timeMustBeAtOrAfter,
+  timeMustBeAtOrBefore,
+  selectedDateMustBeAtOrAfter,
+  selectedDateMustBeAtOrBefore,
+  startDateCannotBeAfterEndDate,
+  startDateMustBeAtOrAfter,
+  endDateMustBeAtOrBefore,
+  cannotSelectDateBeforeMinDate,
+  cannotSelectDateAfterMaxDate,
+  startDateCannotBeBeforeMinDate,
+  endDateCannotBeAfterMaxDate,
+  selectedDateTimeMustBeAfter,
+
+  /// Fallback titles
+  selectDateTimeTitle,
+  selectDateRangeTitle,
 }
