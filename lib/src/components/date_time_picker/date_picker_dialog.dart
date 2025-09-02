@@ -426,7 +426,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
 
     if (validationErrors.isNotEmpty) {
       return Container(
-        margin: const EdgeInsets.only(top: 8.0),
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.errorContainer,
