@@ -27,6 +27,8 @@ class DatePickerConfig {
   final bool showRefreshToggle;
   final bool initialRefreshEnabled;
   final void Function(bool)? onRefreshToggleChanged;
+  final bool Function(DateTime?)? dateTimeValidator;
+  final String? validationErrorMessage;
 
   const DatePickerConfig({
     required this.selectionMode,
@@ -51,6 +53,8 @@ class DatePickerConfig {
     this.showRefreshToggle = false,
     this.initialRefreshEnabled = false,
     this.onRefreshToggleChanged,
+    this.dateTimeValidator,
+    this.validationErrorMessage,
   });
 }
 
@@ -242,31 +246,79 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     // Check if the selected date is before minDate and handle time constraints
     TimeOfDay? initialTime = TimeOfDay.fromDateTime(date);
     TimeOfDay? earliestTime;
+    TimeOfDay? latestTime;
+    
+    final selectedDateOnly = DateTime(date.year, date.month, date.day);
 
     if (widget.config.minDate != null) {
       final minDate = widget.config.minDate!;
-      final selectedDateOnly = DateTime(date.year, date.month, date.day);
       final minDateOnly = DateTime(minDate.year, minDate.month, minDate.day);
 
       // If selected date is the same as minDate, restrict time to be >= minDate time
       if (selectedDateOnly.isAtSameMomentAs(minDateOnly)) {
         earliestTime = TimeOfDay.fromDateTime(minDate);
+      }
+      // If selected date is before minDate, prevent selection
+      else if (selectedDateOnly.isBefore(minDateOnly)) {
+        return;
+      }
+    }
 
-        // If current time is before earliest allowed time, set to earliest time
-        // Since minDate is start of day (00:00:00), allow any time for today
-        if (initialTime.hour < earliestTime.hour ||
-            (initialTime.hour == earliestTime.hour && initialTime.minute < earliestTime.minute)) {
-          initialTime = earliestTime;
-        }
+    if (widget.config.maxDate != null) {
+      final maxDate = widget.config.maxDate!;
+      final maxDateOnly = DateTime(maxDate.year, maxDate.month, maxDate.day);
+
+      // If selected date is the same as maxDate, restrict time to be <= maxDate time
+      if (selectedDateOnly.isAtSameMomentAs(maxDateOnly)) {
+        latestTime = TimeOfDay.fromDateTime(maxDate);
+      }
+      // If selected date is after maxDate, prevent selection
+      else if (selectedDateOnly.isAfter(maxDateOnly)) {
+        return;
+      }
+    }
+
+    // Adjust initial time if it's outside bounds
+    if (earliestTime != null) {
+      if (initialTime.hour < earliestTime.hour ||
+          (initialTime.hour == earliestTime.hour && initialTime.minute < earliestTime.minute)) {
+        initialTime = earliestTime;
+      }
+    }
+    if (latestTime != null) {
+      if (initialTime.hour > latestTime.hour ||
+          (initialTime.hour == latestTime.hour && initialTime.minute > latestTime.minute)) {
+        initialTime = latestTime;
       }
     }
 
     final timeOfDay = await showTimePicker(
       context: context,
       initialTime: initialTime,
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
     );
 
     if (timeOfDay != null && mounted) {
+      // Validate time constraints before applying
+      if (earliestTime != null) {
+        if (timeOfDay.hour < earliestTime.hour ||
+            (timeOfDay.hour == earliestTime.hour && timeOfDay.minute < earliestTime.minute)) {
+          return;
+        }
+      }
+
+      if (latestTime != null) {
+        if (timeOfDay.hour > latestTime.hour ||
+            (timeOfDay.hour == latestTime.hour && timeOfDay.minute > latestTime.minute)) {
+          return;
+        }
+      }
+
       final updatedDate = DateTime(
         date.year,
         date.month,
@@ -274,29 +326,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         timeOfDay.hour,
         timeOfDay.minute,
       );
-
-      // Validate that the selected time is not before minDate (must be >= minDate)
-      if (widget.config.minDate != null && updatedDate.isBefore(widget.config.minDate!)) {
-        // If selected time is before minDate, set to minDate time
-        final correctedDate = DateTime(
-          date.year,
-          date.month,
-          date.day,
-          widget.config.minDate!.hour,
-          widget.config.minDate!.minute,
-        );
-
-        setState(() {
-          if (widget.config.selectionMode == DateSelectionMode.single) {
-            _selectedDate = correctedDate;
-          } else if (isStartDate) {
-            _selectedStartDate = correctedDate;
-          } else {
-            _selectedEndDate = correctedDate;
-          }
-        });
-        return;
-      }
 
       setState(() {
         if (widget.config.selectionMode == DateSelectionMode.single) {
@@ -310,11 +339,74 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     }
   }
 
-  bool _isValidSelection() {
+  /// Returns a list of validation error messages for the current selection
+  List<String> _getValidationErrors() {
+    List<String> validationErrors = [];
+
     if (widget.config.selectionMode == DateSelectionMode.single) {
-      return _selectedDate != null || widget.config.allowNullConfirm;
+      // Check if we have a selection (or null is allowed)
+      bool hasSelection = _selectedDate != null || widget.config.allowNullConfirm;
+      if (!hasSelection) {
+        return validationErrors; // No selection, but errors would be shown elsewhere
+      }
+
+      // Check custom validator
+      if (_selectedDate != null &&
+          widget.config.dateTimeValidator != null &&
+          !widget.config.dateTimeValidator!(_selectedDate) &&
+          widget.config.validationErrorMessage != null) {
+        validationErrors.add(widget.config.validationErrorMessage!);
+      }
+
+      // Check min/max date constraints (ensure consistent timezone handling)
+      if (_selectedDate != null) {
+        final selectedLocal = _selectedDate!.toLocal();
+        final minLocal = widget.config.minDate?.toLocal();
+        final maxLocal = widget.config.maxDate?.toLocal();
+
+        if (minLocal != null && selectedLocal.isBefore(minLocal)) {
+          validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.selectedDateMustBeAtOrAfter, 'Selected date must be at or after ${DateFormatService.formatForInput(minLocal, context, type: DateFormatType.dateTime)}'));
+        }
+        if (maxLocal != null && selectedLocal.isAfter(maxLocal)) {
+          validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.selectedDateMustBeAtOrBefore, 'Selected date must be at or before ${DateFormatService.formatForInput(maxLocal, context, type: DateFormatType.dateTime)}'));
+        }
+      }
+    } else {
+      // Range selection validation
+      if (_selectedStartDate != null && _selectedEndDate != null) {
+        final startLocal = _selectedStartDate!.toLocal();
+        final endLocal = _selectedEndDate!.toLocal();
+        final minLocal = widget.config.minDate?.toLocal();
+        final maxLocal = widget.config.maxDate?.toLocal();
+
+        if (startLocal.isAfter(endLocal)) {
+          validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.startDateCannotBeAfterEndDate, 'Start date cannot be after end date'));
+        }
+        if (minLocal != null && startLocal.isBefore(minLocal)) {
+          validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.startDateMustBeAtOrAfter, 'Start date must be at or after ${DateFormatService.formatForInput(minLocal, context, type: DateFormatType.date)}'));
+        }
+        if (maxLocal != null && endLocal.isAfter(maxLocal)) {
+          validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.endDateMustBeAtOrBefore, 'End date must be at or before ${DateFormatService.formatForInput(maxLocal, context, type: DateFormatType.date)}'));
+        }
+      }
     }
-    return _selectedStartDate != null && _selectedEndDate != null;
+
+    return validationErrors;
+  }
+
+  bool _isValidSelection() {
+    // Check for presence of selection first
+    if (widget.config.selectionMode == DateSelectionMode.single) {
+      if (!(_selectedDate != null || widget.config.allowNullConfirm)) {
+        return false;
+      }
+    } else {
+      if (_selectedStartDate == null || _selectedEndDate == null) {
+        return false;
+      }
+    }
+    // Then check for validation errors
+    return _getValidationErrors().isEmpty;
   }
 
   bool _hasSelection() {
@@ -322,6 +414,50 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       return _selectedDate != null;
     }
     return _selectedStartDate != null || _selectedEndDate != null;
+  }
+
+  Widget _buildValidationMessage() {
+    final validationErrors = _getValidationErrors();
+
+    if (validationErrors.isNotEmpty) {
+      return Container(
+        margin: const EdgeInsets.only(top: 8.0),
+        padding: const EdgeInsets.all(12.0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.errorContainer,
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ...validationErrors.map((error) => Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    color: Theme.of(context).colorScheme.error,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      error,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onErrorContainer,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )),
+          ],
+        ),
+      );
+    }
+
+    return const SizedBox.shrink(); // Return empty widget if no errors
   }
 
   void _onConfirm() {
@@ -378,7 +514,9 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         title: Text(
           widget.config.titleText ??
               _getLocalizedText(DateTimePickerTranslationKey.title,
-                  widget.config.selectionMode == DateSelectionMode.single ? 'Select Date & Time' : 'Select Date Range'),
+                  widget.config.selectionMode == DateSelectionMode.single
+                      ? _getLocalizedText(DateTimePickerTranslationKey.selectDateTimeTitle, 'Select Date & Time')
+                      : _getLocalizedText(DateTimePickerTranslationKey.selectDateRangeTitle, 'Select Date Range')),
         ),
         content: SizedBox(
           width: dialogWidth,
@@ -392,6 +530,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                   _buildSelectedDateDisplay(),
                   if (widget.config.showQuickRanges && widget.config.quickRanges != null) _buildQuickRangesSection(),
                   _buildCalendarSection(),
+                  _buildValidationMessage(),
                 ],
               ),
             ),
@@ -719,69 +858,99 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                     ? [_selectedStartDate]
                     : []),
         onValueChanged: (dates) async {
-          if (widget.config.selectionMode == DateSelectionMode.single) {
-            if (dates.isNotEmpty) {
-              DateTime selectedDate = dates.first;
+           if (widget.config.selectionMode == DateSelectionMode.single) {
+             if (dates.isNotEmpty) {
+               DateTime selectedDate = dates.first;
+               final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
 
-              // If there's a minDate constraint and selected date is on the same day as minDate,
-              // ensure the time is not before minDate time
-              if (widget.config.minDate != null && widget.config.showTime) {
-                final minDate = widget.config.minDate!;
-                final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-                final minDateOnly = DateTime(minDate.year, minDate.month, minDate.day);
+               // Validate date constraints before proceeding
+               if (widget.config.minDate != null) {
+                 final minDateOnly = DateTime(widget.config.minDate!.year, widget.config.minDate!.month, widget.config.minDate!.day);
 
-                if (selectedDateOnly.isAtSameMomentAs(minDateOnly)) {
-                  // Set the time to minDate time if selecting today
-                  selectedDate = DateTime(
-                    selectedDate.year,
-                    selectedDate.month,
-                    selectedDate.day,
-                    minDate.hour,
-                    minDate.minute,
-                  );
-                }
-              }
+                 if (selectedDateOnly.isBefore(minDateOnly)) {
+                   return;
+                 }
+               }
 
-              setState(() {
-                _selectedDate = selectedDate;
-                _userHasSelectedQuickRange = false; // Manual selection, not quick range
-                _selectedQuickRangeKey = null; // Clear quick range key for manual selection
-              });
+               if (widget.config.maxDate != null) {
+                 final maxDateOnly = DateTime(widget.config.maxDate!.year, widget.config.maxDate!.month, widget.config.maxDate!.day);
 
-              // If time selection is enabled, automatically show time picker
-              if (widget.config.showTime) {
-                await _selectTime(selectedDate, true);
-              }
-            }
-          } else {
-            // Range selection
-            if (dates.length == 2) {
-              final startDate = dates[0];
-              final endDate = DateTime(
-                dates[1].year,
-                dates[1].month,
-                dates[1].day,
-                23,
-                59,
-                59,
-              );
+                 if (selectedDateOnly.isAfter(maxDateOnly)) {
+                   return;
+                 }
+               }
 
-              setState(() {
-                _selectedStartDate = startDate;
-                _selectedEndDate = endDate;
-                _userHasSelectedQuickRange = false; // Manual range selection, not quick range
-                _selectedQuickRangeKey = null; // Clear quick range key for manual selection
-              });
-            } else if (dates.length == 1) {
-              setState(() {
-                _selectedStartDate = dates[0];
-                _selectedEndDate = null;
-                _userHasSelectedQuickRange = false; // Manual selection, not quick range
-                _selectedQuickRangeKey = null; // Clear quick range key for manual selection
-              });
-            }
-          }
-        },
+               // If there's a minDate constraint and selected date is on the same day as minDate,
+               // ensure the time is not before minDate time
+               if (widget.config.minDate != null && widget.config.showTime) {
+                 final minDate = widget.config.minDate!;
+                 final minDateOnly = DateTime(minDate.year, minDate.month, minDate.day);
+
+                 if (selectedDateOnly.isAtSameMomentAs(minDateOnly)) {
+                   // Set the time to minDate time if selecting today
+                   selectedDate = DateTime(
+                     selectedDate.year,
+                     selectedDate.month,
+                     selectedDate.day,
+                     minDate.hour,
+                     minDate.minute,
+                   );
+                 }
+               }
+
+               setState(() {
+                 _selectedDate = selectedDate;
+                 _userHasSelectedQuickRange = false; // Manual selection, not quick range
+                 _selectedQuickRangeKey = null; // Clear quick range key for manual selection
+               });
+
+               // If time selection is enabled, automatically show time picker
+               if (widget.config.showTime) {
+                 await _selectTime(selectedDate, true);
+               }
+             }
+           } else {
+             // Range selection
+             if (dates.length == 2) {
+               final startDate = dates[0];
+               final endDate = DateTime(
+                 dates[1].year,
+                 dates[1].month,
+                 dates[1].day,
+                 23,
+                 59,
+                 59,
+               );
+
+               // Validate range constraints
+               if (widget.config.minDate != null) {
+                 if (startDate.isBefore(widget.config.minDate!)) {
+                   return;
+                 }
+               }
+
+               if (widget.config.maxDate != null) {
+                 if (endDate.isAfter(widget.config.maxDate!)) {
+                   return;
+                 }
+               }
+
+               setState(() {
+                 _selectedStartDate = startDate;
+                 _selectedEndDate = endDate;
+                 _userHasSelectedQuickRange = false; // Manual range selection, not quick range
+                 _selectedQuickRangeKey = null; // Clear quick range key for manual selection
+               });
+             } else if (dates.length == 1) {
+               setState(() {
+                 _selectedStartDate = dates[0];
+                 _selectedEndDate = null;
+                 _userHasSelectedQuickRange = false; // Manual selection, not quick range
+                 _selectedQuickRangeKey = null; // Clear quick range key for manual selection
+               });
+             }
+           }
+         },
       ),
     );
   }

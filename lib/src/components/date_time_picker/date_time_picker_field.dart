@@ -107,6 +107,7 @@ class DateTimePickerField extends StatelessWidget {
       },
     );
 
+    if (!context.mounted) return;
     final result = await DatePickerDialog.show(
       context: context,
       config: config,
@@ -114,12 +115,6 @@ class DateTimePickerField extends StatelessWidget {
 
     if (result != null && result.isConfirmed && result.selectedDate != null && context.mounted) {
       final selectedDateTime = result.selectedDate!;
-
-      // Validate the selected date is within bounds
-      if ((minDateTime != null && _isBeforeIgnoringSeconds(selectedDateTime, minDateTime!)) ||
-          (maxDateTime != null && _isAfterIgnoringSeconds(selectedDateTime, maxDateTime!))) {
-        return;
-      }
 
       // Format the date for display using centralized service
       final String formattedDateTime = DateFormatService.formatForInput(
