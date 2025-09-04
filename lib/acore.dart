@@ -18,43 +18,43 @@
 library;
 
 // Async utilities
-export 'src/async/async.dart';
+export 'async/async.dart';
 
 // Components
-export 'src/components/components.dart';
+export 'components/components.dart';
 
 // Dependency Injection
-export 'src/dependency_injection/dependency_injection.dart';
+export 'dependency_injection/dependency_injection.dart';
 
 // Errors
-export 'src/errors/errors.dart';
+export 'errors/errors.dart';
 
 // Extensions
-export 'src/extensions/extensions.dart';
+export 'extensions/extensions.dart';
 
 // File Services
-export 'src/file/file.dart';
+export 'file/file.dart';
 
 // Logging
-export 'src/logging/logging.dart';
+export 'logging/logging.dart';
 
 // Mapper
-export 'src/mapper/mapper.dart';
+export 'mapper/mapper.dart';
 
 // Queries
-export 'src/queries/queries.dart';
+export 'queries/queries.dart';
 
 // Repository
-export 'src/repository/repository.dart';
+export 'repository/repository.dart';
 
 // Sounds
-export 'src/sounds/sounds.dart';
+export 'sounds/sounds.dart';
 
 // Storage
-export 'src/storage/storage.dart';
+export 'storage/storage.dart';
 
 // Time utilities
-export 'src/time/time.dart';
+export 'time/time.dart';
 
 // Utilities
-export 'src/utils/utils.dart';
+export 'utils/utils.dart';
