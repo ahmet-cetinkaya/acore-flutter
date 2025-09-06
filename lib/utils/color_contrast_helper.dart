@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 class ColorContrastHelper {
   /// Calculates the appropriate text color for a given background color
   /// to ensure proper contrast ratio for accessibility
-  static Color getContrastingTextColor(Color backgroundColor) {
+  static Color getContrastingTextColor(Color backgroundColor, {Color? lightColor, Color? darkColor}) {
+    final preferredLightColor = lightColor ?? Colors.white;
+    final preferredDarkColor = darkColor ?? Colors.black;
+
     // Calculate contrast ratio with black and white text
-    final double contrastWithBlack = calculateContrastRatio(Colors.black, backgroundColor);
-    final double contrastWithWhite = calculateContrastRatio(Colors.white, backgroundColor);
+    final double contrastWithBlack = calculateContrastRatio(preferredDarkColor, backgroundColor);
+    final double contrastWithWhite = calculateContrastRatio(preferredLightColor, backgroundColor);
 
     // Determine if the contrast ratios meet the WCAG AA minimum (4.5 for normal text)
     final bool blackMeets = contrastWithBlack >= 4.5;
@@ -18,13 +21,13 @@ class ColorContrastHelper {
     // 2. If both meet, choose the one with the higher ratio.
     // 3. If neither meet, fall back to the one with the higher ratio anyway.
     if (blackMeets && whiteMeets) {
-      return contrastWithBlack >= contrastWithWhite ? Colors.black : Colors.white;
+      return contrastWithBlack >= contrastWithWhite ? preferredDarkColor : preferredLightColor;
     } else if (blackMeets) {
-      return Colors.black;
+      return preferredDarkColor;
     } else if (whiteMeets) {
-      return Colors.white;
+      return preferredLightColor;
     } else {
-      return contrastWithBlack >= contrastWithWhite ? Colors.black : Colors.white;
+      return contrastWithBlack >= contrastWithWhite ? preferredDarkColor : preferredLightColor;
     }
   }
 
