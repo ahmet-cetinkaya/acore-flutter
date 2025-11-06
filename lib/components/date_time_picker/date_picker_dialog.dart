@@ -1059,12 +1059,25 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           // Quick selection button with refresh indicator
           OutlinedButton.icon(
             onPressed: () => _showQuickSelectionDialog(),
-            icon: Row(
+            icon: Icon(Icons.speed, size: _DatePickerDesign.iconSizeMedium),
+            label: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.speed, size: _DatePickerDesign.iconSizeMedium),
+                Flexible(
+                  child: Text(
+                    hasQuickSelection
+                        ? currentSelectionLabel
+                        : _getLocalizedText(DateTimePickerTranslationKey.quickSelection, 'Quick Selection'),
+                    style: TextStyle(
+                      fontSize: _DatePickerDesign.fontSizeSmall,
+                      fontWeight: FontWeight.w500,
+                      color: hasQuickSelection ? Theme.of(context).primaryColor : null,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
                 if (hasQuickSelection && widget.config.showRefreshToggle && _refreshEnabled) ...[
-                  SizedBox(width: _DatePickerDesign.spacingXSmall),
+                  SizedBox(width: _DatePickerDesign.spacingSmall),
                   Icon(
                     Icons.autorenew,
                     size: _DatePickerDesign.iconSizeSmall,
@@ -1072,16 +1085,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                   ),
                 ],
               ],
-            ),
-            label: Text(
-              hasQuickSelection
-                  ? currentSelectionLabel
-                  : _getLocalizedText(DateTimePickerTranslationKey.quickSelection, 'Quick Selection'),
-              style: TextStyle(
-                fontSize: _DatePickerDesign.fontSizeSmall,
-                fontWeight: FontWeight.w500,
-                color: hasQuickSelection ? Theme.of(context).primaryColor : null,
-              ),
             ),
             style: OutlinedButton.styleFrom(
               padding: EdgeInsets.symmetric(
