@@ -707,85 +707,63 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       return const SizedBox.shrink();
     }
 
+    final chips = <Widget>[];
+
+    // Add quick range chips
+    chips.addAll(widget.config.quickRanges!.map((range) {
+      final isSelected = _isQuickRangeSelected(range);
+      return FilterChip(
+        label: Text(
+          range.label,
+          style: const TextStyle(fontSize: 10),
+        ),
+        selected: isSelected,
+        onSelected: (_) => _selectQuickRange(range),
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: VisualDensity.compact,
+      );
+    }).toList());
+
+    // Add refresh chip if enabled and there's an active quick selection
+    if (widget.config.showRefreshToggle && _hasActiveQuickSelection()) {
+      chips.add(
+        FilterChip(
+          label: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _refreshEnabled ? Icons.autorenew : Icons.refresh,
+                size: 16,
+                color: _refreshEnabled ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                _getLocalizedText(DateTimePickerTranslationKey.refresh, 'Refresh'),
+                style: TextStyle(
+                  fontSize: 10,
+                  color: _refreshEnabled
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).textTheme.bodySmall?.color,
+                  fontWeight: _refreshEnabled ? FontWeight.w600 : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+          selected: _refreshEnabled,
+          onSelected: (_) => _toggleRefresh(),
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          visualDensity: VisualDensity.compact,
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Quick ranges section (85% width)
-          Expanded(
-            flex: 85,
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 8.0,
-              runSpacing: 8.0,
-              children: widget.config.quickRanges!.map((range) {
-                final isSelected = _isQuickRangeSelected(range);
-                return FilterChip(
-                  label: Text(
-                    range.label,
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  selected: isSelected,
-                  onSelected: (_) => _selectQuickRange(range),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  visualDensity: VisualDensity.compact,
-                );
-              }).toList(),
-            ),
-          ),
-          // Refresh toggle section (15% width) - only show when any quick selection is active
-          if (widget.config.showRefreshToggle && _hasActiveQuickSelection()) ...[
-            const SizedBox(width: 8.0),
-            Expanded(
-              flex: 15,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: _toggleRefresh,
-                    child: Container(
-                      padding: const EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        color: _refreshEnabled ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : null,
-                        borderRadius: BorderRadius.circular(8.0),
-                        border: Border.all(
-                          color: _refreshEnabled ? Theme.of(context).primaryColor : Theme.of(context).dividerColor,
-                          width: 1,
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            _refreshEnabled ? Icons.autorenew : Icons.refresh,
-                            size: 16,
-                            color: _refreshEnabled ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _getLocalizedText(DateTimePickerTranslationKey.refresh, 'Refresh'),
-                            style: TextStyle(
-                              fontSize: 8,
-                              color: _refreshEnabled
-                                  ? Theme.of(context).primaryColor
-                                  : Theme.of(context).textTheme.bodySmall?.color,
-                              fontWeight: _refreshEnabled ? FontWeight.w600 : FontWeight.normal,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 8.0,
+        runSpacing: 8.0,
+        children: chips,
       ),
     );
   }
