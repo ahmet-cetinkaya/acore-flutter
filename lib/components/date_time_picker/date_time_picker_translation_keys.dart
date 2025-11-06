@@ -46,4 +46,14 @@ enum DateTimePickerTranslationKey {
   /// Fallback titles
   selectDateTimeTitle,
   selectDateRangeTitle,
+
+  /// Quick selection dialog
+  quickSelection,
+  quickSelectionTitle,
+  refreshSettings,
+  refreshDescription,
+
+  /// Quick selection dialog sections
+  dateRanges,
+  refreshSettingsLabel,
 }
