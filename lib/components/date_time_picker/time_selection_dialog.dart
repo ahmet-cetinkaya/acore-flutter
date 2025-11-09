@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'wheel_time_picker.dart';
 import 'time_formatting_util.dart';
+import 'haptic_feedback_util.dart';
 
 /// Design constants for time selection dialog
 class _TimeSelectionDialogDesign {
@@ -121,14 +122,7 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
 
   /// Trigger haptic feedback for better mobile experience
   void _triggerHapticFeedback() {
-    try {
-      // Only trigger haptic feedback on mobile platforms
-      if (Theme.of(context).platform == TargetPlatform.android || Theme.of(context).platform == TargetPlatform.iOS) {
-        HapticFeedback.lightImpact();
-      }
-    } catch (e) {
-      // Ignore haptic feedback errors
-    }
+    HapticFeedbackUtil.triggerHapticFeedback(context);
   }
 
   /// Format time for display using MaterialLocalizations

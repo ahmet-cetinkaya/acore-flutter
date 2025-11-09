@@ -11,6 +11,7 @@ import 'date_selection_dialog.dart';
 import 'quick_range_selector.dart';
 import 'date_validation_display.dart';
 import 'time_formatting_util.dart';
+import 'haptic_feedback_util.dart';
 
 /// Enum for quick selection button types
 enum QuickSelectionType {
@@ -1109,14 +1110,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
 
   // Trigger haptic feedback for better mobile experience
   void _triggerHapticFeedback() {
-    try {
-      // Only trigger haptic feedback on mobile platforms
-      if (Theme.of(context).platform == TargetPlatform.android || Theme.of(context).platform == TargetPlatform.iOS) {
-        HapticFeedback.lightImpact();
-      }
-    } catch (e) {
-      // Ignore haptic feedback errors
-    }
+    HapticFeedbackUtil.triggerHapticFeedback(context);
   }
 
   // Calculate responsive dialog width based on screen size

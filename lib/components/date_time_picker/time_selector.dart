@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'wheel_time_picker.dart';
 import 'time_formatting_util.dart';
+import 'haptic_feedback_util.dart';
 
 /// Design constants for time selector
 class _TimeSelectorDesign {
@@ -72,6 +73,7 @@ class _TimeSelectorState extends State<TimeSelector> {
   /// Trigger haptic feedback for better mobile experience
   void _triggerHapticFeedback() {
     widget.onHapticFeedback?.call();
+    HapticFeedbackUtil.triggerHapticFeedback(context);
   }
 
   /// Format time for display using MaterialLocalizations

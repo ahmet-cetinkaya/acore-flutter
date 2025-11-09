@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'date_picker_types.dart';
+import 'haptic_feedback_util.dart';
 
 /// Design constants for calendar date picker
 class _CalendarDatePickerDesign {
@@ -62,14 +63,7 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
 
   /// Trigger haptic feedback for better mobile experience
   void _triggerHapticFeedback() {
-    try {
-      // Only trigger haptic feedback on mobile platforms
-      if (Theme.of(context).platform == TargetPlatform.android || Theme.of(context).platform == TargetPlatform.iOS) {
-        HapticFeedback.lightImpact();
-      }
-    } catch (e) {
-      // Ignore haptic feedback errors
-    }
+    HapticFeedbackUtil.triggerHapticFeedback(context);
   }
 
   /// Shows time picker for the selected date

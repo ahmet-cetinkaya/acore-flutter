@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'haptic_feedback_util.dart';
 
 /// Design constants for wheel time picker
 class _WheelTimePickerDesign {
@@ -75,6 +76,7 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
   /// Trigger haptic feedback for better mobile experience
   void _triggerHapticFeedback() {
     widget.onHapticFeedback?.call();
+    HapticFeedbackUtil.triggerHapticFeedback(context);
   }
 
   /// Handle time selection from picker wheels
