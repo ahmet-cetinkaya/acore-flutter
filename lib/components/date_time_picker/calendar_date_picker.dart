@@ -7,10 +7,6 @@ import 'haptic_feedback_util.dart';
 
 /// Design constants for calendar date picker
 class _CalendarDatePickerDesign {
-  // Spacing
-  static const double spacingSmall = 8.0;
-  static const double spacingMedium = 12.0;
-
   // Border radius
   static const double radiusMedium = 12.0;
   static const double radiusFull = 50.0;
@@ -301,11 +297,7 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
           borderRadius: BorderRadius.circular(_CalendarDatePickerDesign.radiusMedium),
           color: Theme.of(context).colorScheme.surface,
         ),
-        child: Padding(
-          padding: EdgeInsets.all(
-            isCompactScreen ? _CalendarDatePickerDesign.spacingSmall : _CalendarDatePickerDesign.spacingMedium,
-          ),
-          child: CalendarDatePicker2(
+        child: CalendarDatePicker2(
             config: CalendarDatePicker2Config(
               calendarType: widget.selectionMode == DateSelectionMode.single
                   ? CalendarDatePicker2Type.single
@@ -357,7 +349,6 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
             value: _getCalendarPickerValue(),
             onValueChanged: _onDateChanged,
           ),
-        ),
       ),
     );
   }

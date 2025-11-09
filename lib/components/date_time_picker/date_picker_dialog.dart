@@ -434,7 +434,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   /// Get short day name from DateTime using proper localization
   String _getShortDayNameFromDateTime(DateTime dateTime) {
     final locale = Localizations.localeOf(context);
-    return DateFormat.E(locale).format(dateTime);
+    return DateFormat.E(locale.toString()).format(dateTime);
   }
 
   /// Check if today is currently selected
