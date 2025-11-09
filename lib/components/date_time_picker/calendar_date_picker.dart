@@ -66,6 +66,23 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
     HapticFeedbackUtil.triggerHapticFeedback(context);
   }
 
+  /// Get the calendar picker value based on selection mode and selected dates
+  List<DateTime> _getCalendarPickerValue() {
+    if (widget.selectionMode == DateSelectionMode.single) {
+      return widget.selectedDate != null ? [widget.selectedDate!] : [];
+    }
+
+    // Range selection mode
+    final List<DateTime> dates = [];
+    if (widget.selectedStartDate != null) {
+      dates.add(widget.selectedStartDate!);
+    }
+    if (widget.selectedEndDate != null) {
+      dates.add(widget.selectedEndDate!);
+    }
+    return dates;
+  }
+
   /// Shows time picker for the selected date
   Future<void> _selectTime(DateTime date, bool isStartDate) async {
     if (!widget.showTime) return;
@@ -337,13 +354,7 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
               dayBorderRadius: BorderRadius.circular(_CalendarDatePickerDesign.radiusFull),
               daySplashColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
             ),
-            value: widget.selectionMode == DateSelectionMode.single
-                ? (widget.selectedDate != null ? [widget.selectedDate] : [])
-                : (widget.selectedStartDate != null && widget.selectedEndDate != null
-                    ? [widget.selectedStartDate, widget.selectedEndDate]
-                    : widget.selectedStartDate != null
-                        ? [widget.selectedStartDate]
-                        : []),
+            value: _getCalendarPickerValue(),
             onValueChanged: _onDateChanged,
           ),
         ),

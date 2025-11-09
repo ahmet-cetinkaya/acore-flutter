@@ -674,7 +674,12 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       );
       setState(() {
         _selectedDate = newDateTime;
-        _isAllDay = false; // Turn off all-day when specific time is selected
+        // Only turn off all-day if the selected time is not 00:00
+        if (result.selectedTime.hour == 0 && result.selectedTime.minute == 0) {
+          _isAllDay = true;
+        } else {
+          _isAllDay = false;
+        }
       });
       _triggerHapticFeedback();
     }
