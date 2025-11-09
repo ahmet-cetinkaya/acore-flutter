@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'date_time_picker_translation_keys.dart';
+import 'wheel_time_picker.dart';
 
 /// Design constants for time selector
 class _TimeSelectorDesign {
@@ -18,18 +19,11 @@ class _TimeSelectorDesign {
   static const double borderWidth = 1.0;
 
   // Font sizes
-  static const double fontSizeSmall = 12.0;
   static const double fontSizeLarge = 16.0;
   static const double fontSizeXLarge = 18.0;
 
   // Icon sizes
   static const double iconSizeMedium = 20.0;
-
-  // iOS-style picker dimensions
-  static const double pickerHeight = 200.0;
-  static const double itemExtent = 40.0;
-  static const double squeeze = 1.2;
-  static const double diameterRatio = 1.5;
 }
 
 /// A reusable time selector component extracted from DatePickerDialog
@@ -61,27 +55,12 @@ class TimeSelector extends StatefulWidget {
 class _TimeSelectorState extends State<TimeSelector> {
   late bool _showInlineTimePicker;
   late TimeOfDay? _tempSelectedTime;
-  late FixedExtentScrollController _hourScrollController;
-  late FixedExtentScrollController _minuteScrollController;
 
   @override
   void initState() {
     super.initState();
     _showInlineTimePicker = widget.showTimePicker;
     _tempSelectedTime = widget.initialTime;
-    _hourScrollController = FixedExtentScrollController(
-      initialItem: widget.initialTime.hour,
-    );
-    _minuteScrollController = FixedExtentScrollController(
-      initialItem: widget.initialTime.minute,
-    );
-  }
-
-  @override
-  void dispose() {
-    _hourScrollController.dispose();
-    _minuteScrollController.dispose();
-    super.dispose();
   }
 
   /// Checks if the current screen is compact (mobile)
@@ -119,21 +98,7 @@ class _TimeSelectorState extends State<TimeSelector> {
     return widget.translations[key] ?? fallback;
   }
 
-  /// Handle time selection from iOS-style picker
-  void _onTimeChanged(int hour, int minute) {
-    final newDateTime = DateTime(
-      widget.selectedDate.year,
-      widget.selectedDate.month,
-      widget.selectedDate.day,
-      hour,
-      minute,
-    );
-    setState(() {
-      _tempSelectedTime = TimeOfDay(hour: hour, minute: minute);
-    });
-    widget.onTimeChanged(newDateTime);
-  }
-
+  
   /// Handle time change when user confirms selection
   void _onTimeSet() {
     if (_tempSelectedTime != null) {
@@ -151,174 +116,24 @@ class _TimeSelectorState extends State<TimeSelector> {
     }
   }
 
-  /// Build iOS-style time picker wheel
-  Widget _buildIOSPicker() {
-    final isCompactScreen = _isCompactScreen(context);
-
-    return Container(
-      height: _TimeSelectorDesign.pickerHeight,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(_TimeSelectorDesign.radiusLarge),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: _TimeSelectorDesign.borderWidth,
-        ),
-      ),
-      child: Row(
-        children: [
-          // Hour picker
-          Expanded(
-            flex: 1,
-            child: Column(
-              children: [
-                Expanded(
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: (scrollNotification) {
-                      if (scrollNotification is ScrollEndNotification) {
-                        _triggerHapticFeedback();
-                        return true;
-                      }
-                      return false;
-                    },
-                    child: ListWheelScrollView.useDelegate(
-                      controller: _hourScrollController,
-                      itemExtent: _TimeSelectorDesign.itemExtent,
-                      squeeze: _TimeSelectorDesign.squeeze,
-                      diameterRatio: _TimeSelectorDesign.diameterRatio,
-                      physics: const FixedExtentScrollPhysics(),
-                      onSelectedItemChanged: (index) {
-                        final hour = index % 24;
-                        final minute = _minuteScrollController.selectedItem;
-                        _onTimeChanged(hour, minute);
-                      },
-                      childDelegate: ListWheelChildBuilderDelegate(
-                        childCount: 24 * 3, // Allow infinite scrolling
-                        builder: (context, index) {
-                          final hour = index % 24;
-                          final isSelected = hour == _tempSelectedTime?.hour;
-                          final distance = ((hour - (_tempSelectedTime?.hour ?? 0)).abs() % 24);
-                          final isNear = distance == 1 || distance == 23;
-
-                          return Container(
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.symmetric(horizontal: _TimeSelectorDesign.spacingSmall),
-                            child: Text(
-                              hour.toString().padLeft(2, '0'),
-                              style: TextStyle(
-                                fontSize: isCompactScreen ? 20 : 24,
-                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                                color: isSelected
-                                  ? Theme.of(context).colorScheme.primary
-                                  : isNear
-                                    ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
-                                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: _TimeSelectorDesign.spacingSmall),
-                  child: Text(
-                    'Hour',
-                    style: TextStyle(
-                      fontSize: _TimeSelectorDesign.fontSizeSmall,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Separator
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: _TimeSelectorDesign.spacingSmall),
-            child: Text(
-              ':',
-              style: TextStyle(
-                fontSize: isCompactScreen ? 28 : 32,
-                fontWeight: FontWeight.w300,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ),
-
-          // Minute picker
-          Expanded(
-            flex: 1,
-            child: Column(
-              children: [
-                Expanded(
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: (scrollNotification) {
-                      if (scrollNotification is ScrollEndNotification) {
-                        _triggerHapticFeedback();
-                        return true;
-                      }
-                      return false;
-                    },
-                    child: ListWheelScrollView.useDelegate(
-                      controller: _minuteScrollController,
-                      itemExtent: _TimeSelectorDesign.itemExtent,
-                      squeeze: _TimeSelectorDesign.squeeze,
-                      diameterRatio: _TimeSelectorDesign.diameterRatio,
-                      physics: const FixedExtentScrollPhysics(),
-                      onSelectedItemChanged: (index) {
-                        final minute = index % 60;
-                        final hour = _hourScrollController.selectedItem;
-                        _onTimeChanged(hour, minute);
-                      },
-                      childDelegate: ListWheelChildBuilderDelegate(
-                        childCount: 60 * 3, // Allow infinite scrolling
-                        builder: (context, index) {
-                          final minute = index % 60;
-                          final isSelected = minute == _tempSelectedTime?.minute;
-                          final distance = ((minute - (_tempSelectedTime?.minute ?? 0)).abs() % 60);
-                          final isNear = distance == 1 || distance == 59;
-
-                          return Container(
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.symmetric(horizontal: _TimeSelectorDesign.spacingSmall),
-                            child: Text(
-                              minute.toString().padLeft(2, '0'),
-                              style: TextStyle(
-                                fontSize: isCompactScreen ? 20 : 24,
-                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                                color: isSelected
-                                  ? Theme.of(context).colorScheme.primary
-                                  : isNear
-                                    ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
-                                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: _TimeSelectorDesign.spacingSmall),
-                  child: Text(
-                    'Minute',
-                    style: TextStyle(
-                      fontSize: _TimeSelectorDesign.fontSizeSmall,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+  /// Build wheel-style time picker
+  Widget _buildWheelTimePicker() {
+    return WheelTimePicker(
+      initialTime: _tempSelectedTime ?? widget.initialTime,
+      onTimeChanged: (newTime) {
+        final newDateTime = DateTime(
+          widget.selectedDate.year,
+          widget.selectedDate.month,
+          widget.selectedDate.day,
+          newTime.hour,
+          newTime.minute,
+        );
+        setState(() {
+          _tempSelectedTime = newTime;
+        });
+        widget.onTimeChanged(newDateTime);
+      },
+      onHapticFeedback: _triggerHapticFeedback,
     );
   }
 
@@ -390,10 +205,10 @@ class _TimeSelectorState extends State<TimeSelector> {
 
             SizedBox(height: isCompactScreen ? _TimeSelectorDesign.spacingLarge : _TimeSelectorDesign.spacingXLarge),
 
-            // iOS-style time picker
+            // Wheel-style time picker
             Semantics(
               label: 'Time picker with hour and minute wheels. Scroll to change values.',
-              child: _buildIOSPicker(),
+              child: _buildWheelTimePicker(),
             ),
 
             SizedBox(height: isCompactScreen ? _TimeSelectorDesign.spacingXLarge : _TimeSelectorDesign.spacingXLarge),
