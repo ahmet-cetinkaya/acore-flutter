@@ -287,13 +287,12 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     return widget.config.translations?[key] ?? fallback;
   }
 
-  /// Build compact Todoist-style quick selection with horizontal layout
+  /// Build compact Todoist-style quick selection with vertical layout
   Widget _buildTodoistQuickSelection() {
     return Container(
       margin: const EdgeInsets.only(bottom: _DatePickerDesign.spacingMedium),
-      child: Wrap(
+      child: Column(
         spacing: _DatePickerDesign.spacingSmall,
-        runSpacing: _DatePickerDesign.spacingSmall,
         children: [
           _buildCompactQuickSelectionButton(
             text: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionToday, 'Today'),
@@ -324,7 +323,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     );
   }
 
-  /// Build compact quick selection button for space-efficient layout
+  /// Build compact quick selection button for vertical layout
   Widget _buildCompactQuickSelectionButton({
     required String text,
     required VoidCallback onTap,
@@ -337,13 +336,11 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         _triggerHapticFeedback();
       },
       child: Container(
-        height: 40, // Reduced height for compact design
-        constraints: const BoxConstraints(
-          minWidth: 80, // Minimum width to ensure text is readable
-        ),
+        width: double.infinity, // Full width for vertical layout
+        height: 44, // Slightly increased height for better touch targets
         padding: const EdgeInsets.symmetric(
-          horizontal: _DatePickerDesign.spacingSmall,
-          vertical: _DatePickerDesign.spacingXSmall,
+          horizontal: _DatePickerDesign.spacingMedium,
+          vertical: _DatePickerDesign.spacingSmall,
         ),
         decoration: BoxDecoration(
           color: isSelected
@@ -358,12 +355,11 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           ),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            // Compact icon indicator
+            // Icon indicator
             Container(
-              width: 24, // Reduced size for compact design
-              height: 24,
+              width: 28, // Slightly larger for better visibility
+              height: 28,
               decoration: BoxDecoration(
                 color: isSelected
                     ? Theme.of(context).primaryColor.withValues(alpha: 0.3)
@@ -374,7 +370,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                 child: type == QuickSelectionType.noDate
                     ? Icon(
                         Icons.close,
-                        size: 14, // Smaller icon for compact design
+                        size: 16,
                         color: isSelected
                             ? Theme.of(context).primaryColor
                             : Theme.of(context).colorScheme.onSurfaceVariant,
@@ -382,7 +378,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                     : Text(
                         _getShortDayNameFromType(type),
                         style: TextStyle(
-                          fontSize: 10, // Even smaller font to fit 3-letter day names
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: isSelected
                               ? Theme.of(context).primaryColor
@@ -391,13 +387,13 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                       ),
               ),
             ),
-            const SizedBox(width: _DatePickerDesign.spacingXSmall),
-            // Compact text
-            Flexible(
+            const SizedBox(width: _DatePickerDesign.spacingSmall),
+            // Text
+            Expanded(
               child: Text(
                 text,
                 style: TextStyle(
-                  fontSize: 10, // Even smaller font to fit 3-letter day names
+                  fontSize: _DatePickerDesign.fontSizeMedium,
                   fontWeight: FontWeight.w600,
                   color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -405,6 +401,12 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                 maxLines: 1,
               ),
             ),
+            if (isSelected)
+              Icon(
+                Icons.check_circle,
+                size: _DatePickerDesign.iconSizeSmall,
+                color: Theme.of(context).primaryColor,
+              ),
           ],
         ),
       ),
@@ -661,6 +663,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         theme: widget.config.theme,
         locale: widget.config.locale,
         actionButtonRadius: widget.config.actionButtonRadius,
+        initialIsAllDay: _isAllDay,
       ),
     );
 
@@ -669,17 +672,12 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         _selectedDate!.year,
         _selectedDate!.month,
         _selectedDate!.day,
-        result.selectedTime.hour,
-        result.selectedTime.minute,
+        result.isAllDay ? 0 : result.selectedTime.hour,
+        result.isAllDay ? 0 : result.selectedTime.minute,
       );
       setState(() {
         _selectedDate = newDateTime;
-        // Only turn off all-day if the selected time is not 00:00
-        if (result.selectedTime.hour == 0 && result.selectedTime.minute == 0) {
-          _isAllDay = true;
-        } else {
-          _isAllDay = false;
-        }
+        _isAllDay = result.isAllDay;
       });
       _triggerHapticFeedback();
     }
@@ -814,8 +812,8 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
             _DatePickerDesign.spacingXLarge,
             isCompactScreen ? _DatePickerDesign.spacingMedium : _DatePickerDesign.spacingLarge),
         contentPadding: EdgeInsets.fromLTRB(
-            _DatePickerDesign.spacingXLarge, 0.0, _DatePickerDesign.spacingXLarge, _DatePickerDesign.spacingLarge),
-        actionsPadding: EdgeInsets.fromLTRB(_DatePickerDesign.spacingMedium, 0.0, _DatePickerDesign.spacingMedium,
+            _DatePickerDesign.spacingSmall, 0.0, _DatePickerDesign.spacingSmall, _DatePickerDesign.spacingLarge),
+        actionsPadding: EdgeInsets.fromLTRB(_DatePickerDesign.spacingSmall, 0.0, _DatePickerDesign.spacingSmall,
             isCompactScreen ? _DatePickerDesign.spacingMedium : _DatePickerDesign.spacingLarge),
         title: Semantics(
           label: _getLocalizedText(
@@ -1280,28 +1278,12 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
         child: InkWell(
           onTap: () {
-            // Toggle all-day state or open time picker
-            if (_isAllDay) {
-              _openTimeSelectionDialog();
-            } else {
-              setState(() {
-                _isAllDay = true;
-                // Set time to 00:00 when switching to all-day
-                if (_selectedDate != null) {
-                  _selectedDate = DateTime(
-                    _selectedDate!.year,
-                    _selectedDate!.month,
-                    _selectedDate!.day,
-                    0,
-                    0,
-                    0,
-                  );
-                }
-              });
-              _triggerHapticFeedback();
-            }
+            // Always open time picker dialog
+            _openTimeSelectionDialog();
           },
           borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
+          splashColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+          highlightColor: Theme.of(context).primaryColor.withValues(alpha: 0.05),
           child: Container(
             height: 40, // Compact fixed height
             padding: const EdgeInsets.symmetric(
@@ -1331,10 +1313,10 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                             : _formatTimeForDisplay(_selectedDate!)
                         : _getLocalizedText(DateTimePickerTranslationKey.allDay, 'All Day'),
                     style: TextStyle(
-                      fontSize: _DatePickerDesign.fontSizeSmall, // Smaller font
-                      fontWeight: FontWeight.w500,
+                      fontSize: _DatePickerDesign.fontSizeMedium,
+                      fontWeight: FontWeight.w600,
                       color: _selectedDate != null
-                          ? Theme.of(context).colorScheme.onSurface
+                          ? Theme.of(context).primaryColor
                           : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -1345,7 +1327,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                 Icon(
                   Icons.chevron_right,
                   size: 14, // Smaller chevron
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ],
             ),
