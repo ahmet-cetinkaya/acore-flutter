@@ -10,6 +10,7 @@ import 'time_selection_dialog.dart';
 import 'date_selection_dialog.dart';
 import 'quick_range_selector.dart';
 import 'date_validation_display.dart';
+import 'time_formatting_util.dart';
 
 /// Enum for quick selection button types
 enum QuickSelectionType {
@@ -275,24 +276,9 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     return formatted;
   }
 
-  /// Format time for display with consistent 12/24 hour formatting
+  /// Format time for display using MaterialLocalizations
   String _formatTimeForDisplay(DateTime dateTime) {
-    return _formatTimeOfDay(dateTime.hour, dateTime.minute);
-  }
-
-  /// Unified time formatting method that respects device 12/24 hour settings
-  String _formatTimeOfDay(int hour, int minute) {
-    final is24Hour = MediaQuery.of(context).alwaysUse24HourFormat;
-
-    if (is24Hour) {
-      // 24-hour format: HH:MM
-      return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-    } else {
-      // 12-hour format: H:MM AM/PM
-      final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
-      final period = hour >= 12 ? 'PM' : 'AM';
-      return '$displayHour:${minute.toString().padLeft(2, '0')} $period';
-    }
+    return TimeFormattingUtil.formatDateTimeTime(context, dateTime);
   }
 
   String _getLocalizedText(DateTimePickerTranslationKey key, String fallback) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'wheel_time_picker.dart';
+import 'time_formatting_util.dart';
 
 /// Design constants for time selection dialog
 class _TimeSelectionDialogDesign {
@@ -130,24 +131,9 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
     }
   }
 
-  /// Format time for display with consistent 12/24 hour formatting
+  /// Format time for display using MaterialLocalizations
   String _formatTimeForDisplay(TimeOfDay time) {
-    return _formatTimeOfDay(time.hour, time.minute);
-  }
-
-  /// Unified time formatting method that respects device 12/24 hour settings
-  String _formatTimeOfDay(int hour, int minute) {
-    final is24Hour = MediaQuery.of(context).alwaysUse24HourFormat;
-
-    if (is24Hour) {
-      // 24-hour format: HH:MM
-      return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-    } else {
-      // 12-hour format: H:MM AM/PM
-      final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
-      final period = hour >= 12 ? 'PM' : 'AM';
-      return '$displayHour:${minute.toString().padLeft(2, '0')} $period';
-    }
+    return TimeFormattingUtil.formatTime(context, time);
   }
 
   /// Get localized text with fallback
