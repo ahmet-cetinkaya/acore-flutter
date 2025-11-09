@@ -135,7 +135,6 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
     return widget.config.translations[key] ?? fallback;
   }
 
-  
   /// Handle time confirmation
   void _onConfirm() {
     Navigator.of(context).pop(TimeSelectionResult.confirmed(_selectedTime));
@@ -175,7 +174,8 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
         height: 48, // Minimum touch target size
         width: double.infinity,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(widget.config.actionButtonRadius ?? _TimeSelectionDialogDesign.radiusMedium),
+          borderRadius:
+              BorderRadius.circular(widget.config.actionButtonRadius ?? _TimeSelectionDialogDesign.radiusMedium),
           color: isPrimary
               ? Theme.of(context).primaryColor
               : onPressed != null
@@ -186,7 +186,8 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
           color: Colors.transparent,
           child: InkWell(
             onTap: onPressed,
-            borderRadius: BorderRadius.circular(widget.config.actionButtonRadius ?? _TimeSelectionDialogDesign.radiusMedium),
+            borderRadius:
+                BorderRadius.circular(widget.config.actionButtonRadius ?? _TimeSelectionDialogDesign.radiusMedium),
             child: Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -272,10 +273,10 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
                   'Select Time',
                 ),
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontSize: _TimeSelectionDialogDesign.fontSizeXLarge,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).primaryColor,
-                ),
+                      fontSize: _TimeSelectionDialogDesign.fontSizeXLarge,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).primaryColor,
+                    ),
               ),
             ],
           ),

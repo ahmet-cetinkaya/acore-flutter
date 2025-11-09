@@ -139,7 +139,8 @@ class DatePickerResult {
     return const DatePickerResult(isConfirmed: false);
   }
 
-  factory DatePickerResult.single(DateTime date, {bool? isRefreshEnabled, String? quickSelectionKey, bool isAllDay = false}) {
+  factory DatePickerResult.single(DateTime date,
+      {bool? isRefreshEnabled, String? quickSelectionKey, bool isAllDay = false}) {
     return DatePickerResult(
       selectedDate: date,
       isConfirmed: true,
@@ -462,7 +463,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     return _isSameDay(_selectedDate!, saturday);
   }
 
-  
   /// Check if no date is currently selected
   bool _isNoDateSelected() {
     return _selectedDate == null;

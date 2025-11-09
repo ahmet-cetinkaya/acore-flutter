@@ -10,8 +10,7 @@ class HapticFeedbackUtil {
   static void triggerHapticFeedback(BuildContext context) {
     try {
       // Only trigger haptic feedback on mobile platforms
-      if (Theme.of(context).platform == TargetPlatform.android ||
-          Theme.of(context).platform == TargetPlatform.iOS) {
+      if (Theme.of(context).platform == TargetPlatform.android || Theme.of(context).platform == TargetPlatform.iOS) {
         HapticFeedback.lightImpact();
       }
     } catch (e) {
@@ -23,8 +22,7 @@ class HapticFeedbackUtil {
   static void triggerMediumHapticFeedback(BuildContext context) {
     try {
       // Only trigger haptic feedback on mobile platforms
-      if (Theme.of(context).platform == TargetPlatform.android ||
-          Theme.of(context).platform == TargetPlatform.iOS) {
+      if (Theme.of(context).platform == TargetPlatform.android || Theme.of(context).platform == TargetPlatform.iOS) {
         HapticFeedback.mediumImpact();
       }
     } catch (e) {
@@ -36,8 +34,7 @@ class HapticFeedbackUtil {
   static void triggerHeavyHapticFeedback(BuildContext context) {
     try {
       // Only trigger haptic feedback on mobile platforms
-      if (Theme.of(context).platform == TargetPlatform.android ||
-          Theme.of(context).platform == TargetPlatform.iOS) {
+      if (Theme.of(context).platform == TargetPlatform.android || Theme.of(context).platform == TargetPlatform.iOS) {
         HapticFeedback.heavyImpact();
       }
     } catch (e) {
@@ -49,8 +46,7 @@ class HapticFeedbackUtil {
   static void triggerSelectionFeedback(BuildContext context) {
     try {
       // Only trigger haptic feedback on mobile platforms
-      if (Theme.of(context).platform == TargetPlatform.android ||
-          Theme.of(context).platform == TargetPlatform.iOS) {
+      if (Theme.of(context).platform == TargetPlatform.android || Theme.of(context).platform == TargetPlatform.iOS) {
         HapticFeedback.selectionClick();
       }
     } catch (e) {

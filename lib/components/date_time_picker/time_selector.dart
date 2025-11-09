@@ -86,7 +86,6 @@ class _TimeSelectorState extends State<TimeSelector> {
     return widget.translations[key] ?? fallback;
   }
 
-  
   /// Handle time change when user confirms selection
   void _onTimeSet() {
     if (_tempSelectedTime != null) {

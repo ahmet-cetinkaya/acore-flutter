@@ -147,10 +147,10 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
                                 fontSize: isCompactScreen ? 20 : 24,
                                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                                 color: isSelected
-                                  ? Theme.of(context).colorScheme.primary
-                                  : isNear
-                                    ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
-                                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                                    ? Theme.of(context).colorScheme.primary
+                                    : isNear
+                                        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
+                                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                               ),
                             ),
                           );
@@ -229,10 +229,10 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
                                 fontSize: isCompactScreen ? 20 : 24,
                                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                                 color: isSelected
-                                  ? Theme.of(context).colorScheme.primary
-                                  : isNear
-                                    ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
-                                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                                    ? Theme.of(context).colorScheme.primary
+                                    : isNear
+                                        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
+                                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                               ),
                             ),
                           );

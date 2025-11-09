@@ -148,7 +148,6 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
     }
   }
 
-  
   /// Trigger haptic feedback for better mobile experience
   void _triggerHapticFeedback() {
     HapticFeedbackUtil.triggerHapticFeedback(context);
@@ -232,7 +231,8 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
         height: 48, // Minimum touch target size
         width: double.infinity,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(widget.config.actionButtonRadius ?? _DateSelectionDialogDesign.radiusMedium),
+          borderRadius:
+              BorderRadius.circular(widget.config.actionButtonRadius ?? _DateSelectionDialogDesign.radiusMedium),
           color: isPrimary
               ? Theme.of(context).primaryColor
               : onPressed != null
@@ -243,7 +243,8 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
           color: Colors.transparent,
           child: InkWell(
             onTap: onPressed,
-            borderRadius: BorderRadius.circular(widget.config.actionButtonRadius ?? _DateSelectionDialogDesign.radiusMedium),
+            borderRadius:
+                BorderRadius.circular(widget.config.actionButtonRadius ?? _DateSelectionDialogDesign.radiusMedium),
             child: Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -281,7 +282,6 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
 
   /// Build calendar picker widget
   Widget _buildCalendarPicker() {
-
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -320,7 +320,8 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
       if (_selectedStartDate != null && _selectedEndDate != null) {
         displayText = '${_formatDateForDisplay(_selectedStartDate)} - ${_formatDateForDisplay(_selectedEndDate)}';
       } else if (_selectedStartDate != null) {
-        displayText = '${_formatDateForDisplay(_selectedStartDate)} - ${_getLocalizedText(DateTimePickerTranslationKey.selectEndDate, 'Select end date')}';
+        displayText =
+            '${_formatDateForDisplay(_selectedStartDate)} - ${_getLocalizedText(DateTimePickerTranslationKey.selectEndDate, 'Select end date')}';
       } else {
         displayText = _getLocalizedText(DateTimePickerTranslationKey.noDatesSelected, 'No dates selected');
       }
@@ -432,10 +433,10 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
                     ? _getLocalizedText(DateTimePickerTranslationKey.selectDateTitle, 'Select Date')
                     : _getLocalizedText(DateTimePickerTranslationKey.selectDateRangeTitle, 'Select Date Range'),
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontSize: _DateSelectionDialogDesign.fontSizeXLarge,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).primaryColor,
-                ),
+                      fontSize: _DateSelectionDialogDesign.fontSizeXLarge,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).primaryColor,
+                    ),
               ),
             ],
           ),
