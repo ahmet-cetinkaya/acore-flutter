@@ -2,10 +2,10 @@ import 'package:flutter/material.dart' hide DatePickerDialog;
 import '../../time/date_format_service.dart';
 import 'date_picker_dialog.dart';
 import 'date_time_picker_translation_keys.dart';
+import 'date_picker_types.dart';
 
 class DateTimePickerField extends StatelessWidget {
   final TextEditingController controller;
-  final String hintText;
   final void Function(DateTime?) onConfirm;
   final DateTime? minDateTime;
   final DateTime? maxDateTime;
@@ -20,7 +20,6 @@ class DateTimePickerField extends StatelessWidget {
   const DateTimePickerField({
     super.key,
     required this.controller,
-    required this.hintText,
     required this.onConfirm,
     this.minDateTime,
     this.maxDateTime,
@@ -55,6 +54,11 @@ class DateTimePickerField extends StatelessWidget {
     final normalized1 = _normalizeToMinute(date1);
     final normalized2 = _normalizeToMinute(date2);
     return normalized1.isAfter(normalized2);
+  }
+
+  // Helper method to get translation with fallback
+  String _getTranslation(DateTimePickerTranslationKey key, String fallback) {
+    return translateKey?.call(key) ?? fallback;
   }
 
   Future<void> _selectDateTime(BuildContext context) async {
@@ -95,15 +99,14 @@ class DateTimePickerField extends StatelessWidget {
       showTime: true,
       enableManualInput: true,
       translations: {
-        DateTimePickerTranslationKey.title:
-            translateKey?.call(DateTimePickerTranslationKey.title) ?? 'Select Date & Time',
-        DateTimePickerTranslationKey.confirm: translateKey?.call(DateTimePickerTranslationKey.confirm) ?? 'Confirm',
-        DateTimePickerTranslationKey.cancel: translateKey?.call(DateTimePickerTranslationKey.cancel) ?? 'Cancel',
-        DateTimePickerTranslationKey.setTime: translateKey?.call(DateTimePickerTranslationKey.setTime) ?? 'Set Time',
+        DateTimePickerTranslationKey.title: _getTranslation(DateTimePickerTranslationKey.title, 'Select Date & Time'),
+        DateTimePickerTranslationKey.confirm: _getTranslation(DateTimePickerTranslationKey.confirm, 'Confirm'),
+        DateTimePickerTranslationKey.cancel: _getTranslation(DateTimePickerTranslationKey.cancel, 'Cancel'),
+        DateTimePickerTranslationKey.setTime: _getTranslation(DateTimePickerTranslationKey.setTime, 'Set Time'),
         DateTimePickerTranslationKey.noDateSelected:
-            translateKey?.call(DateTimePickerTranslationKey.noDateSelected) ?? 'No date selected',
-        DateTimePickerTranslationKey.clear: translateKey?.call(DateTimePickerTranslationKey.clear) ?? 'Clear',
-        DateTimePickerTranslationKey.refresh: translateKey?.call(DateTimePickerTranslationKey.refresh) ?? 'Refresh',
+            _getTranslation(DateTimePickerTranslationKey.noDateSelected, 'No date selected'),
+        DateTimePickerTranslationKey.clear: _getTranslation(DateTimePickerTranslationKey.clear, 'Clear'),
+        DateTimePickerTranslationKey.refresh: _getTranslation(DateTimePickerTranslationKey.refresh, 'Refresh'),
       },
     );
 
@@ -140,42 +143,54 @@ class DateTimePickerField extends StatelessWidget {
     final effectiveIconSize = iconSize ?? 16.0;
     final effectiveIconColor = iconColor ?? theme.iconTheme.color?.withValues(alpha: 0.7);
 
-    return TextFormField(
-      controller: controller,
-      readOnly: true,
-      style: effectiveTextStyle,
-      decoration: decoration?.copyWith(
-            hintText: hintText,
-            hintStyle: effectiveHintStyle,
-            suffixIcon: _buildSuffixIcons(context, effectiveIconSize, effectiveIconColor),
-            contentPadding: const EdgeInsets.only(left: 8.0),
-          ) ??
-          InputDecoration(
-            hintText: hintText,
-            hintStyle: effectiveHintStyle,
-            suffixIcon: _buildSuffixIcons(context, effectiveIconSize, effectiveIconColor),
-            isDense: true,
-            contentPadding: const EdgeInsets.only(left: 8.0),
-          ),
-      onTap: () async {
-        await _selectDateTime(context);
-      },
+    return Semantics(
+      textField: true,
+      label: _getTranslation(DateTimePickerTranslationKey.dateTimeFieldLabel, 'Date and time field'),
+      hint: _getTranslation(DateTimePickerTranslationKey.dateTimeFieldHint, 'Tap to select date and time'),
+      value: controller.text.isNotEmpty ? controller.text : null,
+      onTapHint: _getTranslation(DateTimePickerTranslationKey.editButtonHint, 'Open date and time picker'),
+      child: TextFormField(
+        controller: controller,
+        readOnly: true,
+        style: effectiveTextStyle,
+        decoration: decoration?.copyWith(
+              hintText: _getTranslation(DateTimePickerTranslationKey.dateTimeFieldHint, 'Tap to select date and time'),
+              hintStyle: effectiveHintStyle,
+              suffixIcon: _buildSuffixIcons(context, effectiveIconSize, effectiveIconColor),
+              contentPadding: const EdgeInsets.only(left: 8.0),
+            ) ??
+            InputDecoration(
+              hintText: _getTranslation(DateTimePickerTranslationKey.dateTimeFieldHint, 'Tap to select date and time'),
+              hintStyle: effectiveHintStyle,
+              suffixIcon: _buildSuffixIcons(context, effectiveIconSize, effectiveIconColor),
+              isDense: true,
+              contentPadding: const EdgeInsets.only(left: 8.0),
+            ),
+        onTap: () async {
+          await _selectDateTime(context);
+        },
+      ),
     );
   }
 
   Widget _buildSuffixIcons(BuildContext context, double iconSize, Color? iconColor) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () async {
-          await _selectDateTime(context);
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Icon(
-            Icons.edit,
-            size: iconSize,
-            color: iconColor,
+    return Semantics(
+      button: true,
+      label: _getTranslation(DateTimePickerTranslationKey.editButtonLabel, 'Edit date and time'),
+      hint: _getTranslation(DateTimePickerTranslationKey.editButtonHint, 'Open date and time picker dialog'),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () async {
+            await _selectDateTime(context);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Icon(
+              Icons.edit,
+              size: iconSize,
+              color: iconColor,
+            ),
           ),
         ),
       ),

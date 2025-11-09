@@ -12,6 +12,18 @@ enum DateTimePickerTranslationKey {
   /// Set time button text
   setTime,
 
+  /// Selected time text
+  selectedTime,
+
+  /// Select time dialog title
+  selectTimeTitle,
+
+  /// All day indicator for time selection
+  allDay,
+
+  /// Select date dialog title
+  selectDateTitle,
+
   /// No date selected placeholder text
   noDateSelected,
 
@@ -56,4 +68,17 @@ enum DateTimePickerTranslationKey {
   /// Quick selection dialog sections
   dateRanges,
   refreshSettingsLabel,
+
+  /// Accessibility labels for DateTimePickerField
+  dateTimeFieldLabel,
+  dateTimeFieldHint,
+  editButtonLabel,
+  editButtonHint,
+
+  /// Todoist-style quick selection
+  quickSelectionToday,
+  quickSelectionTomorrow,
+  quickSelectionWeekend,
+  quickSelectionNextWeek,
+  quickSelectionNoDate,
 }
