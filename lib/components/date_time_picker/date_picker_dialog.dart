@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
+import 'package:intl/intl.dart';
 import '../../time/date_format_service.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'date_picker_types.dart';
@@ -9,6 +10,14 @@ import 'time_selection_dialog.dart';
 import 'date_selection_dialog.dart';
 import 'quick_range_selector.dart';
 import 'date_validation_display.dart';
+
+/// Enum for quick selection button types
+enum QuickSelectionType {
+  today,
+  tomorrow,
+  weekend,
+  noDate,
+}
 
 /// Mobile-optimized design constants for date picker
 class _DatePickerDesign {
@@ -301,23 +310,26 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           _buildCompactQuickSelectionButton(
             text: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionToday, 'Today'),
             onTap: () => _selectToday(),
+            type: QuickSelectionType.today,
             isSelected: _isTodaySelected(),
           ),
           _buildCompactQuickSelectionButton(
             text: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionTomorrow, 'Tomorrow'),
             onTap: () => _selectTomorrow(),
+            type: QuickSelectionType.tomorrow,
             isSelected: _isTomorrowSelected(),
           ),
           _buildCompactQuickSelectionButton(
             text: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionWeekend, 'Weekend'),
             onTap: () => _selectThisWeekend(),
+            type: QuickSelectionType.weekend,
             isSelected: _isThisWeekendSelected(),
           ),
           _buildCompactQuickSelectionButton(
             text: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionNoDate, 'No Date'),
             onTap: () => _selectNoDate(),
+            type: QuickSelectionType.noDate,
             isSelected: _isNoDateSelected(),
-            isNoDate: true,
           ),
         ],
       ),
@@ -328,7 +340,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   Widget _buildCompactQuickSelectionButton({
     required String text,
     required VoidCallback onTap,
-    bool isNoDate = false,
+    required QuickSelectionType type,
     bool isSelected = false,
   }) {
     return GestureDetector(
@@ -371,7 +383,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                 borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
               ),
               child: Center(
-                child: isNoDate
+                child: type == QuickSelectionType.noDate
                     ? Icon(
                         Icons.close,
                         size: 14, // Smaller icon for compact design
@@ -380,7 +392,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                             : Theme.of(context).colorScheme.onSurfaceVariant,
                       )
                     : Text(
-                        _getShortDayName(text),
+                        _getShortDayNameFromType(type),
                         style: TextStyle(
                           fontSize: 10, // Even smaller font to fit 3-letter day names
                           fontWeight: FontWeight.w600,
@@ -411,37 +423,31 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     );
   }
 
-  /// Get short day name for quick selection buttons
-  String _getShortDayName(String selectionText) {
+  /// Get short day name for quick selection buttons using proper localization
+  String _getShortDayNameFromType(QuickSelectionType type) {
     final now = DateTime.now();
 
-    if (selectionText.contains('Today') || selectionText.toLowerCase().contains('bugün')) {
-      return _getShortDayNameFromDateTime(now);
-    } else if (selectionText.contains('Tomorrow') || selectionText.toLowerCase().contains('yarın')) {
-      return _getShortDayNameFromDateTime(now.add(const Duration(days: 1)));
-    } else if (selectionText.contains('Weekend')) {
-      // Find Saturday
-      var saturday = now;
-      while (saturday.weekday != DateTime.saturday) {
-        saturday = saturday.add(const Duration(days: 1));
-      }
-      return _getShortDayNameFromDateTime(saturday);
-    } else if (selectionText.contains('Next Week')) {
-      // Monday of next week
-      var monday = now;
-      while (monday.weekday != DateTime.monday) {
-        monday = monday.add(const Duration(days: 1));
-      }
-      return _getShortDayNameFromDateTime(monday);
+    switch (type) {
+      case QuickSelectionType.today:
+        return _getShortDayNameFromDateTime(now);
+      case QuickSelectionType.tomorrow:
+        return _getShortDayNameFromDateTime(now.add(const Duration(days: 1)));
+      case QuickSelectionType.weekend:
+        // Find Saturday
+        var saturday = now;
+        while (saturday.weekday != DateTime.saturday) {
+          saturday = saturday.add(const Duration(days: 1));
+        }
+        return _getShortDayNameFromDateTime(saturday);
+      case QuickSelectionType.noDate:
+        return '---'; // Default for no date
     }
-
-    return '---'; // Default
   }
 
-  /// Get short day name from DateTime
+  /// Get short day name from DateTime using proper localization
   String _getShortDayNameFromDateTime(DateTime dateTime) {
-    const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; // Short day names
-    return weekdays[dateTime.weekday - 1];
+    final locale = Localizations.localeOf(context);
+    return DateFormat.E(locale).format(dateTime);
   }
 
   /// Check if today is currently selected
@@ -469,21 +475,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     return _isSameDay(_selectedDate!, saturday);
   }
 
-  /// Check if next week is currently selected
-  bool _isNextWeekSelected() {
-    if (_selectedDate == null) return false;
-    final now = DateTime.now();
-    var monday = now;
-    while (monday.weekday != DateTime.monday) {
-      monday = monday.add(const Duration(days: 1));
-    }
-    // If today is Monday, go to next Monday
-    if (monday.day == now.day) {
-      monday = monday.add(const Duration(days: 7));
-    }
-    return _isSameDay(_selectedDate!, monday);
-  }
-
+  
   /// Check if no date is currently selected
   bool _isNoDateSelected() {
     return _selectedDate == null;
