@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import '../../time/date_format_service.dart';
@@ -19,6 +18,7 @@ enum QuickSelectionType {
   tomorrow,
   weekend,
   noDate,
+  nextWeek,
 }
 
 /// Mobile-optimized design constants for date picker
@@ -287,37 +287,181 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     return widget.config.translations?[key] ?? fallback;
   }
 
+  /// Get the current day of week abbreviation (Mon, Tue, etc.)
+  String _getDayOfWeek() {
+    final now = DateTime.now();
+    final days = [
+      DateTimePickerTranslationKey.weekdayMonShort,
+      DateTimePickerTranslationKey.weekdayTueShort,
+      DateTimePickerTranslationKey.weekdayWedShort,
+      DateTimePickerTranslationKey.weekdayThuShort,
+      DateTimePickerTranslationKey.weekdayFriShort,
+      DateTimePickerTranslationKey.weekdaySatShort,
+      DateTimePickerTranslationKey.weekdaySunShort,
+    ];
+    return _getLocalizedText(days[now.weekday - 1], 'Mon');
+  }
+
+  /// Get tomorrow's day of week abbreviation
+  String _getTomorrowDayOfWeek() {
+    final tomorrow = DateTime.now().add(const Duration(days: 1));
+    final days = [
+      DateTimePickerTranslationKey.weekdayMonShort,
+      DateTimePickerTranslationKey.weekdayTueShort,
+      DateTimePickerTranslationKey.weekdayWedShort,
+      DateTimePickerTranslationKey.weekdayThuShort,
+      DateTimePickerTranslationKey.weekdayFriShort,
+      DateTimePickerTranslationKey.weekdaySatShort,
+      DateTimePickerTranslationKey.weekdaySunShort,
+    ];
+    return _getLocalizedText(days[tomorrow.weekday - 1], 'Tue');
+  }
+
+  /// Get next week's day of week abbreviation (next Monday)
+  String _getNextWeekDayOfWeek() {
+    final now = DateTime.now();
+    final daysUntilNextMonday = (7 - now.weekday + 1) % 7 + 1;
+    final nextMonday = now.add(Duration(days: daysUntilNextMonday));
+
+    final days = [
+      DateTimePickerTranslationKey.weekdayMonShort,
+      DateTimePickerTranslationKey.weekdayTueShort,
+      DateTimePickerTranslationKey.weekdayWedShort,
+      DateTimePickerTranslationKey.weekdayThuShort,
+      DateTimePickerTranslationKey.weekdayFriShort,
+      DateTimePickerTranslationKey.weekdaySatShort,
+      DateTimePickerTranslationKey.weekdaySunShort,
+    ];
+    return _getLocalizedText(days[nextMonday.weekday - 1], 'Mon');
+  }
+
+  /// Get the weekend day of week abbreviation (Saturday)
+  String _getWeekendDayOfWeek() {
+    final now = DateTime.now();
+    final days = [
+      DateTimePickerTranslationKey.weekdayMonShort,
+      DateTimePickerTranslationKey.weekdayTueShort,
+      DateTimePickerTranslationKey.weekdayWedShort,
+      DateTimePickerTranslationKey.weekdayThuShort,
+      DateTimePickerTranslationKey.weekdayFriShort,
+      DateTimePickerTranslationKey.weekdaySatShort,
+      DateTimePickerTranslationKey.weekdaySunShort,
+    ];
+
+    // Find the next Saturday
+    var saturday = now;
+    while (saturday.weekday != DateTime.saturday) {
+      saturday = saturday.add(const Duration(days: 1));
+    }
+    return _getLocalizedText(days[saturday.weekday - 1], 'Sat');
+  }
+
   /// Build compact Todoist-style quick selection with vertical layout
   Widget _buildTodoistQuickSelection() {
+    // Show different buttons based on selection mode
+    final isRangeMode = widget.config.selectionMode == DateSelectionMode.range;
+
     return Container(
       margin: const EdgeInsets.only(bottom: _DatePickerDesign.spacingMedium),
       child: Column(
-        spacing: _DatePickerDesign.spacingSmall,
+        spacing: _DatePickerDesign.spacingXSmall, // Reduced spacing between quick selection buttons
         children: [
-          _buildCompactQuickSelectionButton(
-            text: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionToday, 'Today'),
-            onTap: () => _selectToday(),
-            type: QuickSelectionType.today,
-            isSelected: _isTodaySelected(),
-          ),
-          _buildCompactQuickSelectionButton(
-            text: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionTomorrow, 'Tomorrow'),
-            onTap: () => _selectTomorrow(),
-            type: QuickSelectionType.tomorrow,
-            isSelected: _isTomorrowSelected(),
-          ),
-          _buildCompactQuickSelectionButton(
-            text: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionWeekend, 'Weekend'),
-            onTap: () => _selectThisWeekend(),
-            type: QuickSelectionType.weekend,
-            isSelected: _isThisWeekendSelected(),
-          ),
-          _buildCompactQuickSelectionButton(
-            text: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionNoDate, 'No Date'),
-            onTap: () => _selectNoDate(),
-            type: QuickSelectionType.noDate,
-            isSelected: _isNoDateSelected(),
-          ),
+          if (isRangeMode) ...[
+            // Range selection buttons
+            _buildCompactQuickSelectionButton(
+              text: _getDayOfWeek(),
+              onTap: () => _selectRangeToday(),
+              type: QuickSelectionType.today,
+              isSelected: _isRangeTodaySelected(),
+              label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionToday, 'Today'),
+            ),
+            _buildCompactQuickSelectionButton(
+              text: '7',
+              onTap: () => _select7DaysAgo(),
+              type: QuickSelectionType.weekend, // Reusing enum for 7 days ago
+              isSelected: _is7DaysAgoSelected(),
+              label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionLastWeek, 'Last Week'),
+            ),
+            _buildCompactQuickSelectionButton(
+              text: '30',
+              onTap: () => _select30DaysAgo(),
+              type: QuickSelectionType.noDate, // Reusing enum for 30 days ago
+              isSelected: _is30DaysAgoSelected(),
+              label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionLastMonth, 'Last Month'),
+            ),
+            _buildCompactQuickSelectionButton(
+              text: 'x',
+              icon: Icons.close,
+              onTap: () => _selectNoDateRange(),
+              type: QuickSelectionType.tomorrow, // Reusing enum for no date
+              isSelected: _isNoDateRangeSelected(),
+              label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionNoDate, 'No Date'),
+            ),
+
+            // Refresh checkbox for range selection (only show when date is selected)
+            if (!_isNoDateRangeSelected())
+              _buildCompactQuickSelectionButton(
+                text: _refreshEnabled ? '✓' : '↻',
+                icon: Icons.autorenew, // Always show refresh icon
+                onTap: () {
+                  setState(() {
+                    _refreshEnabled = !_refreshEnabled;
+                    // Always ensure validation stays true when we have a valid selection
+                    // This prevents any race conditions with debounced validation
+                    if (_selectedStartDate != null && _selectedEndDate != null) {
+                      _isSelectionValid = true; // Explicit override for range selections
+                    } else {
+                      _isSelectionValid = _selectedDate != null || widget.config.allowNullConfirm;
+                    }
+                  });
+                  widget.config.onRefreshToggleChanged?.call(_refreshEnabled);
+                  _triggerHapticFeedback();
+                },
+                type: QuickSelectionType.today, // Reusing enum for refresh
+                isSelected: _refreshEnabled,
+                label: _getLocalizedText(DateTimePickerTranslationKey.refreshSettings, 'Auto-refresh'),
+              ),
+          ] else ...[
+            // Single date selection buttons
+            _buildCompactQuickSelectionButton(
+              text: _getDayOfWeek(),
+              onTap: () => _selectToday(),
+              type: QuickSelectionType.today,
+              isSelected: _isTodaySelected(),
+              label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionToday, 'Today'),
+            ),
+            _buildCompactQuickSelectionButton(
+              text: _getTomorrowDayOfWeek(),
+              onTap: () => _selectTomorrow(),
+              type: QuickSelectionType.tomorrow,
+              isSelected: _isTomorrowSelected(),
+              label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionTomorrow, 'Tomorrow'),
+            ),
+            _buildCompactQuickSelectionButton(
+              text: _getWeekendDayOfWeek(),
+              icon: Icons.weekend,
+              onTap: () => _selectThisWeekend(),
+              type: QuickSelectionType.weekend,
+              isSelected: _isThisWeekendSelected(),
+              label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionWeekend, 'Weekend'),
+            ),
+            _buildCompactQuickSelectionButton(
+              text: _getNextWeekDayOfWeek(),
+              icon: Icons.arrow_forward,
+              onTap: () => _selectNextWeek(),
+              type: QuickSelectionType.nextWeek,
+              isSelected: _isNextWeekSelected(),
+              label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionNextWeek, 'Next Week'),
+            ),
+            _buildCompactQuickSelectionButton(
+              text: 'x',
+              icon: Icons.close,
+              onTap: () => _selectNoDate(),
+              type: QuickSelectionType.noDate,
+              isSelected: _isNoDateSelected(),
+              label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionNoDate, 'No Date'),
+            ),
+          ],
         ],
       ),
     );
@@ -329,6 +473,8 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     required VoidCallback onTap,
     required QuickSelectionType type,
     bool isSelected = false,
+    IconData? icon,
+    String? label,
   }) {
     return GestureDetector(
       onTap: () {
@@ -356,7 +502,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         ),
         child: Row(
           children: [
-            // Icon indicator
+            // Left icon or number with container styling
             Container(
               width: 28, // Slightly larger for better visibility
               height: 28,
@@ -367,16 +513,16 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                 borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
               ),
               child: Center(
-                child: type == QuickSelectionType.noDate
+                child: icon != null
                     ? Icon(
-                        Icons.close,
+                        icon,
                         size: 16,
                         color: isSelected
                             ? Theme.of(context).primaryColor
                             : Theme.of(context).colorScheme.onSurfaceVariant,
                       )
                     : Text(
-                        _getShortDayNameFromType(type),
+                        text,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -388,10 +534,10 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
               ),
             ),
             const SizedBox(width: _DatePickerDesign.spacingSmall),
-            // Text
+            // Right text
             Expanded(
               child: Text(
-                text,
+                label ?? text, // Use label if provided, otherwise use text
                 style: TextStyle(
                   fontSize: _DatePickerDesign.fontSizeMedium,
                   fontWeight: FontWeight.w600,
@@ -401,12 +547,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                 maxLines: 1,
               ),
             ),
-            if (isSelected)
-              Icon(
-                Icons.check_circle,
-                size: _DatePickerDesign.iconSizeSmall,
-                color: Theme.of(context).primaryColor,
-              ),
           ],
         ),
       ),
@@ -431,6 +571,11 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         return _getShortDayNameFromDateTime(saturday);
       case QuickSelectionType.noDate:
         return '---'; // Default for no date
+      case QuickSelectionType.nextWeek:
+        // Find next Monday
+        final daysUntilNextMonday = (7 - now.weekday + 1) % 7 + 1;
+        final nextMonday = now.add(Duration(days: daysUntilNextMonday));
+        return _getShortDayNameFromDateTime(nextMonday);
     }
   }
 
@@ -610,6 +755,219 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     _triggerHapticFeedback();
   }
 
+  /// Range selection methods for date-time range mode
+  void _selectRangeToday() {
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day, 0, 0, 0);
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    setState(() {
+      _selectedStartDate = todayStart;
+      _selectedEndDate = todayEnd;
+      // Update validation state - range selection is always valid
+      _isSelectionValid = true;
+    });
+    _triggerHapticFeedback();
+  }
+
+  void _selectLastWeek() {
+    final now = DateTime.now();
+    final lastWeekEnd = now.subtract(Duration(days: now.weekday));
+    final lastWeekStart = lastWeekEnd.subtract(const Duration(days: 6));
+
+    final startDate = DateTime(lastWeekStart.year, lastWeekStart.month, lastWeekStart.day, 0, 0, 0);
+    final endDate = DateTime(lastWeekEnd.year, lastWeekEnd.month, lastWeekEnd.day, 23, 59, 59);
+
+    setState(() {
+      _selectedStartDate = startDate;
+      _selectedEndDate = endDate;
+      // Update validation state - range selection is always valid
+      _isSelectionValid = true;
+    });
+    _triggerHapticFeedback();
+  }
+
+  void _selectLastMonth() {
+    final now = DateTime.now();
+    final lastMonthEnd = DateTime(now.year, now.month, 1).subtract(const Duration(days: 1));
+    final lastMonthStart = DateTime(lastMonthEnd.year, lastMonthEnd.month, 1, 0, 0, 0);
+
+    final endDate = DateTime(lastMonthEnd.year, lastMonthEnd.month, lastMonthEnd.day, 23, 59, 59);
+
+    setState(() {
+      _selectedStartDate = lastMonthStart;
+      _selectedEndDate = endDate;
+      // Update validation state - range selection is always valid
+      _isSelectionValid = true;
+    });
+    _triggerHapticFeedback();
+  }
+
+  /// Check if today range is currently selected
+  bool _isRangeTodaySelected() {
+    if (_selectedStartDate == null || _selectedEndDate == null) return false;
+
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day, 0, 0, 0);
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    return _isSameDay(_selectedStartDate!, todayStart) && _isSameDay(_selectedEndDate!, todayEnd);
+  }
+
+  /// Check if last week is currently selected
+  bool _isLastWeekSelected() {
+    if (_selectedStartDate == null || _selectedEndDate == null) return false;
+
+    final now = DateTime.now();
+    final lastWeekEnd = now.subtract(Duration(days: now.weekday));
+    final lastWeekStart = lastWeekEnd.subtract(const Duration(days: 6));
+
+    final startDate = DateTime(lastWeekStart.year, lastWeekStart.month, lastWeekStart.day, 0, 0, 0);
+    final endDate = DateTime(lastWeekEnd.year, lastWeekEnd.month, lastWeekEnd.day, 23, 59, 59);
+
+    return _isSameDay(_selectedStartDate!, startDate) && _isSameDay(_selectedEndDate!, endDate);
+  }
+
+  /// Check if last month is currently selected
+  bool _isLastMonthSelected() {
+    if (_selectedStartDate == null || _selectedEndDate == null) return false;
+
+    final now = DateTime.now();
+    final lastMonthEnd = DateTime(now.year, now.month, 1).subtract(const Duration(days: 1));
+    final lastMonthStart = DateTime(lastMonthEnd.year, lastMonthEnd.month, 1, 0, 0, 0);
+
+    final endDate = DateTime(lastMonthEnd.year, lastMonthEnd.month, lastMonthEnd.day, 23, 59, 59);
+
+    return _isSameDay(_selectedStartDate!, lastMonthStart) && _isSameDay(_selectedEndDate!, endDate);
+  }
+
+  /// Additional range selection methods
+  void _select7DaysAgo() {
+    final now = DateTime.now();
+    // Get the last 7 days (from 7 days ago to yesterday)
+    final endDate = now.subtract(const Duration(days: 1));
+    final startDate = now.subtract(const Duration(days: 7));
+
+    final rangeStart = DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0);
+    final rangeEnd = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+
+    setState(() {
+      _selectedStartDate = rangeStart;
+      _selectedEndDate = rangeEnd;
+      // Update validation state - range selection is always valid
+      _isSelectionValid = true;
+      // Track which quick range was selected
+      _selectedQuickRangeKey = 'last_week';
+    });
+    _triggerHapticFeedback();
+  }
+
+  void _select30DaysAgo() {
+    final now = DateTime.now();
+    // Get the last 30 days (from 30 days ago to yesterday)
+    final endDate = now.subtract(const Duration(days: 1));
+    final startDate = now.subtract(const Duration(days: 30));
+
+    final rangeStart = DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0);
+    final rangeEnd = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+
+    setState(() {
+      _selectedStartDate = rangeStart;
+      _selectedEndDate = rangeEnd;
+      // Update validation state - range selection is always valid
+      _isSelectionValid = true;
+      // Track which quick range was selected
+      _selectedQuickRangeKey = 'last_month';
+    });
+    _triggerHapticFeedback();
+  }
+
+  void _selectNextWeek() {
+    final now = DateTime.now();
+    // Get next Monday
+    final daysUntilNextMonday = (7 - now.weekday + 1) % 7 + 1;
+    final nextMonday = now.add(Duration(days: daysUntilNextMonday));
+
+    setState(() {
+      _selectedDate = DateTime(
+        nextMonday.year,
+        nextMonday.month,
+        nextMonday.day,
+        _selectedDate?.hour ?? 0,
+        _selectedDate?.minute ?? 0,
+      );
+      // Update validation state - date selection is always valid
+      _isSelectionValid = true;
+    });
+    _triggerHapticFeedback();
+  }
+
+  void _selectNoDateRange() {
+    setState(() {
+      _selectedStartDate = null;
+      _selectedEndDate = null;
+      // Update validation state - allow null selection if configured
+      _isSelectionValid = widget.config.allowNullConfirm || _selectedStartDate != null;
+    });
+    _triggerHapticFeedback();
+  }
+
+  /// Check if last 7 days is currently selected
+  bool _is7DaysAgoSelected() {
+    if (_selectedStartDate == null || _selectedEndDate == null) return false;
+
+    final now = DateTime.now();
+    // Get the expected range (last 7 days from 7 days ago to yesterday)
+    final endDate = now.subtract(const Duration(days: 1));
+    final startDate = now.subtract(const Duration(days: 7));
+
+    final rangeStart = DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0);
+    final rangeEnd = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+
+    return _isSameDay(_selectedStartDate!, rangeStart) && _isSameDay(_selectedEndDate!, rangeEnd);
+  }
+
+  /// Check if last 30 days is currently selected
+  bool _is30DaysAgoSelected() {
+    if (_selectedStartDate == null || _selectedEndDate == null) return false;
+
+    final now = DateTime.now();
+    // Get the expected range (last 30 days from 30 days ago to yesterday)
+    final endDate = now.subtract(const Duration(days: 1));
+    final startDate = now.subtract(const Duration(days: 30));
+
+    final rangeStart = DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0);
+    final rangeEnd = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+
+    return _isSameDay(_selectedStartDate!, rangeStart) && _isSameDay(_selectedEndDate!, rangeEnd);
+  }
+
+  /// Check if next week is currently selected
+  bool _isNextWeekSelected() {
+    if (_selectedDate == null) return false;
+
+    final now = DateTime.now();
+    // Get next Monday
+    final daysUntilNextMonday = (7 - now.weekday + 1) % 7 + 1;
+    final nextMonday = now.add(Duration(days: daysUntilNextMonday));
+
+    return _isSameDay(_selectedDate!, nextMonday);
+  }
+
+  /// Check if no date range is currently selected
+  bool _isNoDateRangeSelected() {
+    return _selectedStartDate == null && _selectedEndDate == null;
+  }
+
+  /// Update validation state based on current selection
+  void _updateValidationState() {
+    if (widget.config.selectionMode == DateSelectionMode.single) {
+      _isSelectionValid = _selectedDate != null || widget.config.allowNullConfirm;
+    } else {
+      _isSelectionValid = (_selectedStartDate != null && _selectedEndDate != null) || widget.config.allowNullConfirm;
+    }
+  }
+
   void _selectQuickRange(QuickDateRange range) {
     if (widget.config.selectionMode != DateSelectionMode.range) return;
 
@@ -638,9 +996,19 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
 
   /// Callback for validation state changes from DateValidationDisplay
   void _onValidationStateChanged(bool isValid) {
-    if (_isSelectionValid != isValid) {
+    // Defensive validation: only update if we truly don't have a selection
+    // This prevents the debounced DateValidationDisplay from overriding our manual validation
+    final hasValidRangeSelection = _selectedStartDate != null && _selectedEndDate != null;
+    final hasValidDateSelection = _selectedDate != null;
+
+    // Only allow validation to be false if there's genuinely no selection
+    if ((widget.config.selectionMode == DateSelectionMode.range && !hasValidRangeSelection) ||
+        (widget.config.selectionMode == DateSelectionMode.single && !hasValidDateSelection)) {
+      _updateValidationState();
+    } else {
+      // Force validation to stay true for any valid selection
       setState(() {
-        _isSelectionValid = isValid;
+        _isSelectionValid = true;
       });
     }
   }
@@ -750,6 +1118,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   }
 
   void _onConfirm() {
+    
     if (!_isValidSelection()) return;
 
     DatePickerResult result;
@@ -757,10 +1126,10 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       if (_selectedDate != null) {
         result = DatePickerResult.single(_selectedDate!,
             isRefreshEnabled: _refreshEnabled, quickSelectionKey: _selectedQuickRangeKey, isAllDay: _isAllDay);
-      } else {
+              } else {
         // Date was cleared
         result = DatePickerResult.cleared();
-      }
+              }
     } else {
       result = DatePickerResult.range(_selectedStartDate!, _selectedEndDate!,
           isRefreshEnabled: _refreshEnabled, quickSelectionKey: _selectedQuickRangeKey);
@@ -787,6 +1156,13 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   void _toggleRefresh() {
     setState(() {
       _refreshEnabled = !_refreshEnabled;
+      // Always ensure validation stays true when we have a valid selection
+      // This prevents any race conditions with debounced validation
+      if (_selectedStartDate != null && _selectedEndDate != null) {
+        _isSelectionValid = true; // Explicit override for range selections
+      } else {
+        _isSelectionValid = _selectedDate != null || widget.config.allowNullConfirm;
+      }
     });
     widget.config.onRefreshToggleChanged?.call(_refreshEnabled);
   }
