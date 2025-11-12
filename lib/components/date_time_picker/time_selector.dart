@@ -106,17 +106,9 @@ class _TimeSelectorState extends State<TimeSelector> {
     return WheelTimePicker(
       initialTime: _tempSelectedTime ?? widget.initialTime,
       onTimeChanged: (newTime) {
-        final newDateTime = DateTime(
-          widget.selectedDate.year,
-          widget.selectedDate.month,
-          widget.selectedDate.day,
-          newTime.hour,
-          newTime.minute,
-        );
         setState(() {
           _tempSelectedTime = newTime;
         });
-        widget.onTimeChanged(newDateTime);
       },
       onHapticFeedback: _triggerHapticFeedback,
     );

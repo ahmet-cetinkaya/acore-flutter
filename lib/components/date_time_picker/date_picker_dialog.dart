@@ -521,8 +521,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                       )
                     : Text(
                         text,
-                        style: TextStyle(
-                          fontSize: 12,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: isSelected
                               ? Theme.of(context).primaryColor

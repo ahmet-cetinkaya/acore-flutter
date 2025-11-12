@@ -337,8 +337,7 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
             modePickersGap: isCompactScreen ? 8.0 : 12.0,
             useAbbrLabelForMonthModePicker: true,
             weekdayLabelTextStyle: TextStyle(
-              fontSize:
-                  isCompactScreen ? _CalendarDatePickerDesign.fontSizeSmall : _CalendarDatePickerDesign.fontSizeSmall,
+              fontSize: _CalendarDatePickerDesign.fontSizeSmall,
               fontWeight: FontWeight.w600,
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
