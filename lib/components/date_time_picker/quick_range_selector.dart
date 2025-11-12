@@ -1,27 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'date_time_picker_translation_keys.dart';
-
-/// Design constants for quick range selector
-class _QuickRangeSelectorDesign {
-  // Spacing
-  static const double spacingSmall = 8.0;
-  static const double spacingMedium = 12.0;
-  static const double spacingLarge = 16.0;
-  static const double spacingXSmall = 4.0;
-
-  // Border width
-  static const double borderWidth = 1.0;
-
-  // Font sizes
-  static const double fontSizeSmall = 12.0;
-  static const double fontSizeMedium = 14.0;
-  static const double fontSizeLarge = 16.0;
-  static const double fontSizeXLarge = 18.0;
-
-  // Icon sizes
-  static const double iconSizeSmall = 16.0;
-  static const double iconSizeMedium = 20.0;
-}
+import '../../utils/responsive_util.dart';
 
 /// Quick date range option
 class QuickDateRange {
@@ -79,7 +59,7 @@ class QuickRangeSelector extends StatefulWidget {
 class _QuickRangeSelectorState extends State<QuickRangeSelector> {
   /// Checks if the current screen is compact (mobile)
   bool _isCompactScreen(BuildContext context) {
-    return widget.isCompactScreen ?? MediaQuery.of(context).size.width < 600;
+    return widget.isCompactScreen ?? ResponsiveUtil.isCompactLayout(context);
   }
 
   /// Get localized text with fallback
@@ -130,11 +110,11 @@ class _QuickRangeSelectorState extends State<QuickRangeSelector> {
     }
 
     return Padding(
-      padding: EdgeInsets.only(bottom: _QuickRangeSelectorDesign.spacingMedium),
+      padding: EdgeInsets.only(bottom: ResponsiveUtil.getSpacing(context, mobile: 12.0, tablet: 14.0, desktop: 16.0)),
       child: Wrap(
         alignment: WrapAlignment.center,
-        spacing: _QuickRangeSelectorDesign.spacingSmall,
-        runSpacing: _QuickRangeSelectorDesign.spacingSmall,
+        spacing: ResponsiveUtil.getSpacing(context, mobile: 8.0, tablet: 10.0, desktop: 12.0),
+        runSpacing: ResponsiveUtil.getSpacing(context, mobile: 6.0, tablet: 8.0, desktop: 10.0),
         children: [
           // Quick selection button with refresh indicator
           Semantics(
@@ -143,84 +123,108 @@ class _QuickRangeSelectorState extends State<QuickRangeSelector> {
                 ? 'Currently selected: $currentSelectionLabel. Tap to change selection.'
                 : 'Quick date range selection',
             hint: 'Opens quick range selection dialog',
-            child: OutlinedButton.icon(
-              onPressed: _showQuickSelectionDialog,
-              icon: Icon(
-                Icons.speed,
-                size: _QuickRangeSelectorDesign.iconSizeMedium,
-                color: hasQuickSelection ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurface,
-              ),
-              label: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      hasQuickSelection
-                          ? currentSelectionLabel
-                          : _getLocalizedText(DateTimePickerTranslationKey.quickSelection, 'Quick Selection'),
-                      style: TextStyle(
-                        fontSize: _QuickRangeSelectorDesign.fontSizeSmall,
-                        fontWeight: FontWeight.w500,
-                        color: hasQuickSelection
-                            ? Theme.of(context).primaryColor
-                            : Theme.of(context).colorScheme.onSurface,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (hasQuickSelection && widget.showRefreshToggle && widget.refreshEnabled) ...[
-                    SizedBox(width: _QuickRangeSelectorDesign.spacingSmall),
-                    Icon(
-                      Icons.autorenew,
-                      size: _QuickRangeSelectorDesign.iconSizeSmall,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ],
-                ],
-              ),
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(
-                  horizontal: _QuickRangeSelectorDesign.spacingSmall,
-                  vertical: _QuickRangeSelectorDesign.spacingSmall,
+            child: Focus(
+              onKeyEvent: (node, event) {
+                if (event is KeyDownEvent) {
+                  if (event.logicalKey == LogicalKeyboardKey.enter || event.logicalKey == LogicalKeyboardKey.space) {
+                    _showQuickSelectionDialog();
+                    return KeyEventResult.handled;
+                  }
+                }
+                return KeyEventResult.ignored;
+              },
+              child: OutlinedButton.icon(
+                onPressed: _showQuickSelectionDialog,
+                icon: Icon(
+                  Icons.speed,
+                  size: ResponsiveUtil.getIconSize(context, mobile: 18.0, tablet: 20.0, desktop: 22.0),
+                  color: hasQuickSelection ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurface,
                 ),
-                visualDensity: VisualDensity.compact,
-                side: BorderSide(
-                  color: hasQuickSelection
-                      ? Theme.of(context).primaryColor.withValues(alpha: 0.8)
-                      : Theme.of(context).colorScheme.outline,
-                  width: _QuickRangeSelectorDesign.borderWidth,
+                label: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        hasQuickSelection
+                            ? currentSelectionLabel
+                            : _getLocalizedText(DateTimePickerTranslationKey.quickSelection, 'Quick Selection'),
+                        style: TextStyle(
+                          fontSize: ResponsiveUtil.getFontSize(context, mobile: 12.0, tablet: 13.0, desktop: 14.0),
+                          fontWeight: FontWeight.w500,
+                          color: hasQuickSelection
+                              ? Theme.of(context).primaryColor
+                              : Theme.of(context).colorScheme.onSurface,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (hasQuickSelection && widget.showRefreshToggle && widget.refreshEnabled) ...[
+                      SizedBox(width: ResponsiveUtil.getSpacing(context, mobile: 6.0, tablet: 8.0, desktop: 10.0)),
+                      Icon(
+                        Icons.autorenew,
+                        size: ResponsiveUtil.getIconSize(context, mobile: 14.0, tablet: 16.0, desktop: 18.0),
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ],
+                  ],
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveUtil.getSpacing(context, mobile: 8.0, tablet: 10.0, desktop: 12.0),
+                    vertical: ResponsiveUtil.getSpacing(context, mobile: 6.0, tablet: 8.0, desktop: 10.0),
+                  ),
+                  visualDensity: VisualDensity.compact,
+                  side: BorderSide(
+                    color: hasQuickSelection
+                        ? Theme.of(context).primaryColor.withValues(alpha: 0.8)
+                        : Theme.of(context).colorScheme.outline,
+                    width: 1.0,
+                  ),
                 ),
               ),
             ),
           ),
-          SizedBox(width: _QuickRangeSelectorDesign.spacingSmall),
+          SizedBox(width: ResponsiveUtil.getSpacing(context, mobile: 8.0, tablet: 10.0, desktop: 12.0)),
           // Clear button
           Semantics(
             button: true,
             label: 'Clear selection',
             hint: widget.hasSelection ? 'Clear all selected dates and ranges' : 'No selection to clear',
-            child: OutlinedButton.icon(
-              onPressed: widget.hasSelection ? widget.onClear : null,
-              icon: Icon(
-                Icons.delete_outline,
-                size: _QuickRangeSelectorDesign.iconSizeMedium,
-              ),
-              label: Text(
-                _getLocalizedText(DateTimePickerTranslationKey.clear, 'Clear'),
-                style: TextStyle(
-                  fontSize: _QuickRangeSelectorDesign.fontSizeSmall,
-                  fontWeight: FontWeight.w500,
+            child: Focus(
+              onKeyEvent: (node, event) {
+                if (event is KeyDownEvent) {
+                  if (event.logicalKey == LogicalKeyboardKey.enter || event.logicalKey == LogicalKeyboardKey.delete) {
+                    if (widget.hasSelection) {
+                      widget.onClear?.call();
+                    }
+                    return KeyEventResult.handled;
+                  }
+                }
+                return KeyEventResult.ignored;
+              },
+              child: OutlinedButton.icon(
+                onPressed: widget.hasSelection ? widget.onClear : null,
+                icon: Icon(
+                  Icons.delete_outline,
+                  size: ResponsiveUtil.getIconSize(context, mobile: 18.0, tablet: 20.0, desktop: 22.0),
                 ),
-              ),
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(
-                  horizontal: _QuickRangeSelectorDesign.spacingSmall,
-                  vertical: _QuickRangeSelectorDesign.spacingSmall,
+                label: Text(
+                  _getLocalizedText(DateTimePickerTranslationKey.clear, 'Clear'),
+                  style: TextStyle(
+                    fontSize: ResponsiveUtil.getFontSize(context, mobile: 12.0, tablet: 13.0, desktop: 14.0),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-                visualDensity: VisualDensity.compact,
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.outline,
-                  width: _QuickRangeSelectorDesign.borderWidth,
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveUtil.getSpacing(context, mobile: 8.0, tablet: 10.0, desktop: 12.0),
+                    vertical: ResponsiveUtil.getSpacing(context, mobile: 6.0, tablet: 8.0, desktop: 10.0),
+                  ),
+                  visualDensity: VisualDensity.compact,
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.outline,
+                    width: 1.0,
+                  ),
                 ),
               ),
             ),
@@ -294,14 +298,17 @@ class _QuickSelectionDialogState extends State<_QuickSelectionDialog> {
       title: Text(
         widget.title,
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontSize: widget.isCompactScreen
-                  ? _QuickRangeSelectorDesign.fontSizeLarge
-                  : _QuickRangeSelectorDesign.fontSizeXLarge,
+              fontSize: ResponsiveUtil.getFontSize(context, mobile: 18.0, tablet: 20.0, desktop: 22.0),
               fontWeight: FontWeight.w600,
             ),
       ),
       content: SizedBox(
-        width: widget.isCompactScreen ? 280 : 400,
+        width: ResponsiveUtil.getResponsiveValue(
+          context: context,
+          mobile: 280.0,
+          tablet: 350.0,
+          desktop: 400.0,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -310,22 +317,22 @@ class _QuickSelectionDialogState extends State<_QuickSelectionDialog> {
               Text(
                 widget.translations[DateTimePickerTranslationKey.dateRanges] ?? 'Date Ranges',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontSize: _QuickRangeSelectorDesign.fontSizeMedium,
+                      fontSize: ResponsiveUtil.getFontSize(context, mobile: 14.0, tablet: 15.0, desktop: 16.0),
                       fontWeight: FontWeight.w600,
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                     ),
               ),
-              SizedBox(height: _QuickRangeSelectorDesign.spacingMedium),
+              SizedBox(height: ResponsiveUtil.getSpacing(context, mobile: 12.0, tablet: 14.0, desktop: 16.0)),
               Wrap(
-                spacing: _QuickRangeSelectorDesign.spacingSmall,
-                runSpacing: _QuickRangeSelectorDesign.spacingSmall,
+                spacing: ResponsiveUtil.getSpacing(context, mobile: 8.0, tablet: 10.0, desktop: 12.0),
+                runSpacing: ResponsiveUtil.getSpacing(context, mobile: 6.0, tablet: 8.0, desktop: 10.0),
                 children: widget.quickRanges!.map((QuickDateRange range) {
                   final isSelected = widget.selectedQuickRangeKey == range.key;
                   return FilterChip(
                     label: Text(
                       range.label,
                       style: TextStyle(
-                        fontSize: _QuickRangeSelectorDesign.fontSizeSmall,
+                        fontSize: ResponsiveUtil.getFontSize(context, mobile: 12.0, tablet: 13.0, desktop: 14.0),
                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
@@ -336,49 +343,49 @@ class _QuickSelectionDialogState extends State<_QuickSelectionDialog> {
                     },
                     materialTapTargetSize: MaterialTapTargetSize.padded,
                     visualDensity: VisualDensity.comfortable,
-                    pressElevation: _QuickRangeSelectorDesign.spacingXSmall,
+                    pressElevation: ResponsiveUtil.getSpacing(context, mobile: 2.0, tablet: 3.0, desktop: 4.0),
                     surfaceTintColor: Theme.of(context).primaryColor,
                     side: BorderSide(
                       color: isSelected
                           ? Theme.of(context).primaryColor.withValues(alpha: 0.8)
                           : Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
-                      width: _QuickRangeSelectorDesign.borderWidth,
+                      width: 1.0,
                     ),
                     checkmarkColor: Theme.of(context).primaryColor,
                     selectedColor: Theme.of(context).primaryColor.withValues(alpha: 0.12),
                   );
                 }).toList(),
               ),
-              SizedBox(height: _QuickRangeSelectorDesign.spacingLarge),
+              SizedBox(height: ResponsiveUtil.getSpacing(context, mobile: 16.0, tablet: 18.0, desktop: 20.0)),
             ],
             if (widget.showRefreshToggle) ...[
               Divider(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2)),
-              SizedBox(height: _QuickRangeSelectorDesign.spacingMedium),
+              SizedBox(height: ResponsiveUtil.getSpacing(context, mobile: 12.0, tablet: 14.0, desktop: 16.0)),
               Text(
                 widget.translations[DateTimePickerTranslationKey.refreshSettingsLabel] ?? 'Refresh Settings',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontSize: _QuickRangeSelectorDesign.fontSizeMedium,
+                      fontSize: ResponsiveUtil.getFontSize(context, mobile: 14.0, tablet: 15.0, desktop: 16.0),
                       fontWeight: FontWeight.w600,
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                     ),
               ),
-              SizedBox(height: _QuickRangeSelectorDesign.spacingMedium),
+              SizedBox(height: ResponsiveUtil.getSpacing(context, mobile: 12.0, tablet: 14.0, desktop: 16.0)),
               Row(
                 children: [
                   Icon(
                     _localRefreshEnabled ? Icons.autorenew : Icons.refresh,
-                    size: _QuickRangeSelectorDesign.iconSizeMedium,
+                    size: ResponsiveUtil.getIconSize(context, mobile: 18.0, tablet: 20.0, desktop: 22.0),
                     color: _localRefreshEnabled
                         ? Theme.of(context).primaryColor
                         : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
-                  SizedBox(width: _QuickRangeSelectorDesign.spacingSmall),
+                  SizedBox(width: ResponsiveUtil.getSpacing(context, mobile: 8.0, tablet: 10.0, desktop: 12.0)),
                   Expanded(
                     child: Text(
                       widget.translations[DateTimePickerTranslationKey.refreshSettings] ??
                           DateTimePickerTranslationKey.refreshSettings.name,
                       style: TextStyle(
-                        fontSize: _QuickRangeSelectorDesign.fontSizeSmall,
+                        fontSize: ResponsiveUtil.getFontSize(context, mobile: 12.0, tablet: 13.0, desktop: 14.0),
                         color: _localRefreshEnabled
                             ? Theme.of(context).colorScheme.onSurface
                             : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),

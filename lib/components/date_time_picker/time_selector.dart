@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'wheel_time_picker.dart';
-import 'time_formatting_util.dart';
-import 'haptic_feedback_util.dart';
+import '../../utils/time_formatting_util.dart';
+import '../../utils/haptic_feedback_util.dart';
+import '../../utils/responsive_util.dart';
 
 /// Design constants for time selector
 class _TimeSelectorDesign {
@@ -19,10 +21,6 @@ class _TimeSelectorDesign {
 
   // Border width
   static const double borderWidth = 1.0;
-
-  // Font sizes
-  static const double fontSizeLarge = 16.0;
-  static const double fontSizeXLarge = 18.0;
 
   // Icon sizes
   static const double iconSizeMedium = 20.0;
@@ -67,7 +65,7 @@ class _TimeSelectorState extends State<TimeSelector> {
 
   /// Checks if the current screen is compact (mobile)
   bool _isCompactScreen(BuildContext context) {
-    return MediaQuery.of(context).size.width < 600;
+    return ResponsiveUtil.isCompactLayout(context);
   }
 
   /// Trigger haptic feedback for better mobile experience
@@ -158,7 +156,7 @@ class _TimeSelectorState extends State<TimeSelector> {
                 Text(
                   _getLocalizedText(DateTimePickerTranslationKey.setTime, 'Set Time'),
                   style: TextStyle(
-                    fontSize: isCompactScreen ? _TimeSelectorDesign.fontSizeLarge : _TimeSelectorDesign.fontSizeXLarge,
+                    fontSize: ResponsiveUtil.getFontSize(context, mobile: 16.0, tablet: 18.0, desktop: 20.0),
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -212,7 +210,9 @@ class _TimeSelectorState extends State<TimeSelector> {
                       _triggerHapticFeedback();
                     },
                     style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: isCompactScreen ? 12 : 16),
+                      padding: EdgeInsets.symmetric(
+                          vertical:
+                              ResponsiveUtil.getLandscapeSpacing(context, mobile: 12.0, tablet: 14.0, desktop: 16.0)),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(_TimeSelectorDesign.radiusMedium),
                       ),
@@ -220,7 +220,7 @@ class _TimeSelectorState extends State<TimeSelector> {
                     child: Text(
                       'Cancel',
                       style: TextStyle(
-                        fontSize: isCompactScreen ? 14 : 16,
+                        fontSize: ResponsiveUtil.getFontSize(context, mobile: 14.0, tablet: 15.0, desktop: 16.0),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -233,7 +233,9 @@ class _TimeSelectorState extends State<TimeSelector> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).primaryColor,
                       foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                      padding: EdgeInsets.symmetric(vertical: isCompactScreen ? 12 : 16),
+                      padding: EdgeInsets.symmetric(
+                          vertical:
+                              ResponsiveUtil.getLandscapeSpacing(context, mobile: 12.0, tablet: 14.0, desktop: 16.0)),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(_TimeSelectorDesign.radiusMedium),
                       ),
@@ -241,7 +243,7 @@ class _TimeSelectorState extends State<TimeSelector> {
                     child: Text(
                       'Set Time',
                       style: TextStyle(
-                        fontSize: isCompactScreen ? 14 : 16,
+                        fontSize: ResponsiveUtil.getFontSize(context, mobile: 14.0, tablet: 15.0, desktop: 16.0),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -257,7 +259,6 @@ class _TimeSelectorState extends State<TimeSelector> {
 
   @override
   Widget build(BuildContext context) {
-    final isCompactScreen = _isCompactScreen(context);
     final currentTime = _tempSelectedTime ?? widget.initialTime;
     final timeString = _formatTimeForDisplay(currentTime);
 
@@ -267,51 +268,70 @@ class _TimeSelectorState extends State<TimeSelector> {
         Semantics(
           button: true,
           label: 'Selected time: $timeString. Tap to change time.',
-          child: GestureDetector(
-            onTap: () {
-              setState(() {
-                _showInlineTimePicker = !_showInlineTimePicker;
-                _tempSelectedTime = widget.initialTime;
-              });
-              _triggerHapticFeedback();
+          child: Focus(
+            autofocus: false,
+            onKeyEvent: (node, event) {
+              if (event is KeyDownEvent) {
+                if (event.logicalKey == LogicalKeyboardKey.enter || event.logicalKey == LogicalKeyboardKey.space) {
+                  _showInlineTimePicker = !_showInlineTimePicker;
+                  _tempSelectedTime = widget.initialTime;
+                  _triggerHapticFeedback();
+                  setState(() {});
+                  return KeyEventResult.handled;
+                } else if (event.logicalKey == LogicalKeyboardKey.escape) {
+                  _showInlineTimePicker = false;
+                  setState(() {});
+                  return KeyEventResult.handled;
+                }
+              }
+              return KeyEventResult.ignored;
             },
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: isCompactScreen ? 16 : 20,
-                vertical: isCompactScreen ? 10 : 12,
-              ),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(_TimeSelectorDesign.radiusLarge),
-                border: Border.all(
-                  color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
-                  width: _TimeSelectorDesign.borderWidth,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _showInlineTimePicker = !_showInlineTimePicker;
+                  _tempSelectedTime = widget.initialTime;
+                });
+                _triggerHapticFeedback();
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveUtil.getLandscapeSpacing(context, mobile: 16.0, tablet: 18.0, desktop: 20.0),
+                  vertical: ResponsiveUtil.getLandscapeSpacing(context, mobile: 10.0, tablet: 11.0, desktop: 12.0),
                 ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.access_time,
-                    size: isCompactScreen ? 18 : 20,
-                    color: Theme.of(context).primaryColor,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(_TimeSelectorDesign.radiusLarge),
+                  border: Border.all(
+                    color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                    width: _TimeSelectorDesign.borderWidth,
                   ),
-                  const SizedBox(width: _TimeSelectorDesign.spacingSmall),
-                  Text(
-                    timeString,
-                    style: TextStyle(
-                      fontSize: isCompactScreen ? 16 : 18,
-                      fontWeight: FontWeight.w600,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.access_time,
+                      size: ResponsiveUtil.getIconSize(context, mobile: 18.0, tablet: 19.0, desktop: 20.0),
                       color: Theme.of(context).primaryColor,
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    _showInlineTimePicker ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                    size: _TimeSelectorDesign.iconSizeMedium,
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.7),
-                  ),
-                ],
+                    const SizedBox(width: _TimeSelectorDesign.spacingSmall),
+                    Text(
+                      timeString,
+                      style: TextStyle(
+                        fontSize: ResponsiveUtil.getFontSize(context, mobile: 16.0, tablet: 17.0, desktop: 18.0),
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      _showInlineTimePicker ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                      size: _TimeSelectorDesign.iconSizeMedium,
+                      color: Theme.of(context).primaryColor.withValues(alpha: 0.7),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

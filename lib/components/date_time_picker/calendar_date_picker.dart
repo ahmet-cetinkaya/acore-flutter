@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'date_picker_types.dart';
-import 'haptic_feedback_util.dart';
+import '../../utils/haptic_feedback_util.dart';
+import '../../utils/responsive_util.dart';
 
 /// Design constants for calendar date picker
 class _CalendarDatePickerDesign {
@@ -54,7 +54,7 @@ class CalendarDatePicker extends StatefulWidget {
 class _CalendarDatePickerState extends State<CalendarDatePicker> {
   /// Checks if the current screen is compact (mobile)
   bool _isCompactScreen(BuildContext context) {
-    return MediaQuery.of(context).size.width < 600;
+    return ResponsiveUtil.isCompactLayout(context);
   }
 
   /// Trigger haptic feedback for better mobile experience
@@ -284,15 +284,15 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
   @override
   Widget build(BuildContext context) {
     final isCompactScreen = _isCompactScreen(context);
-    final calendarWidth = isCompactScreen ? 350.0 : 420.0;
+    final calendarLayout = ResponsiveUtil.calculateCalendarLayout(context);
 
     return Semantics(
       label: widget.translations[DateTimePickerTranslationKey.dateTimeFieldLabel] ?? 'Calendar date picker',
       hint: widget.translations[DateTimePickerTranslationKey.editButtonHint] ??
           'Use arrow keys to navigate dates, Enter to select',
       child: Container(
-        width: calendarWidth,
-        constraints: BoxConstraints(maxWidth: calendarWidth),
+        width: calendarLayout.maxWidth,
+        constraints: BoxConstraints(maxWidth: calendarLayout.maxWidth),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(_CalendarDatePickerDesign.radiusMedium),
           color: Theme.of(context).colorScheme.surface,
@@ -315,7 +315,7 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
             selectedYearTextStyle: const TextStyle(fontWeight: FontWeight.bold),
             rangeBidirectional: true,
             // Enhanced mobile-specific configurations
-            dayMaxWidth: isCompactScreen ? 44.0 : 48.0, // Optimized for touch
+            dayMaxWidth: ResponsiveCalendarConstants.dayWidth(context), // Optimized for touch
             dayTextStyle: TextStyle(
               fontSize: isCompactScreen ? 14 : 16,
               fontWeight: FontWeight.w500,

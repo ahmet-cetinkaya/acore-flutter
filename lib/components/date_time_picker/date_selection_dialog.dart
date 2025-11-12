@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'date_picker_types.dart';
 import 'calendar_date_picker.dart' as custom;
-import 'haptic_feedback_util.dart';
+import '../../utils/haptic_feedback_util.dart';
 
 /// Design constants for date selection dialog
 class _DateSelectionDialogDesign {

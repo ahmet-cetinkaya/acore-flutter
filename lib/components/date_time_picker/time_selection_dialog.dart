@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'wheel_time_picker.dart';
-import 'time_formatting_util.dart';
-import 'haptic_feedback_util.dart';
+import '../../utils/time_formatting_util.dart';
+import '../../utils/haptic_feedback_util.dart';
 
 /// Design constants for time selection dialog
 class _TimeSelectionDialogDesign {

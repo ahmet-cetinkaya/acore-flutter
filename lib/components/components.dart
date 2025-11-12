@@ -9,4 +9,4 @@ export 'date_time_picker/date_time_picker_translation_keys.dart';
 export 'date_time_picker/date_validation_display.dart';
 export 'date_time_picker/quick_range_selector.dart';
 export 'date_time_picker/time_selector.dart';
-export 'numeric_input.dart';
+export 'numeric_input/numeric_input.dart';

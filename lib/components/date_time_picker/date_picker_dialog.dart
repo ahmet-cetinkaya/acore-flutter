@@ -9,8 +9,9 @@ import 'time_selection_dialog.dart';
 import 'date_selection_dialog.dart';
 import 'quick_range_selector.dart';
 import 'date_validation_display.dart';
-import 'time_formatting_util.dart';
-import 'haptic_feedback_util.dart';
+import '../../utils/time_formatting_util.dart';
+import '../../utils/haptic_feedback_util.dart';
+import '../../utils/lru_cache.dart';
 
 /// Enum for quick selection button types
 enum QuickSelectionType {
@@ -206,8 +207,8 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   // Validation state tracking
   bool _isSelectionValid = false;
 
-  // Performance optimization: cached formatted dates
-  final Map<DateTime, String> _formattedDateCache = {};
+  // Performance optimization: cached formatted dates with LRU eviction
+  final LRUCache<DateTime, String> _formattedDateCache = LRUCache<DateTime, String>(50);
 
   @override
   void initState() {
@@ -257,24 +258,21 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     // Create a cache key based on the date only (not time)
     final dateOnly = DateTime(date.year, date.month, date.day);
 
-    // Check cache first
-    if (_formattedDateCache.containsKey(dateOnly)) {
-      return _formattedDateCache[dateOnly]!;
+    // Check cache first using LRU
+    final cached = _formattedDateCache.get(dateOnly);
+    if (cached != null) {
+      return cached;
     }
 
-    // Format and cache the result
+    // Format and cache the result using LRU
     final formatted = DateFormatService.formatForInput(
       date,
       context,
       type: widget.config.formatType,
     );
 
-    // Limit cache size to prevent memory leaks
-    if (_formattedDateCache.length > 50) {
-      _formattedDateCache.clear();
-    }
-
-    _formattedDateCache[dateOnly] = formatted;
+    // LRU cache handles size limits automatically
+    _formattedDateCache.put(dateOnly, formatted);
     return formatted;
   }
 
@@ -1118,7 +1116,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   }
 
   void _onConfirm() {
-    
     if (!_isValidSelection()) return;
 
     DatePickerResult result;
@@ -1126,10 +1123,10 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       if (_selectedDate != null) {
         result = DatePickerResult.single(_selectedDate!,
             isRefreshEnabled: _refreshEnabled, quickSelectionKey: _selectedQuickRangeKey, isAllDay: _isAllDay);
-              } else {
+      } else {
         // Date was cleared
         result = DatePickerResult.cleared();
-              }
+      }
     } else {
       result = DatePickerResult.range(_selectedStartDate!, _selectedEndDate!,
           isRefreshEnabled: _refreshEnabled, quickSelectionKey: _selectedQuickRangeKey);

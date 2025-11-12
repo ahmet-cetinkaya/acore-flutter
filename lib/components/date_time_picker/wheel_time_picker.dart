@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'haptic_feedback_util.dart';
+import '../../utils/haptic_feedback_util.dart';
 
 /// Design constants for wheel time picker
 class _WheelTimePickerDesign {
