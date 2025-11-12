@@ -1,42 +1,29 @@
 import 'dart:collection';
 
 /// LRU (Least Recently Used) Cache implementation
-/// Efficiently caches items with a maximum size, removing least recently used items when full
+/// Optimized cache with O(1) get/put operations using LinkedHashMap
 class LRUCache<K, V> {
   final int _maxSize;
-  final LinkedHashMap<K, _CacheEntry<V>> _cache = LinkedHashMap();
-  int _accessCounter = 0;
+  final LinkedHashMap<K, V> _cache = LinkedHashMap();
 
   LRUCache(this._maxSize) : assert(_maxSize > 0, 'Max size must be greater than 0');
 
-  /// Get a value from the cache
+  /// Get a value from the cache and mark it as most recently used.
   V? get(K key) {
-    final entry = _cache[key];
-    if (entry != null) {
-      // Update access time for LRU tracking
-      entry.lastAccessed = ++_accessCounter;
-      return entry.value;
+    final value = _cache.remove(key);
+    if (value != null) {
+      _cache[key] = value; // Move to the end (most recently used)
     }
-    return null;
+    return value;
   }
 
-  /// Put a value into the cache
+  /// Put a value into the cache. If the key exists, it's moved to the end.
+  /// If the cache is full, the least recently used item is removed.
   void put(K key, V value) {
-    final existingEntry = _cache[key];
-
-    if (existingEntry != null) {
-      // Update existing entry
-      existingEntry.value = value;
-      existingEntry.lastAccessed = ++_accessCounter;
-      return;
-    }
-
-    // Add new entry
-    _cache[key] = _CacheEntry(value, ++_accessCounter);
-
-    // Remove oldest entries if cache is full
-    while (_cache.length > _maxSize) {
-      _evictLeastRecentlyUsed();
+    _cache.remove(key);
+    _cache[key] = value;
+    if (_cache.length > _maxSize) {
+      _cache.remove(_cache.keys.first);
     }
   }
 
@@ -47,14 +34,12 @@ class LRUCache<K, V> {
 
   /// Remove a specific key from cache
   V? remove(K key) {
-    final entry = _cache.remove(key);
-    return entry?.value;
+    return _cache.remove(key);
   }
 
   /// Clear the entire cache
   void clear() {
     _cache.clear();
-    _accessCounter = 0;
   }
 
   /// Get current cache size
@@ -69,39 +54,12 @@ class LRUCache<K, V> {
   /// Get all keys (for debugging)
   Iterable<K> get keys => _cache.keys;
 
-  /// Remove the least recently used entry
-  void _evictLeastRecentlyUsed() {
-    if (_cache.isEmpty) return;
-
-    K? lruKey;
-    int oldestAccess = _accessCounter + 1;
-
-    for (final entry in _cache.entries) {
-      if (entry.value.lastAccessed < oldestAccess) {
-        oldestAccess = entry.value.lastAccessed;
-        lruKey = entry.key;
-      }
-    }
-
-    if (lruKey != null) {
-      _cache.remove(lruKey);
-    }
-  }
-
   /// Get cache statistics
   CacheStats get stats => CacheStats(
         size: _cache.length,
         maxSize: _maxSize,
         isFull: isFull,
       );
-}
-
-/// Internal cache entry with access time tracking
-class _CacheEntry<V> {
-  V value;
-  int lastAccessed;
-
-  _CacheEntry(this.value, this.lastAccessed);
 }
 
 /// Cache statistics for monitoring and debugging

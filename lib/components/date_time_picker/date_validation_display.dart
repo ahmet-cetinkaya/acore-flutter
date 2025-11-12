@@ -87,55 +87,61 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
     List<String> validationErrors = [];
 
     if (widget.selectionMode == DateSelectionMode.single) {
-      // Check if we have a selection (or null is allowed)
-      bool hasSelection = widget.selectedDate != null || widget.allowNullConfirm;
-      if (!hasSelection) {
-        return validationErrors; // No selection, but errors would be shown elsewhere
+      // Check if selection is required but not provided
+      if (widget.selectedDate == null) {
+        if (!widget.allowNullConfirm) {
+          validationErrors
+              .add(_getLocalizedText(DateTimePickerTranslationKey.noDateSelected, 'A date must be selected.'));
+        }
+        return validationErrors; // Return early if no selection
       }
 
       // Check custom validator
-      if (widget.selectedDate != null &&
-          widget.dateTimeValidator != null &&
+      if (widget.dateTimeValidator != null &&
           !widget.dateTimeValidator!(widget.selectedDate) &&
           widget.validationErrorMessage != null) {
         validationErrors.add(widget.validationErrorMessage!);
       }
 
       // Check min/max date constraints (ensure consistent timezone handling)
-      if (widget.selectedDate != null) {
-        final selectedLocal = widget.selectedDate!.toLocal();
-        final minLocal = widget.minDate?.toLocal();
-        final maxLocal = widget.maxDate?.toLocal();
+      final selectedLocal = widget.selectedDate!.toLocal();
+      final minLocal = widget.minDate?.toLocal();
+      final maxLocal = widget.maxDate?.toLocal();
 
-        if (minLocal != null && selectedLocal.isBefore(minLocal)) {
-          validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.selectedDateMustBeAtOrAfter,
-              'Selected date must be at or after ${DateFormatService.formatForInput(minLocal, context, type: DateFormatType.dateTime)}'));
-        }
-        if (maxLocal != null && selectedLocal.isAfter(maxLocal)) {
-          validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.selectedDateMustBeAtOrBefore,
-              'Selected date must be at or before ${DateFormatService.formatForInput(maxLocal, context, type: DateFormatType.dateTime)}'));
-        }
+      if (minLocal != null && selectedLocal.isBefore(minLocal)) {
+        validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.selectedDateMustBeAtOrAfter,
+            'Selected date must be at or after ${DateFormatService.formatForInput(minLocal, context, type: DateFormatType.dateTime)}'));
+      }
+      if (maxLocal != null && selectedLocal.isAfter(maxLocal)) {
+        validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.selectedDateMustBeAtOrBefore,
+            'Selected date must be at or before ${DateFormatService.formatForInput(maxLocal, context, type: DateFormatType.dateTime)}'));
       }
     } else {
       // Range selection validation
-      if (widget.selectedStartDate != null && widget.selectedEndDate != null) {
-        final startLocal = widget.selectedStartDate!.toLocal();
-        final endLocal = widget.selectedEndDate!.toLocal();
-        final minLocal = widget.minDate?.toLocal();
-        final maxLocal = widget.maxDate?.toLocal();
+      if (widget.selectedStartDate == null || widget.selectedEndDate == null) {
+        if (!widget.allowNullConfirm) {
+          validationErrors
+              .add(_getLocalizedText(DateTimePickerTranslationKey.noDatesSelected, 'A date range must be selected.'));
+        }
+        return validationErrors; // Return early if incomplete range
+      }
 
-        if (startLocal.isAfter(endLocal)) {
-          validationErrors.add(_getLocalizedText(
-              DateTimePickerTranslationKey.startDateCannotBeAfterEndDate, 'Start date cannot be after end date'));
-        }
-        if (minLocal != null && startLocal.isBefore(minLocal)) {
-          validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.startDateMustBeAtOrAfter,
-              'Start date must be at or after ${DateFormatService.formatForInput(minLocal, context, type: DateFormatType.date)}'));
-        }
-        if (maxLocal != null && endLocal.isAfter(maxLocal)) {
-          validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.endDateMustBeAtOrBefore,
-              'End date must be at or before ${DateFormatService.formatForInput(maxLocal, context, type: DateFormatType.date)}'));
-        }
+      final startLocal = widget.selectedStartDate!.toLocal();
+      final endLocal = widget.selectedEndDate!.toLocal();
+      final minLocal = widget.minDate?.toLocal();
+      final maxLocal = widget.maxDate?.toLocal();
+
+      if (startLocal.isAfter(endLocal)) {
+        validationErrors.add(_getLocalizedText(
+            DateTimePickerTranslationKey.startDateCannotBeAfterEndDate, 'Start date cannot be after end date'));
+      }
+      if (minLocal != null && startLocal.isBefore(minLocal)) {
+        validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.startDateMustBeAtOrAfter,
+            'Start date must be at or after ${DateFormatService.formatForInput(minLocal, context, type: DateFormatType.date)}'));
+      }
+      if (maxLocal != null && endLocal.isAfter(maxLocal)) {
+        validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.endDateMustBeAtOrBefore,
+            'End date must be at or before ${DateFormatService.formatForInput(maxLocal, context, type: DateFormatType.date)}'));
       }
     }
 

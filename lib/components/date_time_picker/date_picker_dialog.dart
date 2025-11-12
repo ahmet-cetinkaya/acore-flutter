@@ -726,10 +726,8 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
 
   void _selectThisWeekend() {
     final now = DateTime.now();
-    var saturday = now;
-    while (saturday.weekday != DateTime.saturday) {
-      saturday = saturday.add(const Duration(days: 1));
-    }
+    // Find the Saturday of the current week
+    var saturday = now.add(Duration(days: DateTime.saturday - now.weekday));
     setState(() {
       _selectedDate = DateTime(
         saturday.year,
@@ -738,8 +736,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         _selectedDate?.hour ?? 0,
         _selectedDate?.minute ?? 0,
       );
-      // Update validation state - date selection is always valid
-      _isSelectionValid = true;
     });
     _triggerHapticFeedback();
   }
@@ -1822,16 +1818,12 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       onSingleDateSelected: (DateTime? date) {
         setState(() {
           _selectedDate = date;
-          // Update validation state when date is selected from calendar
-          _isSelectionValid = date != null || widget.config.allowNullConfirm;
         });
       },
       onRangeSelected: (DateTime? startDate, DateTime? endDate) {
         setState(() {
           _selectedStartDate = startDate;
           _selectedEndDate = endDate;
-          // Update validation state when date range is selected from calendar
-          _isSelectionValid = (startDate != null && endDate != null) || widget.config.allowNullConfirm;
         });
       },
       translations: widget.config.translations ?? {},

@@ -432,10 +432,10 @@ class ColorSchemeGenerator {
 void main() {
   group('ColorExtensions Tests', () {
     test('should convert color to hex string correctly', () {
-      // Test known colors
-      expect(Colors.red.toHexString(), equals('FF0000'));
-      expect(Colors.green.toHexString(), equals('FF00FF')); // Note: Flutter green is #FF00FF
-      expect(Colors.blue.toHexString(), equals('0000FF'));
+      // Test pure colors with explicit values
+      expect(const Color(0xFFFF0000).toHexString(), equals('FF0000')); // Pure red
+      expect(const Color(0xFF00FF00).toHexString(), equals('00FF00')); // Pure green
+      expect(const Color(0xFF0000FF).toHexString(), equals('0000FF')); // Pure blue
       expect(Colors.black.toHexString(), equals('000000'));
       expect(Colors.white.toHexString(), equals('FFFFFF'));
     });
