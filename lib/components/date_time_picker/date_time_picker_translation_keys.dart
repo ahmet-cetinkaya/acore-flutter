@@ -79,7 +79,6 @@ enum DateTimePickerTranslationKey {
   quickSelectionToday,
   quickSelectionTomorrow,
   quickSelectionWeekend,
-  quickSelectionNextWeek,
   quickSelectionNoDate,
   quickSelectionLastWeek,
   quickSelectionLastMonth,

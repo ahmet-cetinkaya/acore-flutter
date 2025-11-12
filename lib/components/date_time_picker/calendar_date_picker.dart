@@ -119,17 +119,11 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
     }
 
     // Adjust initial time if it's outside bounds
-    if (earliestTime != null) {
-      if (initialTime.hour < earliestTime.hour ||
-          (initialTime.hour == earliestTime.hour && initialTime.minute < earliestTime.minute)) {
-        initialTime = earliestTime;
-      }
+    if (earliestTime != null && _isTimeBefore(initialTime, earliestTime)) {
+      initialTime = earliestTime;
     }
-    if (latestTime != null) {
-      if (initialTime.hour > latestTime.hour ||
-          (initialTime.hour == latestTime.hour && initialTime.minute > latestTime.minute)) {
-        initialTime = latestTime;
-      }
+    if (latestTime != null && _isTimeAfter(initialTime, latestTime)) {
+      initialTime = latestTime;
     }
 
     // Use the native time picker which automatically respects device settings
@@ -140,18 +134,12 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
 
     if (timeOfDay != null && mounted) {
       // Validate time constraints before applying
-      if (earliestTime != null) {
-        if (timeOfDay.hour < earliestTime.hour ||
-            (timeOfDay.hour == earliestTime.hour && timeOfDay.minute < earliestTime.minute)) {
-          return;
-        }
+      if (earliestTime != null && _isTimeBefore(timeOfDay, earliestTime)) {
+        return;
       }
 
-      if (latestTime != null) {
-        if (timeOfDay.hour > latestTime.hour ||
-            (timeOfDay.hour == latestTime.hour && timeOfDay.minute > latestTime.minute)) {
-          return;
-        }
+      if (latestTime != null && _isTimeAfter(timeOfDay, latestTime)) {
+        return;
       }
 
       // Apply the selected time to the date
@@ -350,5 +338,15 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
         ),
       ),
     );
+  }
+
+  /// Check if time1 is before time2
+  bool _isTimeBefore(TimeOfDay t1, TimeOfDay t2) {
+    return t1.hour < t2.hour || (t1.hour == t2.hour && t1.minute < t2.minute);
+  }
+
+  /// Check if time1 is after time2
+  bool _isTimeAfter(TimeOfDay t1, TimeOfDay t2) {
+    return t1.hour > t2.hour || (t1.hour == t2.hour && t1.minute > t2.minute);
   }
 }
