@@ -1,6 +1,6 @@
-# Acore Package Documentation
+# ACore Flutter Package Documentation
 
-Welcome to the comprehensive documentation for the Acore package - a core utility and component library for Flutter applications.
+Welcome to the comprehensive documentation for the ACore Flutter package - a core utility and component library for Flutter applications.
 
 ## 📚 Documentation Structure
 
