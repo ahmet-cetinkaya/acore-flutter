@@ -152,23 +152,7 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
   }
 
   /// Build mobile-friendly action button with proper touch targets
-  Widget _buildMobileActionButton({
-    required BuildContext context,
-    required VoidCallback? onPressed,
-    required String text,
-    required IconData icon,
-    bool isPrimary = false,
-  }) {
-    return MobileActionButton(
-      context: context,
-      onPressed: onPressed,
-      text: text,
-      icon: icon,
-      isPrimary: isPrimary,
-      borderRadius: widget.config.actionButtonRadius,
-    );
-  }
-
+  
   @override
   Widget build(BuildContext context) {
     final theme = widget.config.theme ?? Theme.of(context);
@@ -306,21 +290,23 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
         ),
         actions: [
           // Cancel button
-          _buildMobileActionButton(
+          MobileActionButton(
             context: context,
             onPressed: _onCancel,
             text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
             icon: Icons.close,
             isPrimary: false,
+            borderRadius: widget.config.actionButtonRadius,
           ),
           const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
           // Confirm button
-          _buildMobileActionButton(
+          MobileActionButton(
             context: context,
             onPressed: _onConfirm,
             text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
             icon: Icons.check,
             isPrimary: true,
+            borderRadius: widget.config.actionButtonRadius,
           ),
         ],
       ),

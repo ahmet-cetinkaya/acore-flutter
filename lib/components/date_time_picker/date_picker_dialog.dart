@@ -369,13 +369,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                 onTap: () {
                   setState(() {
                     _refreshEnabled = !_refreshEnabled;
-                    // Always ensure validation stays true when we have a valid selection
-                    // This prevents any race conditions with debounced validation
-                    if (_selectedStartDate != null && _selectedEndDate != null) {
-                      _isSelectionValid = true; // Explicit override for range selections
-                    } else {
-                      _isSelectionValid = _selectedDate != null || widget.config.allowNullConfirm;
-                    }
                   });
                   widget.config.onRefreshToggleChanged?.call(_refreshEnabled);
                   _triggerHapticFeedback();
@@ -559,8 +552,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         _selectedDate?.hour ?? 0,
         _selectedDate?.minute ?? 0,
       );
-      // Update validation state - date selection is always valid
-      _isSelectionValid = true;
     });
     _triggerHapticFeedback();
   }
@@ -575,8 +566,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         _selectedDate?.hour ?? 0,
         _selectedDate?.minute ?? 0,
       );
-      // Update validation state - date selection is always valid
-      _isSelectionValid = true;
     });
     _triggerHapticFeedback();
   }
@@ -584,6 +573,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   void _selectThisWeekend() {
     final now = DateTime.now();
     // Find the Saturday of the current week
+    // DateTime.weekday: Monday=1, Tuesday=2, ..., Saturday=6, Sunday=7
     var saturday = now.add(Duration(days: DateTime.saturday - now.weekday));
     setState(() {
       _selectedDate = DateTime(
@@ -601,7 +591,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     setState(() {
       _selectedDate = null;
       // Update validation state - allow null selection if configured
-      _isSelectionValid = widget.config.allowNullConfirm || _selectedDate != null;
     });
     _triggerHapticFeedback();
   }
@@ -615,8 +604,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     setState(() {
       _selectedStartDate = todayStart;
       _selectedEndDate = todayEnd;
-      // Update validation state - range selection is always valid
-      _isSelectionValid = true;
     });
     _triggerHapticFeedback();
   }
@@ -645,8 +632,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     setState(() {
       _selectedStartDate = rangeStart;
       _selectedEndDate = rangeEnd;
-      // Update validation state - range selection is always valid
-      _isSelectionValid = true;
       // Track which quick range was selected
       _selectedQuickRangeKey = 'last_week';
     });
@@ -665,8 +650,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     setState(() {
       _selectedStartDate = rangeStart;
       _selectedEndDate = rangeEnd;
-      // Update validation state - range selection is always valid
-      _isSelectionValid = true;
       // Track which quick range was selected
       _selectedQuickRangeKey = 'last_month';
     });
@@ -687,8 +670,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         _selectedDate?.hour ?? 0,
         _selectedDate?.minute ?? 0,
       );
-      // Update validation state - date selection is always valid
-      _isSelectionValid = true;
     });
     _triggerHapticFeedback();
   }
@@ -698,7 +679,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       _selectedStartDate = null;
       _selectedEndDate = null;
       // Update validation state - allow null selection if configured
-      _isSelectionValid = widget.config.allowNullConfirm || _selectedStartDate != null;
     });
     _triggerHapticFeedback();
   }
@@ -750,15 +730,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     return _selectedStartDate == null && _selectedEndDate == null;
   }
 
-  /// Update validation state based on current selection
-  void _updateValidationState() {
-    if (widget.config.selectionMode == DateSelectionMode.single) {
-      _isSelectionValid = _selectedDate != null || widget.config.allowNullConfirm;
-    } else {
-      _isSelectionValid = (_selectedStartDate != null && _selectedEndDate != null) || widget.config.allowNullConfirm;
-    }
-  }
-
+  
   bool _isQuickRangeSelected(QuickDateRange range) {
     if (_selectedStartDate == null || _selectedEndDate == null) return false;
 
@@ -774,21 +746,10 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
 
   /// Callback for validation state changes from DateValidationDisplay
   void _onValidationStateChanged(bool isValid) {
-    // Defensive validation: only update if we truly don't have a selection
-    // This prevents the debounced DateValidationDisplay from overriding our manual validation
-    final hasValidRangeSelection = _selectedStartDate != null && _selectedEndDate != null;
-    final hasValidDateSelection = _selectedDate != null;
-
-    // Only allow validation to be false if there's genuinely no selection
-    if ((widget.config.selectionMode == DateSelectionMode.range && !hasValidRangeSelection) ||
-        (widget.config.selectionMode == DateSelectionMode.single && !hasValidDateSelection)) {
-      _updateValidationState();
-    } else {
-      // Force validation to stay true for any valid selection
-      setState(() {
-        _isSelectionValid = true;
-      });
-    }
+    // Validation state is managed exclusively by DateValidationDisplay
+    setState(() {
+      _isSelectionValid = isValid;
+    });
   }
 
   /// Opens time selection dialog for better mobile experience
@@ -1013,23 +974,25 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 4.0),
-          child: _buildMobileActionButton(
+          child: MobileActionButton(
             context: context,
             onPressed: _onCancel,
             text: widget.config.cancelButtonText ?? _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
             icon: Icons.close,
             isPrimary: false,
+            borderRadius: widget.config.actionButtonRadius,
           ),
         ),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 4.0),
-          child: _buildMobileActionButton(
+          child: MobileActionButton(
             context: context,
             onPressed: _isValidSelection() ? _onConfirm : null,
             text: widget.config.confirmButtonText ?? _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
             icon: Icons.check,
             isPrimary: true,
+            borderRadius: widget.config.actionButtonRadius,
           ),
         ),
       ]);
@@ -1131,23 +1094,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   }
 
   // Build mobile-friendly action button with proper touch targets
-  Widget _buildMobileActionButton({
-    required BuildContext context,
-    required VoidCallback? onPressed,
-    required String text,
-    required IconData icon,
-    bool isPrimary = false,
-  }) {
-    return MobileActionButton(
-      context: context,
-      onPressed: onPressed,
-      text: text,
-      icon: icon,
-      isPrimary: isPrimary,
-      borderRadius: widget.config.actionButtonRadius,
-    );
-  }
-
+  
   Widget _buildActionButton({
     required BuildContext context,
     required VoidCallback? onPressed,

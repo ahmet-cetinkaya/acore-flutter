@@ -214,23 +214,7 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
   }
 
   /// Build mobile-friendly action button with proper touch targets
-  Widget _buildMobileActionButton({
-    required BuildContext context,
-    required VoidCallback? onPressed,
-    required String text,
-    required IconData icon,
-    bool isPrimary = false,
-  }) {
-    return MobileActionButton(
-      context: context,
-      onPressed: onPressed,
-      text: text,
-      icon: icon,
-      isPrimary: isPrimary,
-      borderRadius: widget.config.actionButtonRadius,
-    );
-  }
-
+  
   /// Build calendar picker widget
   Widget _buildCalendarPicker() {
     return Container(
@@ -420,21 +404,23 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
         ),
         actions: [
           // Cancel button
-          _buildMobileActionButton(
+          MobileActionButton(
             context: context,
             onPressed: _onCancel,
             text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
             icon: Icons.close,
             isPrimary: false,
+            borderRadius: widget.config.actionButtonRadius,
           ),
           const SizedBox(height: _DateSelectionDialogDesign.spacingMedium),
           // Confirm button
-          _buildMobileActionButton(
+          MobileActionButton(
             context: context,
             onPressed: _isSelectionValid() ? _onConfirm : null,
             text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
             icon: Icons.check,
             isPrimary: true,
+            borderRadius: widget.config.actionButtonRadius,
           ),
         ],
       ),
