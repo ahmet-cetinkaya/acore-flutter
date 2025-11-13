@@ -5,13 +5,11 @@ import 'date_time_picker_translation_keys.dart';
 import 'date_picker_types.dart';
 import 'calendar_date_picker.dart' as custom;
 import 'time_selection_dialog.dart';
-import 'date_selection_dialog.dart';
 import 'quick_range_selector.dart';
 import 'date_validation_display.dart';
 import '../mobile_action_button.dart';
 import '../../utils/time_formatting_util.dart';
 import '../../utils/haptic_feedback_util.dart';
-import '../../utils/lru_cache.dart';
 
 /// Enum for quick selection button types
 enum QuickSelectionType {
@@ -35,18 +33,13 @@ class _DatePickerDesign {
 
   // Border radius
   static const double radiusSmall = 8.0;
-  static const double radiusMedium = 12.0;
 
   // Font sizes
-  static const double fontSizeSmall = 12.0;
   static const double fontSizeMedium = 16.0;
   static const double fontSizeLarge = 18.0;
   static const double fontSizeXLarge = 20.0;
 
   // Icon sizes
-  static const double iconSizeSmall = 16.0;
-  static const double iconSizeMedium = 20.0;
-  static const double iconSizeLarge = 24.0;
 
   // Dialog sizing
   static const double maxDialogWidth = 600.0;
@@ -207,9 +200,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   // Validation state tracking
   bool _isSelectionValid = false;
 
-  // Performance optimization: cached formatted dates with LRU eviction
-  final LRUCache<DateTime, String> _formattedDateCache = LRUCache<DateTime, String>(50);
-
   @override
   void initState() {
     super.initState();
@@ -219,7 +209,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
 
   @override
   void dispose() {
-    _formattedDateCache.clear();
     super.dispose();
   }
 
@@ -250,30 +239,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         }
       }
     }
-  }
-
-  String _formatDateForDisplay(DateTime? date) {
-    if (date == null) return '';
-
-    // Create a cache key based on the date only (not time)
-    final dateOnly = DateTime(date.year, date.month, date.day);
-
-    // Check cache first using LRU
-    final cached = _formattedDateCache.get(dateOnly);
-    if (cached != null) {
-      return cached;
-    }
-
-    // Format and cache the result using LRU
-    final formatted = DateFormatService.formatForInput(
-      date,
-      context,
-      type: widget.config.formatType,
-    );
-
-    // LRU cache handles size limits automatically
-    _formattedDateCache.put(dateOnly, formatted);
-    return formatted;
   }
 
   /// Format time for display using MaterialLocalizations
@@ -794,19 +759,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     }
   }
 
-  void _selectQuickRange(QuickDateRange range) {
-    if (widget.config.selectionMode != DateSelectionMode.range) return;
-
-    final startDate = range.startDateCalculator();
-    final endDate = range.endDateCalculator();
-
-    setState(() {
-      _selectedStartDate = startDate;
-      _selectedEndDate = endDate;
-      _selectedQuickRangeKey = range.key; // Track which quick range was selected
-    });
-  }
-
   bool _isQuickRangeSelected(QuickDateRange range) {
     if (_selectedStartDate == null || _selectedEndDate == null) return false;
 
@@ -878,52 +830,9 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   }
 
   /// Opens date selection dialog for better mobile experience
-  Future<void> _openDateSelectionDialog() async {
-    final result = await DateSelectionDialog.show(
-      context: context,
-      config: DateSelectionDialogConfig(
-        selectionMode: widget.config.selectionMode,
-        initialDate: _selectedDate,
-        initialStartDate: _selectedStartDate,
-        initialEndDate: _selectedEndDate,
-        minDate: widget.config.minDate,
-        maxDate: widget.config.maxDate,
-        translations: widget.config.translations ?? {},
-        theme: widget.config.theme,
-        locale: widget.config.locale,
-        actionButtonRadius: widget.config.actionButtonRadius,
-      ),
-    );
-
-    if (result != null && result.isConfirmed) {
-      if (widget.config.selectionMode == DateSelectionMode.single) {
-        if (result.selectedDate != null) {
-          setState(() {
-            _selectedDate = result.selectedDate;
-          });
-          _triggerHapticFeedback();
-        }
-      } else {
-        if (result.startDate != null && result.endDate != null) {
-          setState(() {
-            _selectedStartDate = result.startDate;
-            _selectedEndDate = result.endDate;
-          });
-          _triggerHapticFeedback();
-        }
-      }
-    }
-  }
 
   bool _isValidSelection() {
     return _isSelectionValid;
-  }
-
-  bool _hasSelection() {
-    if (widget.config.selectionMode == DateSelectionMode.single) {
-      return _selectedDate != null;
-    }
-    return _selectedStartDate != null || _selectedEndDate != null;
   }
 
   Widget _buildDateValidationDisplay() {
@@ -965,31 +874,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
 
   void _onCancel() {
     Navigator.of(context).pop(DatePickerResult.cancelled());
-  }
-
-  void _onClear() {
-    setState(() {
-      if (widget.config.selectionMode == DateSelectionMode.single) {
-        _selectedDate = null;
-      } else {
-        _selectedStartDate = null;
-        _selectedEndDate = null;
-      }
-    });
-  }
-
-  void _toggleRefresh() {
-    setState(() {
-      _refreshEnabled = !_refreshEnabled;
-      // Always ensure validation stays true when we have a valid selection
-      // This prevents any race conditions with debounced validation
-      if (_selectedStartDate != null && _selectedEndDate != null) {
-        _isSelectionValid = true; // Explicit override for range selections
-      } else {
-        _isSelectionValid = _selectedDate != null || widget.config.allowNullConfirm;
-      }
-    });
-    widget.config.onRefreshToggleChanged?.call(_refreshEnabled);
   }
 
   @override
@@ -1063,251 +947,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     );
   }
 
-  Widget _buildSimpleDateButton() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: _DatePickerDesign.spacingLarge,
-        vertical: _DatePickerDesign.spacingMedium,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(_DatePickerDesign.radiusMedium),
-        border: Border.all(
-          color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
-          width: _DatePickerDesign.borderWidth,
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: _openDateSelectionDialog,
-          borderRadius: BorderRadius.circular(_DatePickerDesign.radiusMedium),
-          child: Padding(
-            padding: const EdgeInsets.all(_DatePickerDesign.spacingSmall),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.event,
-                      size: _DatePickerDesign.iconSizeMedium,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    const SizedBox(width: _DatePickerDesign.spacingSmall),
-                    Text(
-                      _getLocalizedText(DateTimePickerTranslationKey.selectDateTitle, 'Select Date'),
-                      style: TextStyle(
-                        fontSize: _DatePickerDesign.fontSizeLarge,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ],
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  size: _DatePickerDesign.iconSizeMedium,
-                  color: Theme.of(context).primaryColor.withValues(alpha: 0.8),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSimpleTimeButton() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: _DatePickerDesign.spacingLarge,
-        vertical: _DatePickerDesign.spacingMedium,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(_DatePickerDesign.radiusMedium),
-        border: Border.all(
-          color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
-          width: _DatePickerDesign.borderWidth,
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: _openTimeSelectionDialog,
-          borderRadius: BorderRadius.circular(_DatePickerDesign.radiusMedium),
-          child: Padding(
-            padding: const EdgeInsets.all(_DatePickerDesign.spacingSmall),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.access_time,
-                      size: _DatePickerDesign.iconSizeMedium,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    const SizedBox(width: _DatePickerDesign.spacingSmall),
-                    Text(
-                      _selectedDate != null
-                          ? _formatTimeForDisplay(_selectedDate!)
-                          : _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
-                      style: TextStyle(
-                        fontSize: _DatePickerDesign.fontSizeLarge,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ],
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  size: _DatePickerDesign.iconSizeMedium,
-                  color: Theme.of(context).primaryColor.withValues(alpha: 0.8),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSelectedDateDisplay() {
-    final isCompactScreen = _isCompactScreen(context);
-
-    if (widget.config.selectionMode == DateSelectionMode.single) {
-      // When both date and time selection are enabled, show simple buttons
-      if (widget.config.showTime) {
-        return Padding(
-          padding: EdgeInsets.only(
-              bottom: isCompactScreen ? _DatePickerDesign.spacingSmall : _DatePickerDesign.spacingMedium),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildSimpleDateButton(),
-              const SizedBox(height: _DatePickerDesign.spacingMedium),
-              _buildSimpleTimeButton(),
-            ],
-          ),
-        );
-      } else {
-        // When only date selection is enabled, show current selection with calendar
-        final displayText = _selectedDate != null
-            ? _formatDateForDisplay(_selectedDate)
-            : _getLocalizedText(DateTimePickerTranslationKey.noDateSelected, 'No date selected');
-
-        return Padding(
-          padding: EdgeInsets.only(
-              bottom: isCompactScreen ? _DatePickerDesign.spacingSmall : _DatePickerDesign.spacingMedium),
-          child: Container(
-            padding: EdgeInsets.all(isCompactScreen ? _DatePickerDesign.spacingMedium : _DatePickerDesign.spacingLarge),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(_DatePickerDesign.radiusMedium),
-              border: Border.all(
-                color: _selectedDate != null
-                    ? Theme.of(context).primaryColor.withValues(alpha: 0.3)
-                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-                width: _DatePickerDesign.borderWidth,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.event,
-                  color: _selectedDate != null ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
-                  size: isCompactScreen ? _DatePickerDesign.iconSizeMedium : _DatePickerDesign.iconSizeLarge,
-                ),
-                const SizedBox(width: _DatePickerDesign.spacingSmall),
-                Flexible(
-                  child: Text(
-                    displayText,
-                    style: TextStyle(
-                      color: _selectedDate != null ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
-                      fontWeight: _selectedDate != null ? FontWeight.w600 : FontWeight.normal,
-                      fontSize: isCompactScreen ? _DatePickerDesign.fontSizeMedium : _DatePickerDesign.fontSizeLarge,
-                    ),
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    } else {
-      // For range selection
-      String displayText;
-      if (_selectedStartDate != null && _selectedEndDate != null) {
-        displayText = '${_formatDateForDisplay(_selectedStartDate)} - ${_formatDateForDisplay(_selectedEndDate)}';
-      } else if (_selectedStartDate != null) {
-        displayText =
-            '${_formatDateForDisplay(_selectedStartDate)} - ${_getLocalizedText(DateTimePickerTranslationKey.selectEndDate, 'Select end date')}';
-      } else {
-        displayText = _getLocalizedText(DateTimePickerTranslationKey.noDatesSelected, 'No dates selected');
-      }
-
-      return Padding(
-        padding: const EdgeInsets.only(bottom: _DatePickerDesign.spacingMedium),
-        child: Wrap(
-          alignment: WrapAlignment.center,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: _DatePickerDesign.spacingSmall - _DatePickerDesign.spacingXSmall,
-          runSpacing: _DatePickerDesign.spacingSmall,
-          children: [
-            Icon(
-              Icons.date_range,
-              color: (_selectedStartDate != null && _selectedEndDate != null)
-                  ? Theme.of(context).primaryColor
-                  : Theme.of(context).disabledColor,
-              size: _DatePickerDesign.iconSizeSmall,
-            ),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: _isCompactScreen(context) ? 280 : 350),
-              child: Text(
-                displayText,
-                style: TextStyle(
-                  color: (_selectedStartDate != null && _selectedEndDate != null)
-                      ? Theme.of(context).primaryColor
-                      : Theme.of(context).disabledColor,
-                  fontWeight:
-                      (_selectedStartDate != null && _selectedEndDate != null) ? FontWeight.bold : FontWeight.normal,
-                  fontSize: _DatePickerDesign.fontSizeMedium,
-                ),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
-  Widget _buildQuickRangeSelector() {
-    return QuickRangeSelector(
-      quickRanges: widget.config.quickRanges,
-      selectedQuickRangeKey: _selectedQuickRangeKey,
-      showQuickRanges: widget.config.showQuickRanges,
-      showRefreshToggle: widget.config.showRefreshToggle,
-      refreshEnabled: _refreshEnabled,
-      translations: widget.config.translations ?? {},
-      onQuickRangeSelected: _selectQuickRange,
-      onRefreshToggle: _toggleRefresh,
-      onClear: _onClear,
-      hasSelection: _hasSelection(),
-      isCompactScreen: _isCompactScreen(context),
-      actionButtonRadius: _DatePickerDesign.radiusMedium,
-    );
-  }
-
   bool _isCompactScreen(BuildContext context) {
     return MediaQuery.of(context).size.width < 600;
   }
@@ -1342,53 +981,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   }
 
   // Build action buttons with mobile-friendly layout
-  List<Widget> _buildActionButtons(bool isCompactScreen) {
-    if (isCompactScreen) {
-      // Vertical layout for compact screens
-      return [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
-          child: _buildMobileActionButton(
-            context: context,
-            onPressed: _onCancel,
-            text: widget.config.cancelButtonText ?? _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
-            icon: Icons.close,
-            isPrimary: false,
-          ),
-        ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
-          child: _buildMobileActionButton(
-            context: context,
-            onPressed: _isValidSelection() ? _onConfirm : null,
-            text: widget.config.confirmButtonText ?? _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
-            icon: Icons.check,
-            isPrimary: true,
-          ),
-        ),
-      ];
-    } else {
-      // Horizontal layout for larger screens
-      return [
-        _buildActionButton(
-          context: context,
-          onPressed: _onCancel,
-          text: widget.config.cancelButtonText ?? _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
-          icon: Icons.close,
-        ),
-        _buildActionButton(
-          context: context,
-          onPressed: _isValidSelection() ? _onConfirm : null,
-          text: widget.config.confirmButtonText ?? _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
-          icon: Icons.check,
-          isPrimary: true,
-          forceTextButton: true,
-        ),
-      ];
-    }
-  }
 
   /// Check if selected time is at the beginning of the day (All Day)
   bool _isAllDayTime(DateTime date) {

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../utils/haptic_feedback_util.dart';
 
 /// Design constants for wheel time picker
 class _WheelTimePickerDesign {
   // Spacing
   static const double spacingSmall = 8.0;
-  static const double spacingLarge = 16.0;
 
   // Border radius
   static const double radiusLarge = 16.0;

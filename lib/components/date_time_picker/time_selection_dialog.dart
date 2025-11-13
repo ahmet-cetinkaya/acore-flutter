@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'wheel_time_picker.dart';
 import '../mobile_action_button.dart';
@@ -10,24 +9,19 @@ class _TimeSelectionDialogDesign {
   // Spacing
   static const double spacingSmall = 8.0;
   static const double spacingMedium = 12.0;
-  static const double spacingLarge = 16.0;
-  static const double spacingXLarge = 24.0;
 
   // Border radius
   static const double radiusMedium = 12.0;
-  static const double radiusLarge = 16.0;
 
   // Border width
   static const double borderWidth = 1.0;
 
   // Font sizes
-  static const double fontSizeSmall = 12.0;
   static const double fontSizeMedium = 16.0;
   static const double fontSizeXLarge = 20.0;
 
   // Icon sizes
   static const double iconSizeMedium = 20.0;
-  static const double iconSizeLarge = 24.0;
 
   // Dialog sizing
   static const double maxDialogWidth = 240.0;
