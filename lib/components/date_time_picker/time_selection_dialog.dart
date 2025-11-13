@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'wheel_time_picker.dart';
-import '../../utils/time_formatting_util.dart';
+import '../mobile_action_button.dart';
 import '../../utils/haptic_feedback_util.dart';
 
 /// Design constants for time selection dialog
@@ -123,19 +123,9 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
     _isAllDay = widget.config.initialIsAllDay;
   }
 
-  /// Checks if the current screen is compact (mobile)
-  bool _isCompactScreen(BuildContext context) {
-    return MediaQuery.of(context).size.width < 600;
-  }
-
   /// Trigger haptic feedback for better mobile experience
   void _triggerHapticFeedback() {
     HapticFeedbackUtil.triggerHapticFeedback(context);
-  }
-
-  /// Format time for display using MaterialLocalizations
-  String _formatTimeForDisplay(TimeOfDay time) {
-    return TimeFormattingUtil.formatTime(context, time);
   }
 
   /// Get localized text with fallback
@@ -175,66 +165,19 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
     required IconData icon,
     bool isPrimary = false,
   }) {
-    return Semantics(
-      button: true,
-      label: text,
-      child: Container(
-        height: 48, // Minimum touch target size
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius:
-              BorderRadius.circular(widget.config.actionButtonRadius ?? _TimeSelectionDialogDesign.radiusMedium),
-          color: isPrimary
-              ? Theme.of(context).primaryColor
-              : onPressed != null
-                  ? Theme.of(context).colorScheme.surfaceContainerHighest
-                  : Theme.of(context).colorScheme.surface,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onPressed,
-            borderRadius:
-                BorderRadius.circular(widget.config.actionButtonRadius ?? _TimeSelectionDialogDesign.radiusMedium),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    size: _TimeSelectionDialogDesign.iconSizeMedium,
-                    color: isPrimary
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : onPressed != null
-                            ? Theme.of(context).colorScheme.onSurfaceVariant
-                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
-                  ),
-                  const SizedBox(width: _TimeSelectionDialogDesign.spacingSmall),
-                  Text(
-                    text,
-                    style: TextStyle(
-                      fontSize: _TimeSelectionDialogDesign.fontSizeMedium,
-                      fontWeight: FontWeight.w500,
-                      color: isPrimary
-                          ? Theme.of(context).colorScheme.onPrimary
-                          : onPressed != null
-                              ? Theme.of(context).colorScheme.onSurfaceVariant
-                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+    return MobileActionButton(
+      context: context,
+      onPressed: onPressed,
+      text: text,
+      icon: icon,
+      isPrimary: isPrimary,
+      borderRadius: widget.config.actionButtonRadius,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = widget.config.theme ?? Theme.of(context);
-    final isCompactScreen = _isCompactScreen(context);
     final screenWidth = MediaQuery.of(context).size.width;
 
     // Responsive dialog sizing
@@ -242,10 +185,6 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
       _TimeSelectionDialogDesign.minDialogWidth,
       _TimeSelectionDialogDesign.maxDialogWidth,
     );
-
-    final timeString = _isAllDay
-        ? _getLocalizedText(DateTimePickerTranslationKey.allDay, 'All Day')
-        : _formatTimeForDisplay(_selectedTime);
 
     return Theme(
       data: theme,

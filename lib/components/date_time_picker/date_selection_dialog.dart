@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'date_picker_types.dart';
 import 'calendar_date_picker.dart' as custom;
+import '../mobile_action_button.dart';
 import '../../utils/haptic_feedback_util.dart';
 
 /// Design constants for date selection dialog
@@ -224,59 +225,13 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
     required IconData icon,
     bool isPrimary = false,
   }) {
-    return Semantics(
-      button: true,
-      label: text,
-      child: Container(
-        height: 48, // Minimum touch target size
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius:
-              BorderRadius.circular(widget.config.actionButtonRadius ?? _DateSelectionDialogDesign.radiusMedium),
-          color: isPrimary
-              ? Theme.of(context).primaryColor
-              : onPressed != null
-                  ? Theme.of(context).colorScheme.surfaceContainerHighest
-                  : Theme.of(context).colorScheme.surface,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onPressed,
-            borderRadius:
-                BorderRadius.circular(widget.config.actionButtonRadius ?? _DateSelectionDialogDesign.radiusMedium),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    size: _DateSelectionDialogDesign.iconSizeMedium,
-                    color: isPrimary
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : onPressed != null
-                            ? Theme.of(context).colorScheme.onSurfaceVariant
-                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
-                  ),
-                  const SizedBox(width: _DateSelectionDialogDesign.spacingSmall),
-                  Text(
-                    text,
-                    style: TextStyle(
-                      fontSize: _DateSelectionDialogDesign.fontSizeMedium,
-                      fontWeight: FontWeight.w500,
-                      color: isPrimary
-                          ? Theme.of(context).colorScheme.onPrimary
-                          : onPressed != null
-                              ? Theme.of(context).colorScheme.onSurfaceVariant
-                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+    return MobileActionButton(
+      context: context,
+      onPressed: onPressed,
+      text: text,
+      icon: icon,
+      isPrimary: isPrimary,
+      borderRadius: widget.config.actionButtonRadius,
     );
   }
 

@@ -82,6 +82,7 @@ enum DateTimePickerTranslationKey {
   quickSelectionNoDate,
   quickSelectionLastWeek,
   quickSelectionLastMonth,
+  quickSelectionNextWeek,
 
   /// Weekday abbreviations (mapped to existing calendar system)
   weekdayMonShort,

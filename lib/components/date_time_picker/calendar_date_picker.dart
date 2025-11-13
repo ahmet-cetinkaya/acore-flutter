@@ -257,6 +257,11 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
         if (_isCompactScreen(context)) {
           _triggerHapticFeedback();
         }
+
+        // If time selection is enabled, allow user to select times for start and end dates
+        if (widget.showTime) {
+          await _selectRangeTimes(startDate, endDate);
+        }
       } else if (dates.length == 1) {
         widget.onRangeSelected(dates[0]!, null);
         widget.onUserHasSelectedQuickRangeChanged?.call();
@@ -348,5 +353,37 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
   /// Check if time1 is after time2
   bool _isTimeAfter(TimeOfDay t1, TimeOfDay t2) {
     return t1.hour > t2.hour || (t1.hour == t2.hour && t1.minute > t2.minute);
+  }
+
+  /// Select times for date range selection
+  Future<void> _selectRangeTimes(DateTime startDate, DateTime endDate) async {
+    if (!widget.showTime) return;
+
+    // First, select start time
+    await _selectTime(startDate, true);
+
+    // Then, select end time if the widget is still mounted
+    if (mounted) {
+      // Use the original end date (not widget state, as it might not be updated yet)
+      await _selectTime(endDate, false);
+
+      // Ensure the range is valid after time selection
+      if (widget.selectedStartDate != null && widget.selectedEndDate != null) {
+        final start = widget.selectedStartDate!;
+        final end = widget.selectedEndDate!;
+
+        // If start time is after end time, adjust end time to be after start time
+        if (start.isAfter(end)) {
+          final adjustedEnd = DateTime(
+            end.year,
+            end.month,
+            end.day,
+            start.hour,
+            start.minute,
+          );
+          widget.onRangeSelected(start, adjustedEnd);
+        }
+      }
+    }
   }
 }

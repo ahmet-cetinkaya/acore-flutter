@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:intl/intl.dart';
 import '../../time/date_format_service.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'date_picker_types.dart';
@@ -9,6 +8,7 @@ import 'time_selection_dialog.dart';
 import 'date_selection_dialog.dart';
 import 'quick_range_selector.dart';
 import 'date_validation_display.dart';
+import '../mobile_action_button.dart';
 import '../../utils/time_formatting_util.dart';
 import '../../utils/haptic_feedback_util.dart';
 import '../../utils/lru_cache.dart';
@@ -522,11 +522,11 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                     : Text(
                         text,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: isSelected
-                              ? Theme.of(context).primaryColor
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                              fontWeight: FontWeight.w600,
+                              color: isSelected
+                                  ? Theme.of(context).primaryColor
+                                  : Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                       ),
               ),
             ),
@@ -551,36 +551,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   }
 
   /// Get short day name for quick selection buttons using proper localization
-  String _getShortDayNameFromType(QuickSelectionType type) {
-    final now = DateTime.now();
-
-    switch (type) {
-      case QuickSelectionType.today:
-        return _getShortDayNameFromDateTime(now);
-      case QuickSelectionType.tomorrow:
-        return _getShortDayNameFromDateTime(now.add(const Duration(days: 1)));
-      case QuickSelectionType.weekend:
-        // Find Saturday
-        var saturday = now;
-        while (saturday.weekday != DateTime.saturday) {
-          saturday = saturday.add(const Duration(days: 1));
-        }
-        return _getShortDayNameFromDateTime(saturday);
-      case QuickSelectionType.noDate:
-        return '---'; // Default for no date
-      case QuickSelectionType.nextWeek:
-        // Find next Monday
-        final daysUntilNextMonday = (7 - now.weekday + 1) % 7 + 1;
-        final nextMonday = now.add(Duration(days: daysUntilNextMonday));
-        return _getShortDayNameFromDateTime(nextMonday);
-    }
-  }
-
-  /// Get short day name from DateTime using proper localization
-  String _getShortDayNameFromDateTime(DateTime dateTime) {
-    final locale = Localizations.localeOf(context);
-    return DateFormat.E(locale.toString()).format(dateTime);
-  }
 
   /// Check if today is currently selected
   bool _isTodaySelected() {
@@ -613,83 +583,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   }
 
   /// Build fixed time field at bottom of dialog
-  Widget _buildFixedTimeField() {
-    return Container(
-      margin: const EdgeInsets.only(top: _DatePickerDesign.spacingLarge),
-      padding: const EdgeInsets.all(_DatePickerDesign.spacingLarge),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(_DatePickerDesign.radiusMedium),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: _DatePickerDesign.borderWidth,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
-            style: TextStyle(
-              fontSize: _DatePickerDesign.fontSizeSmall,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: _DatePickerDesign.spacingSmall),
-          GestureDetector(
-            onTap: () {
-              _openTimeSelectionDialog();
-              _triggerHapticFeedback();
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                horizontal: _DatePickerDesign.spacingMedium,
-                vertical: _DatePickerDesign.spacingSmall,
-              ),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-                  width: _DatePickerDesign.borderWidth,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.access_time,
-                    size: _DatePickerDesign.iconSizeMedium,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: _DatePickerDesign.spacingSmall),
-                  Text(
-                    _selectedDate != null
-                        ? _formatTimeForDisplay(_selectedDate!)
-                        : _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
-                    style: TextStyle(
-                      fontSize: _DatePickerDesign.fontSizeMedium,
-                      fontWeight: FontWeight.w500,
-                      color: _selectedDate != null
-                          ? Theme.of(context).colorScheme.onSurface
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const Spacer(),
-                  Icon(
-                    Icons.chevron_right,
-                    size: _DatePickerDesign.iconSizeSmall,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   /// Quick selection methods
   void _selectToday() {
@@ -763,39 +656,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     _triggerHapticFeedback();
   }
 
-  void _selectLastWeek() {
-    final now = DateTime.now();
-    final lastWeekEnd = now.subtract(Duration(days: now.weekday));
-    final lastWeekStart = lastWeekEnd.subtract(const Duration(days: 6));
-
-    final startDate = DateTime(lastWeekStart.year, lastWeekStart.month, lastWeekStart.day, 0, 0, 0);
-    final endDate = DateTime(lastWeekEnd.year, lastWeekEnd.month, lastWeekEnd.day, 23, 59, 59);
-
-    setState(() {
-      _selectedStartDate = startDate;
-      _selectedEndDate = endDate;
-      // Update validation state - range selection is always valid
-      _isSelectionValid = true;
-    });
-    _triggerHapticFeedback();
-  }
-
-  void _selectLastMonth() {
-    final now = DateTime.now();
-    final lastMonthEnd = DateTime(now.year, now.month, 1).subtract(const Duration(days: 1));
-    final lastMonthStart = DateTime(lastMonthEnd.year, lastMonthEnd.month, 1, 0, 0, 0);
-
-    final endDate = DateTime(lastMonthEnd.year, lastMonthEnd.month, lastMonthEnd.day, 23, 59, 59);
-
-    setState(() {
-      _selectedStartDate = lastMonthStart;
-      _selectedEndDate = endDate;
-      // Update validation state - range selection is always valid
-      _isSelectionValid = true;
-    });
-    _triggerHapticFeedback();
-  }
-
   /// Check if today range is currently selected
   bool _isRangeTodaySelected() {
     if (_selectedStartDate == null || _selectedEndDate == null) return false;
@@ -805,33 +665,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
     return _isSameDay(_selectedStartDate!, todayStart) && _isSameDay(_selectedEndDate!, todayEnd);
-  }
-
-  /// Check if last week is currently selected
-  bool _isLastWeekSelected() {
-    if (_selectedStartDate == null || _selectedEndDate == null) return false;
-
-    final now = DateTime.now();
-    final lastWeekEnd = now.subtract(Duration(days: now.weekday));
-    final lastWeekStart = lastWeekEnd.subtract(const Duration(days: 6));
-
-    final startDate = DateTime(lastWeekStart.year, lastWeekStart.month, lastWeekStart.day, 0, 0, 0);
-    final endDate = DateTime(lastWeekEnd.year, lastWeekEnd.month, lastWeekEnd.day, 23, 59, 59);
-
-    return _isSameDay(_selectedStartDate!, startDate) && _isSameDay(_selectedEndDate!, endDate);
-  }
-
-  /// Check if last month is currently selected
-  bool _isLastMonthSelected() {
-    if (_selectedStartDate == null || _selectedEndDate == null) return false;
-
-    final now = DateTime.now();
-    final lastMonthEnd = DateTime(now.year, now.month, 1).subtract(const Duration(days: 1));
-    final lastMonthStart = DateTime(lastMonthEnd.year, lastMonthEnd.month, 1, 0, 0, 0);
-
-    final endDate = DateTime(lastMonthEnd.year, lastMonthEnd.month, lastMonthEnd.day, 23, 59, 59);
-
-    return _isSameDay(_selectedStartDate!, lastMonthStart) && _isSameDay(_selectedEndDate!, endDate);
   }
 
   /// Additional range selection methods
@@ -1713,56 +1546,13 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     required IconData icon,
     bool isPrimary = false,
   }) {
-    return Semantics(
-      button: true,
-      label: text,
-      child: Container(
-        height: 48, // Minimum touch target size
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(widget.config.actionButtonRadius ?? _DatePickerDesign.radiusSmall),
-          color: isPrimary
-              ? Theme.of(context).primaryColor
-              : onPressed != null
-                  ? Theme.of(context).colorScheme.surfaceContainerHighest
-                  : Theme.of(context).colorScheme.surface,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onPressed,
-            borderRadius: BorderRadius.circular(widget.config.actionButtonRadius ?? _DatePickerDesign.radiusSmall),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    size: _DatePickerDesign.iconSizeMedium,
-                    color: isPrimary
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : onPressed != null
-                            ? Theme.of(context).colorScheme.onSurfaceVariant
-                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
-                  ),
-                  const SizedBox(width: _DatePickerDesign.spacingSmall),
-                  Text(
-                    text,
-                    style: TextStyle(
-                      fontSize: _DatePickerDesign.fontSizeMedium,
-                      fontWeight: FontWeight.w500,
-                      color: isPrimary
-                          ? Theme.of(context).colorScheme.onPrimary
-                          : onPressed != null
-                              ? Theme.of(context).colorScheme.onSurfaceVariant
-                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+    return MobileActionButton(
+      context: context,
+      onPressed: onPressed,
+      text: text,
+      icon: icon,
+      isPrimary: isPrimary,
+      borderRadius: widget.config.actionButtonRadius,
     );
   }
 
