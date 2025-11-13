@@ -78,13 +78,19 @@ To add this repository as a submodule to another project, follow these steps:
    flutter pub get
    ```
 
+## 📚 Documentation
+
+For detailed documentation and API references, see the [docs/](./docs/) directory.
+
 ## 🤝 Contributing
 
-If you'd like to contribute, please follow these steps:
+We welcome contributions! Please see our [Contributing Guide](./docs/CONTRIBUTING.md) for detailed information on:
+- Development environment setup
+- Code style and standards
+- Testing requirements
+- Pull request process
+- Community guidelines
 
-1. Fork the repository
-2. Create a new branch (`git checkout -b feat/feature-branch`)
-3. Make your changes
-4. Commit your changes (`git commit -m 'feat: add new feature'`)
-5. Push to the branch (`git push origin feat/feature-branch`)
-6. Open a Pull Request
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.

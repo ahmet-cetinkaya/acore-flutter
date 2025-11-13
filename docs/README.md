@@ -53,11 +53,3 @@ The package follows Clean Architecture principles with:
 - **Infrastructure Layer** - Platform-specific implementations
 - **Presentation Layer** - UI components and shared utilities
 
-## 🤝 Contributing
-
-When adding new components or utilities:
-1. Follow existing code patterns and naming conventions
-2. Include comprehensive documentation
-3. Add appropriate tests
-4. Ensure accessibility compliance
-5. Update this index documentation

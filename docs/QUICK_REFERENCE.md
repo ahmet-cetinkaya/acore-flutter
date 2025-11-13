@@ -72,8 +72,11 @@ NumericInput(
 ### Date Picker
 ```dart
 SafeCalendarDatePicker(
-  initialDate: DateTime.now(),
-  onDateChanged: (date) => print(date),
+  selectionMode: DateSelectionMode.single,
+  selectedDate: DateTime.now(),
+  onSingleDateSelected: (date) => print(date),
+  onRangeSelected: (_, __) {},
+  translations: const {},
 )
 ```
 

@@ -12,6 +12,7 @@ This directory contains comprehensive documentation for the **acore-flutter** pa
 |----------|---------|----------|------|
 | **[ACORE_COMPREHENSIVE_DOCUMENTATION.md](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)** | Package overview with architecture and module links | Developers, Architects | Medium |
 | **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** | Quick start guide with common patterns | All Developers | Medium |
+| **[CONTRIBUTING.md](./CONTRIBUTING.md)** | Development guidelines and contribution process | Contributors, Maintainers | Large |
 
 ### Core Module Documentation
 
@@ -69,6 +70,12 @@ Read: **[Comprehensive Documentation](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)** 
 - **[Async Utils](./utils/ASYNC_UTILS.md)** - Async operation patterns
 - **[Time Utilities](./time/README.md)** - Date/time helpers
 - **[Collection Utils](./utils/COLLECTION_UTILS.md)** - Collection operations
+
+### 6. Contributing to ACore
+- **[Contributing Guide](./CONTRIBUTING.md)** - Development workflow and guidelines
+- **[Code Style](./CONTRIBUTING.md#code-style-and-standards)** - Coding standards and best practices
+- **[Testing Guidelines](./CONTRIBUTING.md#testing-guidelines)** - Testing requirements and patterns
+- **[Pull Request Process](./CONTRIBUTING.md#pull-request-process)** - Contribution workflow
 
 ## 🔍 Quick Navigation
 
