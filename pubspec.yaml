@@ -23,6 +23,9 @@ dependencies:
   dart_json_mapper: ^2.2.16
   calendar_date_picker2: ^2.0.0
 
+  # UI components and utilities
+  modal_bottom_sheet: ^3.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
