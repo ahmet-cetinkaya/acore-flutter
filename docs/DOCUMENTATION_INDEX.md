@@ -39,14 +39,16 @@ This directory contains comprehensive documentation for the **acore-flutter** pa
 
 ### Utility Documentation
 
-| Utility                                                              | Documentation    | Purpose                                     |
-| -------------------------------------------------------------------- | ---------------- | ------------------------------------------- |
-| **[utils/ASYNC_UTILS.md](./utils/ASYNC_UTILS.md)**                   | Async Utils      | Async operation patterns and error handling |
-| **[utils/COLLECTION_UTILS.md](./utils/COLLECTION_UTILS.md)**         | Collection Utils | Collection comparison and change detection  |
-| **[utils/LRU_CACHE.md](./utils/LRU_CACHE.md)**                       | LRU Cache        | Least Recently Used cache implementation    |
-| **[utils/RESPONSIVE_UTIL.md](./utils/RESPONSIVE_UTIL.md)**           | Responsive Util  | Responsive design utilities                 |
-| **[utils/TIME_FORMATTING_UTIL.md](./utils/TIME_FORMATTING_UTIL.md)** | Time Formatting  | Time display and formatting helpers         |
-| **[utils/HAPTIC_FEEDBACK_UTIL.md](./utils/HAPTIC_FEEDBACK_UTIL.md)** | Haptic Feedback  | Haptic feedback abstraction                 |
+| Utility                                                                      | Documentation            | Purpose                                          |
+| ---------------------------------------------------------------------------- | ------------------------ | ------------------------------------------------ |
+| **[utils/ASYNC_UTILS.md](./utils/ASYNC_UTILS.md)**                           | Async Utils              | Async operation patterns and error handling      |
+| **[utils/COLLECTION_UTILS.md](./utils/COLLECTION_UTILS.md)**                 | Collection Utils         | Collection comparison and change detection       |
+| **[utils/DIALOG_SIZE.md](./utils/DIALOG_SIZE.md)**                           | Dialog Size              | Responsive dialog size definitions and behaviors |
+| **[utils/LRU_CACHE.md](./utils/LRU_CACHE.md)**                               | LRU Cache                | Least Recently Used cache implementation         |
+| **[utils/RESPONSIVE_DIALOG_HELPER.md](./utils/RESPONSIVE_DIALOG_HELPER.md)** | Responsive Dialog Helper | Cross-platform responsive dialog system          |
+| **[utils/RESPONSIVE_UTIL.md](./utils/RESPONSIVE_UTIL.md)**                   | Responsive Util          | Responsive design utilities                      |
+| **[utils/TIME_FORMATTING_UTIL.md](./utils/TIME_FORMATTING_UTIL.md)**         | Time Formatting          | Time display and formatting helpers              |
+| **[utils/HAPTIC_FEEDBACK_UTIL.md](./utils/HAPTIC_FEEDBACK_UTIL.md)**         | Haptic Feedback          | Haptic feedback abstraction                      |
 
 ## 🎯 Getting Started Guide
 
