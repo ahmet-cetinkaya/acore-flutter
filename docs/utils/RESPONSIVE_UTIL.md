@@ -262,6 +262,7 @@ class ResponsiveGrid extends StatelessWidget {
 ## Best Practices
 
 ### 1. Progressive Enhancement
+
 ```dart
 // Good: Build mobile-first, enhance for larger screens
 Widget build(BuildContext context) {
@@ -277,6 +278,7 @@ Widget build(BuildContext context) {
 ```
 
 ### 2. Orientation-Aware Design
+
 ```dart
 // Good: Consider orientation in layout decisions
 Widget build(BuildContext context) {
@@ -292,6 +294,7 @@ Widget build(BuildContext context) {
 ```
 
 ### 3. Consistent Spacing
+
 ```dart
 // Good: Use utility methods for consistent responsive spacing
 EdgeInsets getResponsivePadding(BuildContext context) {
@@ -321,6 +324,7 @@ EdgeInsets getResponsivePadding(BuildContext context) {
 ## Integration with Material Design
 
 The utility follows Material Design 3 guidelines:
+
 - Uses Material Design breakpoint system
 - Compatible with Material's adaptive layouts
 - Respects Material's typography and spacing scales

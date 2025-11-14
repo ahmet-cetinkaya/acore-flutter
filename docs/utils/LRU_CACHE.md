@@ -25,23 +25,30 @@ LRUCache<K, V>(int maxSize)
 ### Methods
 
 #### `V? get(K key)`
+
 Retrieves a value from the cache and updates its access time.
+
 - Returns `null` if key doesn't exist
 - Updates LRU order on access
 
 #### `void put(K key, V value)`
+
 Stores a value in the cache:
+
 - Updates existing entries
 - Evicts oldest entries if cache is full
 - Updates access time for LRU tracking
 
 #### `bool containsKey(K key)`
+
 Checks if a key exists in the cache.
 
 #### `V? remove(K key)`
+
 Removes a specific key and returns its value.
 
 #### `void clear()`
+
 Removes all items from the cache and resets the access counter.
 
 ### Properties
@@ -52,7 +59,9 @@ Removes all items from the cache and resets the access counter.
 - `Iterable<K> keys` - All keys currently in cache (for debugging)
 
 ### `CacheStats get stats`
+
 Returns cache statistics including:
+
 - `size` - Current cache size
 - `maxSize` - Maximum cache capacity
 - `isFull` - Whether cache is full
@@ -112,28 +121,31 @@ print(cache.stats.utilizationRatio); // 1.0 (100%)
 ## Implementation Details
 
 ### Algorithm
+
 - Uses `LinkedHashMap` for O(1) access and insertion
 - Maintains an access counter for LRU tracking
 - Evicts the item with the lowest access time when full
 
 ### Memory Efficiency
+
 - Each cache entry stores: value, last access time
 - Access counter uses integer arithmetic for minimal overhead
 - Automatic cleanup prevents memory leaks
 
 ### Thread Safety
+
 - **Not thread-safe** - use appropriate synchronization for multi-threaded scenarios
 - Designed for single-threaded Flutter UI context
 
 ## Performance Characteristics
 
-| Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
-| get() | O(1) | O(1) |
-| put() | O(1) (amortized) | O(1) |
-| containsKey() | O(1) | O(1) |
-| remove() | O(1) | O(1) |
-| clear() | O(n) | O(1) |
+| Operation     | Time Complexity  | Space Complexity |
+| ------------- | ---------------- | ---------------- |
+| get()         | O(1)             | O(1)             |
+| put()         | O(1) (amortized) | O(1)             |
+| containsKey() | O(1)             | O(1)             |
+| remove()      | O(1)             | O(1)             |
+| clear()       | O(n)             | O(1)             |
 
 ## Use Cases
 

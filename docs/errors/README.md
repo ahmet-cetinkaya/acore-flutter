@@ -32,6 +32,7 @@ class BusinessException implements Exception {
 ```
 
 **Properties:**
+
 - `message`: Human-readable error description
 - `errorCode`: Machine-readable error identifier
 - `args`: Optional arguments for localization or context
@@ -549,10 +550,12 @@ try {
 ---
 
 **Related Documentation**
+
 - [Logging](../logging/README.md)
 - [Repository Pattern](../repository/README.md)
 - [Async Utils](../utils/async_utils.md)
 
 **See Also**
+
 - [Error Response Format](./error_response.md)
 - [Validation Patterns](./validation_patterns.md)

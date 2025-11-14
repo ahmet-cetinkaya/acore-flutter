@@ -85,6 +85,7 @@ For detailed documentation and API references, see the [docs/](./docs/) director
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](./docs/CONTRIBUTING.md) for detailed information on:
+
 - Development environment setup
 - Code style and standards
 - Testing requirements

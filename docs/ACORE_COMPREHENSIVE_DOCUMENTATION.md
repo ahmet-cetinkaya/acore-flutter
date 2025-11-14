@@ -108,19 +108,27 @@ Comprehensive date/time selection components with calendar views, time dialogs, 
 ## Other Core Modules
 
 ### Storage Abstractions (`storage/`)
+
 Generic storage interface for key-value data persistence
+
 - Interface: `StorageAbstract` with type-safe get/set/remove operations
 
 ### File Services (`file/`)
+
 Cross-platform file operations with proper permission handling
+
 - Interface: `IFileService` with pick, read, write, and save operations
 
 ### Object Mapping (`mapper/`)
+
 Object-to-object mapping capabilities with customizable mapping functions
+
 - Interface: `IMapper` with addMap and map methods
 
 ### Utility Classes (`utils/`)
+
 Collection comparison, caching, responsive design, and platform utilities
+
 - Classes: `CollectionUtils`, `LRUCache`, `ResponsiveUtil`, `PlatformUtils`, etc.
 
 **📖 Detailed Documentation**: See [Utils Documentation](./DOCUMENTATION_INDEX.md#utility-documentation)
@@ -160,13 +168,16 @@ logger.info("Application started");
 ## Dependencies
 
 ### Core Dependencies
+
 - `equatable: ^2.0.7` - Value equality
 - `meta: ^1.15.0` - Annotations
 
 ### Dependency Injection
+
 - `kiwi: ^5.0.1` - IoC container
 
 ### Date/Time
+
 - `intl: ^0.20.2` - Internationalization
 - `dart_json_mapper: ^2.2.16` - JSON serialization
 - `calendar_date_picker2: ^2.0.0` - Calendar widget
@@ -174,12 +185,14 @@ logger.info("Application started");
 ## Integration Guidelines
 
 ### Adding New Components
+
 1. Follow existing folder structure mirroring `lib/` layout
 2. Create README.md in appropriate `docs/` subfolder
 3. Include usage examples and best practices
 4. Update main documentation links
 
 ### Documentation Structure
+
 ```
 docs/
 ├── README.md                    # Main overview
@@ -200,6 +213,7 @@ docs/
 ## Quick Reference Links
 
 **Core Modules**
+
 - [Dependency Injection](./dependency_injection/README.md)
 - [Repository Pattern](./repository/README.md)
 - [Logging Infrastructure](./logging/README.md)
@@ -207,10 +221,12 @@ docs/
 - [Time Utilities](./time/README.md)
 
 **UI Components**
+
 - [NumericInput](./components/numeric_input/README.md)
 - [Date Time Picker](./components/date_time_picker/README.md)
 
 **Utilities**
+
 - [Async Utils](./utils/ASYNC_UTILS.md)
 - [Collection Utils](./utils/COLLECTION_UTILS.md)
 - [LRU Cache](./utils/LRU_CACHE.md)
@@ -219,6 +235,7 @@ docs/
 ## Best Practices Summary
 
 ### ✅ DO
+
 - Use interfaces for dependencies
 - Handle async errors with `AsyncUtils`
 - Log at appropriate levels
@@ -226,6 +243,7 @@ docs/
 - Use locale-aware methods for time/date
 
 ### ❌ DON'T
+
 - Throw generic exceptions
 - Ignore async errors
 - Skip logging important events
@@ -235,11 +253,13 @@ docs/
 ## Getting Help
 
 ### Documentation Navigation
+
 1. **Beginners**: Start with [Quick Reference](./QUICK_REFERENCE.md)
 2. **Module-Specific**: See individual module READMEs
 3. **Examples**: Review component-specific documentation
 
 ### Common Issues
+
 - **Setup Problems**: Check [Dependency Injection](./dependency_injection/README.md)
 - **Data Access**: Review [Repository Pattern](./repository/README.md)
 - **Error Handling**: See [Error Handling README](./errors/README.md)

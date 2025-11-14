@@ -34,6 +34,7 @@ class SortOption<T> {
 ```
 
 **SortDirection Enum**:
+
 ```dart
 enum SortDirection {
   asc,  // Ascending order
@@ -698,6 +699,7 @@ Future<List<UserEntity>> handle(GetUsersQuery query) async {
 ---
 
 **Related Documentation**
+
 - [Repository Pattern](../repository/README.md)
 - [Error Handling](../errors/README.md)
 - [Dependency Injection](../dependency_injection/README.md)

@@ -17,31 +17,40 @@ The `HapticFeedbackUtil` provides platform-specific haptic feedback functionalit
 ### Static Methods
 
 #### `static void triggerHapticFeedback(BuildContext context, {HapticFeedbackType type = HapticFeedbackType.light})`
+
 Triggers haptic feedback with the specified type.
 
 **Parameters:**
+
 - `context`: BuildContext for platform-specific optimizations
 - `type`: Type of haptic feedback (default: light)
 
 #### `static void triggerLightImpact(BuildContext context)`
+
 Triggers a light haptic impact.
 
 #### `static void triggerMediumImpact(BuildContext context)`
+
 Triggers a medium haptic impact.
 
 #### `static void triggerHeavyImpact(BuildContext context)`
+
 Triggers a heavy haptic impact.
 
 #### `static void triggerSelectionChange(BuildContext context)`
+
 Triggers selection change haptic feedback.
 
 #### `static void triggerNotificationSuccess(BuildContext context)`
+
 Triggers success notification haptic feedback.
 
 #### `static void triggerNotificationWarning(BuildContext context)`
+
 Triggers warning notification haptic feedback.
 
 #### `static void triggerNotificationError(BuildContext context)`
+
 Triggers error notification haptic feedback.
 
 ### Enum: HapticFeedbackType
@@ -319,6 +328,7 @@ class _ValidatedFormState extends State<ValidatedForm> {
 ## Platform-Specific Behavior
 
 ### Android
+
 - **Light Impact**: Light vibration (10ms)
 - **Medium Impact**: Medium vibration (25ms)
 - **Heavy Impact**: Strong vibration (50ms)
@@ -326,6 +336,7 @@ class _ValidatedFormState extends State<ValidatedForm> {
 - **Notifications**: Device-specific notification patterns
 
 ### iOS
+
 - **Light Impact**: UIImpactFeedbackStyle.light
 - **Medium Impact**: UIImpactFeedbackStyle.medium
 - **Heavy Impact**: UIImpactFeedbackStyle.heavy
@@ -335,6 +346,7 @@ class _ValidatedFormState extends State<ValidatedForm> {
 ## Best Practices
 
 ### 1. Use Appropriate Feedback Levels
+
 ```dart
 // Good: Match feedback intensity to action importance
 ElevatedButton(
@@ -350,6 +362,7 @@ ElevatedButton(
 ```
 
 ### 2. Provide Fallback for Non-Haptic Devices
+
 ```dart
 // Good: The utility automatically handles devices without haptic feedback
 void triggerFeedback() {
@@ -359,6 +372,7 @@ void triggerFeedback() {
 ```
 
 ### 3. Don't Overuse Haptic Feedback
+
 ```dart
 // Bad: Excessive haptic feedback can be annoying
 onTap: () {
@@ -375,6 +389,7 @@ onTap: () {
 ```
 
 ### 4. Respect User Preferences
+
 ```dart
 // Good: Check if haptic feedback is enabled in settings
 void triggerHapticFeedback(BuildContext context) {
@@ -395,6 +410,7 @@ void triggerHapticFeedback(BuildContext context) {
 ## Accessibility Integration
 
 Haptic feedback enhances accessibility by:
+
 - **Visual Impairment Support**: Provides tactile confirmation for actions
 - **Motor Impairment Assistance**: Helps users confirm interactions
 - **Multi-Sensory Experience**: Complements visual and audio feedback
@@ -440,6 +456,7 @@ testWidgets('HapticFeedbackUtil triggers correctly', (tester) async {
 ### Debug Mode
 
 The utility provides safe fallback behavior:
+
 - Gracefully handles devices without haptic support
 - Catches and logs exceptions without crashing the app
 - Maintains app functionality even when haptic feedback fails

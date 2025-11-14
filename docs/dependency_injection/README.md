@@ -338,13 +338,13 @@ if (!Container.instance.isRegistered<ILogger>()) {
 
 ## Comparison with Alternatives
 
-| Feature | ACore Flutter DI | get_it | kiwi | injectable |
-|---------|-----------|--------|------|------------|
-| Compile-time Safety | ✅ | ❌ | ✅ | ✅ |
-| Code Generation | ❌ | ❌ | ✅ | ✅ |
-| Simplicity | ✅ | ✅ | ⚠️ | ❌ |
-| Singleton Support | ✅ | ✅ | ✅ | ✅ |
-| Testing Support | ✅ | ✅ | ✅ | ✅ |
+| Feature             | ACore Flutter DI | get_it | kiwi | injectable |
+| ------------------- | ---------------- | ------ | ---- | ---------- |
+| Compile-time Safety | ✅               | ❌     | ✅   | ✅         |
+| Code Generation     | ❌               | ❌     | ✅   | ✅         |
+| Simplicity          | ✅               | ✅     | ⚠️   | ❌         |
+| Singleton Support   | ✅               | ✅     | ✅   | ✅         |
+| Testing Support     | ✅               | ✅     | ✅   | ✅         |
 
 ## Migration Guide
 
@@ -405,10 +405,12 @@ container.registerSingleton<ILogger>((c) => ConsoleLogger());
 ---
 
 **Related Documentation**
+
 - [Repository Pattern](../repository/README.md)
 - [Logging](../logging/README.md)
 - [Error Handling](../errors/README.md)
 
 **See Also**
+
 - [Dependency Injection Best Practices](../QUICK_REFERENCE.md#dependency-injection)
 - [Testing with DI](../utils/testing_guide.md)

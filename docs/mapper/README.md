@@ -755,6 +755,7 @@ class UserService {
 ---
 
 **Related Documentation**
+
 - [Repository Pattern](../repository/README.md)
 - [Dependency Injection](../dependency_injection/README.md)
 - [Error Handling](../errors/README.md)

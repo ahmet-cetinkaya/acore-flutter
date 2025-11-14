@@ -418,21 +418,25 @@ class BackupManager {
 ## Platform-Specific Considerations
 
 ### Android
+
 - Uses Storage Access Framework (SAF) for file operations
 - No explicit permissions required for user-selected files
 - Internal file operations work within app's private storage
 
 ### iOS
+
 - Uses document picker for file selection
 - Files are saved to app's documents directory or user-selected location
 - Proper sandboxing enforced by iOS
 
 ### Desktop (Windows, macOS, Linux)
+
 - Uses native file dialogs
 - Full filesystem access for user-selected files
 - Internal files stored in appropriate app directories
 
 ### Web
+
 - Limited file system access due to browser sandboxing
 - Uses download functionality for file saving
 - File picker depends on browser implementation
@@ -709,6 +713,7 @@ await fileService.saveFile(
 ---
 
 **Related Documentation**
+
 - [Storage Abstractions](../storage/README.md)
 - [Error Handling](../errors/README.md)
 - [Dependency Injection](../dependency_injection/README.md)

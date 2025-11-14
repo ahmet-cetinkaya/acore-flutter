@@ -5,6 +5,7 @@ Thank you for your interest in contributing to ACore! This comprehensive core pa
 ## 🎯 Project Overview
 
 ACore is a minimal-dependency Flutter core package that provides:
+
 - **Reusable UI Components** (DateTimePicker, NumericInput, etc.)
 - **Dependency Injection** abstractions and implementations
 - **Error Handling** business exception frameworks
@@ -20,23 +21,28 @@ ACore is a minimal-dependency Flutter core package that provides:
 ## 🛠️ Development Environment Setup
 
 ### Prerequisites
+
 - **Flutter SDK**: >=3.0.0
 - **Dart SDK**: >=3.5.3
 - **Git**: For version control
 
 ### Initial Setup
+
 1. **Fork and Clone**
+
    ```bash
    git clone https://github.com/YOUR_USERNAME/acore-flutter.git
    cd acore-flutter
    ```
 
 2. **Install Dependencies**
+
    ```bash
    flutter pub get
    ```
 
 3. **Run Tests**
+
    ```bash
    flutter test
    ```
@@ -71,6 +77,7 @@ lib/
 ## 🎨 Code Style and Standards
 
 ### Core Principles
+
 - **Minimal Dependencies**: Use Flutter/Dart core libraries when possible
 - **Modularity**: Keep components focused and loosely coupled
 - **Reusability**: Design for cross-platform compatibility
@@ -80,6 +87,7 @@ lib/
 ### Code Style Guidelines
 
 #### Naming Conventions
+
 - **Files**: `snake_case.dart` (e.g., `date_utils.dart`)
 - **Classes**: `PascalCase` (e.g., `DateTimePickerField`)
 - **Variables/Methods**: `camelCase` (e.g., `formatDate()`)
@@ -87,6 +95,7 @@ lib/
 - **Private members**: Prefix with `_` (e.g., `_internalMethod()`)
 
 #### Dart/Flutter Best Practices
+
 - Use `const` constructors wherever possible
 - Prefer `StatelessWidget` over `StatefulWidget` when no state is needed
 - Use `final` for immutable variables
@@ -95,6 +104,7 @@ lib/
 - Follow SOLID principles (Single Responsibility, Open/Closed, etc.)
 
 #### Widget Development
+
 - Keep widgets focused and reusable
 - Use parameter documentation with dartdoc comments
 - Implement proper accessibility (semantics, labels)
@@ -102,6 +112,7 @@ lib/
 - Provide sensible default values for optional parameters
 
 #### Code Organization
+
 ```dart
 // Example class structure
 class ExampleWidget extends StatelessWidget {
@@ -131,6 +142,7 @@ class ExampleWidget extends StatelessWidget {
 ## 🧪 Testing Guidelines
 
 ### Test Structure
+
 ```bash
 test/
 ├── components/               # Widget tests for UI components
@@ -147,23 +159,27 @@ test/
 ### Testing Requirements
 
 #### Unit Tests
+
 - Test all public methods and properties
 - Cover edge cases and error conditions
 - Use descriptive test names following `describe('when X', () { it('should Y', () {...}); })` pattern
 - Mock external dependencies using `mockito` or manual mocks
 
 #### Widget Tests
+
 - Test widget rendering and interaction
 - Verify accessibility properties
 - Test different input states and configurations
 - Use `pumpAndSettle()` for async operations
 
 #### Integration Tests
+
 - Test component integration scenarios
 - Verify cross-platform compatibility
 - Test real file operations and platform channels
 
 ### Example Test Structure
+
 ```dart
 // test/components/date_time_picker_test.dart
 import 'package:flutter_test/flutter_test.dart';
@@ -192,6 +208,7 @@ void main() {
 ## 🔄 Development Workflow
 
 ### 1. Create Feature Branch
+
 ```bash
 git checkout -b feat/your-feature-name
 # or
@@ -201,6 +218,7 @@ git checkout -b docs/update-documentation
 ```
 
 ### 2. Development Steps
+
 - Make your changes following the code style guidelines
 - Add comprehensive tests for new functionality
 - Ensure all existing tests pass: `flutter test`
@@ -208,6 +226,7 @@ git checkout -b docs/update-documentation
 - Format your code: `dart format .`
 
 ### 3. Testing Requirements
+
 ```bash
 # Run all tests
 flutter test
@@ -220,6 +239,7 @@ flutter test test/components/date_time_picker_test.dart
 ```
 
 ### 4. Commit Guidelines
+
 Follow [Conventional Commits](https://conventionalcommits.org/) specification:
 
 - `feat:`: New features or functionality
@@ -231,6 +251,7 @@ Follow [Conventional Commits](https://conventionalcommits.org/) specification:
 - `chore:`: Maintenance tasks, dependency updates
 
 Examples:
+
 ```bash
 git commit -m "feat(date_picker): add quick range selection functionality"
 git commit -m "fix(numeric_input): resolve decimal input validation issue"
@@ -238,6 +259,7 @@ git commit -m "docs(readme): update installation instructions"
 ```
 
 ### 5. Pull Request Process
+
 1. **Create Pull Request** with clear title and description
 2. **Link Issues**: Reference related issue numbers (e.g., "Fixes #123")
 3. **Description**: Include:
@@ -251,6 +273,7 @@ git commit -m "docs(readme): update installation instructions"
 ## 📦 Package Management
 
 ### Dependencies
+
 ACore maintains minimal external dependencies. Before adding new dependencies:
 
 1. **Check if Flutter/Dart core libraries can solve the requirement**
@@ -259,6 +282,7 @@ ACore maintains minimal external dependencies. Before adding new dependencies:
 4. **Add to `dev_dependencies` if only needed for development**
 
 ### Version Management
+
 - Follow Semantic Versioning (SemVer)
 - Update `pubspec.yaml` version for breaking changes
 - Maintain backward compatibility when possible
@@ -267,63 +291,79 @@ ACore maintains minimal external dependencies. Before adding new dependencies:
 ## 🐛 Bug Reporting
 
 ### Bug Report Template
+
 Create issues with the following information:
 
 ```markdown
 ## Bug Description
+
 Clear, concise description of the bug
 
 ## Steps to Reproduce
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
 ## Expected Behavior
+
 What you expected to happen
 
 ## Actual Behavior
+
 What actually happened
 
 ## Screenshots
+
 Add screenshots if applicable
 
 ## Environment
+
 - Flutter: [e.g., 3.16.0]
 - Dart: [e.g., 3.2.0]
 - ACore: [e.g., 1.0.0]
 - Platform: [Android/iOS/Web/Desktop]
 
 ## Additional Context
+
 Add any other context about the problem here
 ```
 
 ## 💡 Feature Requests
 
 ### Feature Request Template
+
 ```markdown
 ## Feature Description
+
 Clear, concise description of the feature
 
 ## Problem Statement
+
 What problem does this feature solve?
 
 ## Proposed Solution
+
 How you envision implementing this feature
 
 ## Alternatives Considered
+
 Other approaches you considered
 
 ## Breaking Changes
+
 Will this introduce breaking changes?
 
 ## Additional Context
+
 Any other relevant information or examples
 ```
 
 ## 🔍 Code Review Guidelines
 
 ### Reviewer Checklist
+
 - [ ] Code follows project style guidelines
 - [ ] Tests are comprehensive and passing
 - [ ] Documentation is updated if needed
@@ -334,6 +374,7 @@ Any other relevant information or examples
 - [ ] Platform compatibility is preserved
 
 ### Contributor Guidelines
+
 - Address all review feedback constructively
 - Explain complex logic in comments
 - Update documentation for public APIs
@@ -343,12 +384,14 @@ Any other relevant information or examples
 ## 📚 Documentation
 
 ### Code Documentation
+
 - Use dartdoc comments for all public APIs
 - Include parameter descriptions and examples
 - Document usage patterns and best practices
 - Keep documentation up-to-date with code changes
 
 ### README Updates
+
 - Update feature descriptions for new components
 - Add installation instructions for new dependencies
 - Include usage examples for new functionality
@@ -357,6 +400,7 @@ Any other relevant information or examples
 ## 🚀 Release Process
 
 ### Pre-Release Checklist
+
 - [ ] All tests are passing
 - [ ] Code coverage is adequate (>80%)
 - [ ] Documentation is updated
@@ -365,6 +409,7 @@ Any other relevant information or examples
 - [ ] Examples are tested and working
 
 ### Release Types
+
 - **Major (X.0.0)**: Breaking changes, significant new features
 - **Minor (0.X.0)**: New features, backward compatible
 - **Patch (0.0.X)**: Bug fixes, documentation updates
@@ -372,12 +417,14 @@ Any other relevant information or examples
 ## 🤝 Community Guidelines
 
 ### Code of Conduct
+
 - Be respectful and inclusive
 - Provide constructive feedback
 - Help others learn and grow
 - Follow professional communication standards
 
 ### Getting Help
+
 - Check existing issues and documentation
 - Ask questions in GitHub discussions
 - Review similar components for patterns
@@ -386,6 +433,7 @@ Any other relevant information or examples
 ## 🏆 Recognition
 
 Contributors are recognized for their valuable input:
+
 - **Code Contributors**: Listed in README
 - **Feature Ideas**: Credited in release notes
 - **Bug Reports**: Acknowledged in issue resolution
@@ -396,6 +444,7 @@ Contributors are recognized for their valuable input:
 ## 📞 Contact
 
 For questions or support:
+
 - **GitHub Issues**: For bug reports and feature requests
 - **GitHub Discussions**: For general questions and community support
 - **Maintainer**: [ahmetcetinkaya](https://github.com/ahmet-cetinkaya)

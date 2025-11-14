@@ -17,9 +17,11 @@ The `TimeFormattingUtil` provides locale-aware time formatting capabilities usin
 ### Static Methods
 
 #### `String formatTime(BuildContext context, TimeOfDay time)`
+
 Formats a TimeOfDay using the current locale's MaterialLocalizations.
 
 **Parameters:**
+
 - `context`: BuildContext containing the MaterialLocalizations
 - `time`: TimeOfDay to format
 
@@ -190,18 +192,22 @@ class EventCard extends StatelessWidget {
 The utility automatically adapts to different locale conventions:
 
 ### English (en)
+
 - **12-hour format**: "3:30 PM"
 - **24-hour format**: "15:30"
 
 ### Spanish (es)
+
 - **12-hour format**: "3:30 p. m."
 - **24-hour format**: "15:30"
 
 ### Japanese (ja)
+
 - **12-hour format**: "午後3:30"
 - **24-hour format**: "15:30"
 
 ### French (fr)
+
 - **12-hour format**: "15:30"
 - **24-hour format**: "15:30"
 
@@ -262,6 +268,7 @@ class TimePickerField extends StatelessWidget {
 ## Best Practices
 
 ### 1. Always Provide BuildContext
+
 ```dart
 // Good: Use context for locale-aware formatting
 String formattedTime = TimeFormattingUtil.formatTime(context, time);
@@ -271,6 +278,7 @@ String formattedTime = "${time.hour}:${time.minute.toString().padLeft(2, '0')}";
 ```
 
 ### 2. Handle Null Times Gracefully
+
 ```dart
 // Good: Check for null values
 Widget build(BuildContext context) {
@@ -283,6 +291,7 @@ Widget build(BuildContext context) {
 ```
 
 ### 3. Consistent Time Display
+
 ```dart
 // Good: Use the utility throughout your app for consistency
 class TimeDisplay {

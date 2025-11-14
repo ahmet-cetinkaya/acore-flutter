@@ -672,11 +672,13 @@ logger.info("GET /api/users completed in 150ms with status 200");
 ---
 
 **Related Documentation**
+
 - [Error Handling](../errors/README.md)
 - [Dependency Injection](../dependency_injection/README.md)
 - [Testing Guide](../utils/testing_guide.md)
 
 **See Also**
+
 - [ConsoleLogger Implementation](./console_logger.md)
 - [FileLogger Implementation](./file_logger.md)
 - [MemoryLogger Implementation](./memory_logger.md)

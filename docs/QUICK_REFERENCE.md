@@ -3,11 +3,13 @@
 ## Getting Started
 
 ### Import
+
 ```dart
 import 'package:acore/acore.dart';
 ```
 
 ### Basic Setup
+
 ```dart
 // Initialize dependency container
 final container = Container();
@@ -20,6 +22,7 @@ final logger = container.resolve<ILogger>();
 ## Common Patterns
 
 ### Repository Pattern
+
 ```dart
 class TaskRepository extends IRepository<Task, String> {
   // Implementation
@@ -31,6 +34,7 @@ final tasks = await repository.getList(0, 20);
 ```
 
 ### Error Handling
+
 ```dart
 try {
   await operation();
@@ -40,6 +44,7 @@ try {
 ```
 
 ### Async Operations
+
 ```dart
 final result = await AsyncUtils.executeAsync(
   operation: () => fetchData(),
@@ -49,6 +54,7 @@ final result = await AsyncUtils.executeAsync(
 ```
 
 ### Logging
+
 ```dart
 logger.debug("Debug info");
 logger.info("General info");
@@ -60,6 +66,7 @@ logger.fatal("Critical error");
 ## UI Components
 
 ### NumericInput
+
 ```dart
 NumericInput(
   initialValue: 10,
@@ -70,6 +77,7 @@ NumericInput(
 ```
 
 ### Date Picker
+
 ```dart
 SafeCalendarDatePicker(
   selectionMode: DateSelectionMode.single,
@@ -83,6 +91,7 @@ SafeCalendarDatePicker(
 ## Utilities
 
 ### Collections
+
 ```dart
 // List comparison
 CollectionUtils.areListsEqual(list1, list2);
@@ -92,6 +101,7 @@ CollectionUtils.hasValueChanged(oldValue, newValue);
 ```
 
 ### Date/Time
+
 ```dart
 // Localized weekday
 DateTimeHelper.getWeekday(1); // Monday
@@ -101,6 +111,7 @@ DateTimeHelper.getFirstDayOfWeek();
 ```
 
 ### File Operations
+
 ```dart
 final fileService = FileService();
 final content = await fileService.readFile("path.txt");
@@ -109,33 +120,35 @@ await fileService.saveFile("export.txt", data, "txt");
 
 ## Key Classes
 
-| Class | Purpose | Key Methods |
-|-------|---------|-------------|
-| `BaseEntity` | Base entity with audit trail | `toJson()`, `baseFromJson()` |
-| `BusinessException` | Structured errors | `toString()` |
-| `AsyncUtils` | Async patterns | `executeAsync()`, `executeAsyncVoid()` |
-| `CollectionUtils` | Collection helpers | `areListsEqual()`, `hasValueChanged()` |
-| `DateTimeHelper` | Date utilities | `getWeekday()`, `getFirstDayOfWeek()` |
+| Class               | Purpose                      | Key Methods                            |
+| ------------------- | ---------------------------- | -------------------------------------- |
+| `BaseEntity`        | Base entity with audit trail | `toJson()`, `baseFromJson()`           |
+| `BusinessException` | Structured errors            | `toString()`                           |
+| `AsyncUtils`        | Async patterns               | `executeAsync()`, `executeAsyncVoid()` |
+| `CollectionUtils`   | Collection helpers           | `areListsEqual()`, `hasValueChanged()` |
+| `DateTimeHelper`    | Date utilities               | `getWeekday()`, `getFirstDayOfWeek()`  |
 
 ## Interfaces
 
-| Interface | Purpose | Key Methods |
-|-----------|---------|-------------|
-| `IRepository<T, TId>` | Data access | `getList()`, `add()`, `update()`, `delete()` |
-| `ILogger` | Logging | `debug()`, `info()`, `warning()`, `error()`, `fatal()` |
-| `IContainer` | DI container | `resolve()`, `registerSingleton()` |
-| `IFileService` | File operations | `readFile()`, `writeFile()`, `saveFile()` |
-| `StorageAbstract` | Key-value storage | `getValue()`, `setValue()`, `removeValue()` |
+| Interface             | Purpose           | Key Methods                                            |
+| --------------------- | ----------------- | ------------------------------------------------------ |
+| `IRepository<T, TId>` | Data access       | `getList()`, `add()`, `update()`, `delete()`           |
+| `ILogger`             | Logging           | `debug()`, `info()`, `warning()`, `error()`, `fatal()` |
+| `IContainer`          | DI container      | `resolve()`, `registerSingleton()`                     |
+| `IFileService`        | File operations   | `readFile()`, `writeFile()`, `saveFile()`              |
+| `StorageAbstract`     | Key-value storage | `getValue()`, `setValue()`, `removeValue()`            |
 
 ## Common Enums
 
 ### SortDirection
+
 ```dart
 SortDirection.asc  // Ascending
 SortDirection.desc // Descending
 ```
 
 ### NumericInputTranslationKey
+
 ```dart
 NumericInputTranslationKey.increment
 NumericInputTranslationKey.decrement
@@ -144,10 +157,12 @@ NumericInputTranslationKey.decrement
 ## Error Handling
 
 ### Exception Types
+
 - `BusinessException`: Business logic errors
 - `Exception`: General exceptions
 
 ### Error Codes
+
 - `VALIDATION_ERROR`: Input validation
 - `NOT_FOUND`: Resource missing
 - `PERMISSION_DENIED`: Access issues
@@ -156,12 +171,14 @@ NumericInputTranslationKey.decrement
 ## Platform Considerations
 
 ### File Operations
+
 - **Android**: Uses SAF (no permissions required)
 - **iOS**: App sandbox restrictions
 - **Desktop**: Full filesystem access
 - **Web**: Browser limitations
 
 ### Storage
+
 - **Mobile**: SharedPreferences/NSUserDefaults
 - **Desktop**: Local storage
 - **Web**: LocalStorage
@@ -169,6 +186,7 @@ NumericInputTranslationKey.decrement
 ## Best Practices
 
 ### DO
+
 - Use interfaces for dependencies
 - Handle async errors properly
 - Log at appropriate levels
@@ -176,6 +194,7 @@ NumericInputTranslationKey.decrement
 - Use type-safe operations
 
 ### DON'T
+
 - Throw generic exceptions
 - Ignore async errors
 - Skip logging important events
@@ -185,6 +204,7 @@ NumericInputTranslationKey.decrement
 ## Common Pitfalls
 
 ### Async Operations
+
 ```dart
 // ❌ Wrong
 final result = riskyOperation(); // Missing await
@@ -197,6 +217,7 @@ final result = await AsyncUtils.executeAsync(
 ```
 
 ### Dependency Injection
+
 ```dart
 // ❌ Wrong
 final service = Service(); // Direct instantiation
@@ -206,6 +227,7 @@ final service = container.resolve<IService>();
 ```
 
 ### Error Handling
+
 ```dart
 // ❌ Wrong
 try {
@@ -244,6 +266,7 @@ try {
 ## Testing Patterns
 
 ### Repository Testing
+
 ```dart
 test('should add entity', () async {
   final mockRepository = MockRepository();
@@ -253,6 +276,7 @@ test('should add entity', () async {
 ```
 
 ### Async Testing
+
 ```dart
 test('should handle async error', () async {
   final result = await AsyncUtils.executeAsync(
@@ -266,6 +290,7 @@ test('should handle async error', () async {
 ## Debugging
 
 ### Logging Levels
+
 ```dart
 logger.debug("Detailed info for development");
 logger.info("General application flow");
@@ -275,6 +300,7 @@ logger.fatal("Critical failures");
 ```
 
 ### Error Tracking
+
 ```dart
 try {
   await operation();
@@ -294,6 +320,7 @@ try {
 ---
 
 **Need Help?**
+
 - Check comprehensive documentation for detailed explanations
 - Review API reference for method signatures
 - Examine test files for practical examples

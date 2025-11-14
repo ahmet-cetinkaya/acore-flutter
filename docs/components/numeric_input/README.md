@@ -45,28 +45,33 @@ NumericInput({
 ### Parameters
 
 #### Core Parameters
+
 - `value`: Current numeric value as string
 - `onChanged`: Callback when value changes
 - `onSubmitted`: Callback when form is submitted
 
 #### Validation Parameters
+
 - `min`: Minimum allowed value (inclusive)
 - `max`: Maximum allowed value (inclusive)
 - `errorText`: Custom error message to display
 
 #### UI Parameters
+
 - `label`: Label text for the input field
 - `hint`: Placeholder text when field is empty
 - `decoration`: Custom InputDecoration styling
 - `style`: Custom TextStyle for the input text
 
 #### Behavior Parameters
+
 - `enabled`: Whether the input is interactive
 - `readOnly`: Whether the input can be modified
 - `autofocus`: Whether to automatically focus the field
 - `keyboardType`: Custom keyboard type (defaults to numeric)
 
 #### Accessibility Parameters
+
 - `translations`: Localized strings for accessibility labels
 - `onHapticFeedback`: Callback for haptic feedback on interactions
 
@@ -389,6 +394,7 @@ class ThemedNumericInput extends StatelessWidget {
 ## Validation Patterns
 
 ### Range Validation
+
 ```dart
 NumericInput(
   value: value,
@@ -400,6 +406,7 @@ NumericInput(
 ```
 
 ### Decimal Support
+
 ```dart
 NumericInput(
   value: value,
@@ -411,6 +418,7 @@ NumericInput(
 ```
 
 ### Integer-Only Input
+
 ```dart
 NumericInput(
   value: value,
@@ -422,6 +430,7 @@ NumericInput(
 ## Best Practices
 
 ### 1. Always Provide Labels and Hints
+
 ```dart
 // Good: Clear labeling
 NumericInput(
@@ -437,6 +446,7 @@ NumericInput(
 ```
 
 ### 2. Implement Proper Validation
+
 ```dart
 // Good: Comprehensive validation
 void validateValue(String? value) {
@@ -454,6 +464,7 @@ void validateValue(String? value) {
 ```
 
 ### 3. Use Appropriate Keyboard Types
+
 ```dart
 // Good: Match keyboard to input type
 NumericInput(
@@ -464,6 +475,7 @@ NumericInput(
 ```
 
 ### 4. Provide Accessibility Support
+
 ```dart
 // Good: Include accessibility labels
 NumericInput(
@@ -477,16 +489,19 @@ NumericInput(
 ## Platform Considerations
 
 ### Mobile Platforms
+
 - Displays numeric keyboard automatically
 - Supports haptic feedback
 - Optimized for touch input
 
 ### Desktop Platforms
+
 - Supports keyboard navigation
 - Number pad input support
 - Mouse wheel increment/decrement
 
 ### Web Platform
+
 - Responsive to browser locale settings
 - Keyboard-friendly navigation
 - Screen reader compatible

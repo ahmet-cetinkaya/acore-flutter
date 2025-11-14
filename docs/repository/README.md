@@ -618,11 +618,13 @@ Future<List<Task>> getTasks() async {
 ---
 
 **Related Documentation**
+
 - [BaseEntity](./models/base_entity.md)
 - [CustomWhereFilter](./models/custom_where_filter.md)
 - [CustomOrder](./models/custom_order.md)
 - [PaginatedList](./models/paginated_list.md)
 
 **See Also**
+
 - [Dependency Injection](../dependency_injection/README.md)
 - [Error Handling](../errors/README.md)
