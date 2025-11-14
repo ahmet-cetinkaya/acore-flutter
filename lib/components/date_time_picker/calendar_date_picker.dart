@@ -13,6 +13,9 @@ class _CalendarDatePickerDesign {
 
   // Font sizes
   static const double fontSizeSmall = 14.0;
+
+  // Prevent instantiation
+  _CalendarDatePickerDesign._();
 }
 
 /// A reusable calendar date picker component extracted from DatePickerDialog
@@ -52,9 +55,15 @@ class CalendarDatePicker extends StatefulWidget {
 }
 
 class _CalendarDatePickerState extends State<CalendarDatePicker> {
+  // Cache for expensive calculations
+  bool? _cachedIsCompactScreen;
+  CalendarDatePicker2Config? _cachedConfig;
+  List<DateTime>? _cachedCalendarValue;
+
   /// Checks if the current screen is compact (mobile)
   bool _isCompactScreen(BuildContext context) {
-    return ResponsiveUtil.isCompactLayout(context);
+    _cachedIsCompactScreen ??= ResponsiveUtil.isCompactLayout(context);
+    return _cachedIsCompactScreen!;
   }
 
   /// Trigger haptic feedback for better mobile experience
@@ -64,19 +73,56 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
 
   /// Get the calendar picker value based on selection mode and selected dates
   List<DateTime> _getCalendarPickerValue() {
-    if (widget.selectionMode == DateSelectionMode.single) {
-      return widget.selectedDate != null ? [widget.selectedDate!] : [];
+    // Use cached value if available and widgets haven't changed
+    if (_cachedCalendarValue != null && _shouldUseCachedValue()) {
+      return _cachedCalendarValue!;
     }
 
-    // Range selection mode
-    final List<DateTime> dates = [];
-    if (widget.selectedStartDate != null) {
-      dates.add(widget.selectedStartDate!);
+    List<DateTime> value;
+    if (widget.selectionMode == DateSelectionMode.single) {
+      value = widget.selectedDate != null ? [widget.selectedDate!] : [];
+    } else {
+      // Range selection mode
+      value = [];
+      if (widget.selectedStartDate != null) {
+        value.add(widget.selectedStartDate!);
+      }
+      if (widget.selectedEndDate != null) {
+        value.add(widget.selectedEndDate!);
+      }
     }
-    if (widget.selectedEndDate != null) {
-      dates.add(widget.selectedEndDate!);
+
+    _cachedCalendarValue = value;
+    return value;
+  }
+
+  /// Check if cached values should be used
+  bool _shouldUseCachedValue() {
+    // For simplicity, we'll rebuild cached values when dependencies change
+    // In a real implementation, you might want more sophisticated caching logic
+    return false;
+  }
+
+  /// Clear cached values when widget dependencies change
+  void _clearCache() {
+    _cachedIsCompactScreen = null;
+    _cachedConfig = null;
+    _cachedCalendarValue = null;
+  }
+
+  @override
+  void didUpdateWidget(CalendarDatePicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Clear cache when widget properties change
+    if (oldWidget.selectedDate != widget.selectedDate ||
+        oldWidget.selectedStartDate != widget.selectedStartDate ||
+        oldWidget.selectedEndDate != widget.selectedEndDate ||
+        oldWidget.selectionMode != widget.selectionMode ||
+        oldWidget.minDate != widget.minDate ||
+        oldWidget.maxDate != widget.maxDate ||
+        oldWidget.showTime != widget.showTime) {
+      _clearCache();
     }
-    return dates;
   }
 
   /// Shows time picker for the selected date
@@ -260,6 +306,9 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
     final isCompactScreen = _isCompactScreen(context);
     final calendarLayout = ResponsiveUtil.calculateCalendarLayout(context);
 
+    // Cache expensive config creation
+    _cachedConfig ??= _buildCalendarConfig(isCompactScreen);
+
     return Semantics(
       label: widget.translations[DateTimePickerTranslationKey.dateTimeFieldLabel] ?? 'Calendar date picker',
       hint: widget.translations[DateTimePickerTranslationKey.editButtonHint] ??
@@ -272,57 +321,67 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
           color: Theme.of(context).colorScheme.surface,
         ),
         child: CalendarDatePicker2(
-          config: CalendarDatePicker2Config(
-            calendarType: widget.selectionMode == DateSelectionMode.single
-                ? CalendarDatePicker2Type.single
-                : CalendarDatePicker2Type.range,
-            selectedDayHighlightColor: Theme.of(context).primaryColor,
-            selectedDayTextStyle: TextStyle(
-              color: Theme.of(context).colorScheme.onPrimary,
-              fontWeight: FontWeight.bold,
-              fontSize: isCompactScreen ? 14 : 16,
-            ),
-            firstDate: widget.minDate ?? DateTime(1900),
-            lastDate: widget.maxDate ?? DateTime(2100),
-            currentDate: widget.selectedDate ?? widget.selectedStartDate ?? DateTime.now(),
-            centerAlignModePicker: true,
-            selectedYearTextStyle: const TextStyle(fontWeight: FontWeight.bold),
-            rangeBidirectional: true,
-            // Enhanced mobile-specific configurations
-            dayMaxWidth: ResponsiveCalendarConstants.dayWidth(context), // Optimized for touch
-            dayTextStyle: TextStyle(
-              fontSize: isCompactScreen ? 14 : 16,
-              fontWeight: FontWeight.w500,
-            ),
-            disabledDayTextStyle: TextStyle(
-              fontSize: isCompactScreen ? 14 : 16,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
-            ),
-            todayTextStyle: TextStyle(
-              fontSize: isCompactScreen ? 14 : 16,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).primaryColor,
-            ),
-            controlsHeight: isCompactScreen ? 36.0 : 40.0,
-            controlsTextStyle: TextStyle(
-              fontSize: isCompactScreen ? 14 : 16,
-              fontWeight: FontWeight.w500,
-            ),
-            modePickersGap: isCompactScreen ? 8.0 : 12.0,
-            useAbbrLabelForMonthModePicker: true,
-            weekdayLabelTextStyle: TextStyle(
-              fontSize: _CalendarDatePickerDesign.fontSizeSmall,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-            // Enhanced visual feedback for mobile - supported parameters only
-            dayBorderRadius: BorderRadius.circular(_CalendarDatePickerDesign.radiusFull),
-            daySplashColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-          ),
+          config: _cachedConfig!,
           value: _getCalendarPickerValue(),
           onValueChanged: _onDateChanged,
         ),
       ),
+    );
+  }
+
+  /// Build and cache the calendar configuration
+  CalendarDatePicker2Config _buildCalendarConfig(bool isCompactScreen) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.colorScheme.onSurface;
+    final onPrimaryColor = theme.colorScheme.onPrimary;
+
+    return CalendarDatePicker2Config(
+      calendarType: widget.selectionMode == DateSelectionMode.single
+          ? CalendarDatePicker2Type.single
+          : CalendarDatePicker2Type.range,
+      selectedDayHighlightColor: primaryColor,
+      selectedDayTextStyle: TextStyle(
+        color: onPrimaryColor,
+        fontWeight: FontWeight.bold,
+        fontSize: isCompactScreen ? 14 : 16,
+      ),
+      firstDate: widget.minDate ?? DateTime(1900),
+      lastDate: widget.maxDate ?? DateTime(2100),
+      currentDate: widget.selectedDate ?? widget.selectedStartDate ?? DateTime.now(),
+      centerAlignModePicker: true,
+      selectedYearTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+      rangeBidirectional: true,
+      // Enhanced mobile-specific configurations
+      dayMaxWidth: ResponsiveCalendarConstants.dayWidth(context), // Optimized for touch
+      dayTextStyle: TextStyle(
+        fontSize: isCompactScreen ? 14 : 16,
+        fontWeight: FontWeight.w500,
+      ),
+      disabledDayTextStyle: TextStyle(
+        fontSize: isCompactScreen ? 14 : 16,
+        color: onSurfaceColor.withValues(alpha: 0.38),
+      ),
+      todayTextStyle: TextStyle(
+        fontSize: isCompactScreen ? 14 : 16,
+        fontWeight: FontWeight.bold,
+        color: primaryColor,
+      ),
+      controlsHeight: isCompactScreen ? 36.0 : 40.0,
+      controlsTextStyle: TextStyle(
+        fontSize: isCompactScreen ? 14 : 16,
+        fontWeight: FontWeight.w500,
+      ),
+      modePickersGap: isCompactScreen ? 8.0 : 12.0,
+      useAbbrLabelForMonthModePicker: true,
+      weekdayLabelTextStyle: TextStyle(
+        fontSize: _CalendarDatePickerDesign.fontSizeSmall,
+        fontWeight: FontWeight.w600,
+        color: onSurfaceColor.withValues(alpha: 0.6),
+      ),
+      // Enhanced visual feedback for mobile - supported parameters only
+      dayBorderRadius: BorderRadius.circular(_CalendarDatePickerDesign.radiusFull),
+      daySplashColor: primaryColor.withValues(alpha: 0.1),
     );
   }
 
