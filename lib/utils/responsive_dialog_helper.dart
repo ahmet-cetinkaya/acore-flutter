@@ -1,6 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'dialog_size.dart';
+
+/// Keyboard height adjustment factor when keyboard is visible
+const double _kKeyboardVisibleHeightShrinkFactor = 0.6;
 
 /// Configuration for responsive dialog theming and breakpoints
 class ResponsiveDialogConfig {
@@ -58,7 +63,7 @@ class ResponsiveDialogHelper {
         builder: (BuildContext context) {
           // For minimum size, use default Dialog behavior (content-based sizing)
           if (size == DialogSize.min) {
-            return child; // Completely default behavior - no Dialog wrapper, no constraints
+            return Dialog(child: child); // Maintain dialog semantics while using default sizing
           }
 
           // For other sizes, use ratio-based sizing
@@ -74,8 +79,7 @@ class ResponsiveDialogHelper {
                   context,
                   child,
                   maxHeight: dialogHeight,
-                  maxWidth:
-                      maxWidth == double.infinity ? dialogWidth : (dialogWidth < maxWidth ? dialogWidth : maxWidth),
+                  maxWidth: min(dialogWidth, maxWidth),
                   isScrollable: isScrollable,
                 ),
               ),
@@ -114,9 +118,9 @@ class ResponsiveDialogHelper {
           final screenHeight = mediaQuery.size.height;
           final keyboardHeight = mediaQuery.viewInsets.bottom;
 
-          // Calculate available height considering safe area but NOT keyboard height
-          // The modal_bottom_sheet package handles keyboard avoidance automatically
-          final availableHeight = screenHeight - safeAreaBottom;
+          // Use full screen height for better space utilization
+          // The modal_bottom_sheet package handles safe areas and keyboard avoidance automatically
+          final availableHeight = screenHeight;
           final maxHeight = availableHeight * size.mobileMaxSizeRatio;
           final initialHeight = availableHeight * size.mobileInitialSizeRatio;
 
@@ -128,7 +132,7 @@ class ResponsiveDialogHelper {
             child: Container(
               // Use flexible initial height that can expand with content
               constraints: BoxConstraints(
-                minHeight: keyboardHeight > 0 ? initialHeight * 0.6 : initialHeight,
+                minHeight: keyboardHeight > 0 ? initialHeight * _kKeyboardVisibleHeightShrinkFactor : initialHeight,
                 maxHeight: maxHeight,
               ),
               child: Material(

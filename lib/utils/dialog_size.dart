@@ -78,7 +78,7 @@ enum DialogSize {
       case DialogSize.large:
         return 0.95;
       case DialogSize.max:
-        return 1;
+        return 0.95; // Match max height ratio to prevent constraints error
     }
   }
 

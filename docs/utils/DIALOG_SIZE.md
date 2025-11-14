@@ -111,12 +111,12 @@ The `DialogSize` enum provides predefined size configurations that adapt differe
 
 **Mobile:**
 
-- Initial height: 100% of available height
+- Initial height: 95% of available height
 - Maximum height: 95% of available height (with safe area)
 
 **Use Cases:**
 
-- Fullscreen experiences
+- Maximum content, near-fullscreen experience
 - Document viewers
 - Image galleries
 - Video players
@@ -400,7 +400,7 @@ ResponsiveDialogHelper.showResponsiveDialog(
 | **small**  | 50% (max 600px)  | 40%            | 20%            | 95%           | Quick actions         |
 | **medium** | 60% (max 900px)  | 70%            | 85%            | 95%           | Standard dialogs      |
 | **large**  | 80% (max 1200px) | 80%            | 95%            | 95%           | Complex content       |
-| **max**    | 95% (no max)     | 95%            | 100%           | 95%           | Fullscreen content    |
+| **max**    | 95% (no max)     | 95%            | 95%            | 95%           | Maximum content, near-fullscreen |
 
 ## Troubleshooting
 

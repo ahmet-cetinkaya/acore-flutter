@@ -115,7 +115,7 @@ Enum defining different dialog sizes with responsive behavior.
 | `small`  | 50% width, 40% height | 20% initial height   | Quick actions, simple forms     |
 | `medium` | 60% width, 70% height | 85% initial height   | Standard dialogs, forms         |
 | `large`  | 80% width, 80% height | 95% initial height   | Complex content, detailed forms |
-| `max`    | 95% width, 95% height | Fullscreen           | Maximum content, media          |
+| `max`    | 95% width, 95% height | 95% height           | Maximum content, media          |
 
 ### ResponsiveDialogConfig
 
