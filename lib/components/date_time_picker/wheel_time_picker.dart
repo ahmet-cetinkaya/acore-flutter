@@ -1,0 +1,260 @@
+import 'package:flutter/material.dart';
+import '../../utils/haptic_feedback_util.dart';
+
+/// Design constants for wheel time picker
+class _WheelTimePickerDesign {
+  // Spacing
+  static const double spacingSmall = 8.0;
+
+  // Border radius
+  static const double radiusLarge = 16.0;
+
+  // Border width
+  static const double borderWidth = 1.0;
+
+  // Font sizes
+  static const double fontSizeSmall = 12.0;
+
+  // Picker dimensions
+  static const double pickerHeight = 200.0;
+  static const double itemExtent = 40.0;
+  static const double squeeze = 1.2;
+  static const double diameterRatio = 1.5;
+}
+
+/// A reusable wheel-style time picker component
+///
+/// This widget provides a time picker interface with hour and minute scroll wheels,
+/// supporting both 12-hour and 24-hour formats with proper localization support.
+class WheelTimePicker extends StatefulWidget {
+  final TimeOfDay initialTime;
+  final ValueChanged<TimeOfDay>? onTimeChanged;
+  final VoidCallback? onHapticFeedback;
+
+  const WheelTimePicker({
+    super.key,
+    required this.initialTime,
+    this.onTimeChanged,
+    this.onHapticFeedback,
+  });
+
+  @override
+  State<WheelTimePicker> createState() => _WheelTimePickerState();
+}
+
+class _WheelTimePickerState extends State<WheelTimePicker> {
+  late TimeOfDay _selectedTime;
+  late FixedExtentScrollController _hourScrollController;
+  late FixedExtentScrollController _minuteScrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedTime = widget.initialTime;
+    _hourScrollController = FixedExtentScrollController(
+      initialItem: widget.initialTime.hour,
+    );
+    _minuteScrollController = FixedExtentScrollController(
+      initialItem: widget.initialTime.minute,
+    );
+  }
+
+  @override
+  void dispose() {
+    _hourScrollController.dispose();
+    _minuteScrollController.dispose();
+    super.dispose();
+  }
+
+  /// Checks if the current screen is compact (mobile)
+  bool _isCompactScreen(BuildContext context) {
+    return MediaQuery.of(context).size.width < 600;
+  }
+
+  /// Trigger haptic feedback for better mobile experience
+  void _triggerHapticFeedback() {
+    widget.onHapticFeedback?.call();
+    HapticFeedbackUtil.triggerHapticFeedback(context);
+  }
+
+  /// Handle time selection from picker wheels
+  void _onTimeChanged(int hour, int minute) {
+    final newTime = TimeOfDay(hour: hour, minute: minute);
+    setState(() {
+      _selectedTime = newTime;
+    });
+    widget.onTimeChanged?.call(newTime);
+  }
+
+  /// Build the wheel-style time picker
+  @override
+  Widget build(BuildContext context) {
+    final isCompactScreen = _isCompactScreen(context);
+
+    return Container(
+      height: _WheelTimePickerDesign.pickerHeight,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(_WheelTimePickerDesign.radiusLarge),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          width: _WheelTimePickerDesign.borderWidth,
+        ),
+      ),
+      child: Row(
+        children: [
+          // Hour picker
+          Expanded(
+            flex: 1,
+            child: Column(
+              children: [
+                Expanded(
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (scrollNotification) {
+                      if (scrollNotification is ScrollEndNotification) {
+                        _triggerHapticFeedback();
+                        return true;
+                      }
+                      return false;
+                    },
+                    child: ListWheelScrollView.useDelegate(
+                      controller: _hourScrollController,
+                      itemExtent: _WheelTimePickerDesign.itemExtent,
+                      squeeze: _WheelTimePickerDesign.squeeze,
+                      diameterRatio: _WheelTimePickerDesign.diameterRatio,
+                      physics: const FixedExtentScrollPhysics(),
+                      onSelectedItemChanged: (index) {
+                        final hour = index % 24;
+                        final minute = _minuteScrollController.selectedItem;
+                        _onTimeChanged(hour, minute);
+                      },
+                      childDelegate: ListWheelChildBuilderDelegate(
+                        childCount: 24 * 3, // Allow infinite scrolling
+                        builder: (context, index) {
+                          final hour = index % 24;
+                          final isSelected = hour == _selectedTime.hour;
+                          final distance = ((hour - _selectedTime.hour).abs() % 24);
+                          final isNear = distance == 1 || distance == 23;
+
+                          return Container(
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(horizontal: _WheelTimePickerDesign.spacingSmall),
+                            child: Text(
+                              hour.toString().padLeft(2, '0'),
+                              style: TextStyle(
+                                fontSize: isCompactScreen ? 20 : 24,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                color: isSelected
+                                    ? Theme.of(context).colorScheme.primary
+                                    : isNear
+                                        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
+                                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: _WheelTimePickerDesign.spacingSmall),
+                  child: Text(
+                    'Hour',
+                    style: TextStyle(
+                      fontSize: _WheelTimePickerDesign.fontSizeSmall,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Separator
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: _WheelTimePickerDesign.spacingSmall),
+            child: Text(
+              ':',
+              style: TextStyle(
+                fontSize: isCompactScreen ? 28 : 32,
+                fontWeight: FontWeight.w300,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+
+          // Minute picker
+          Expanded(
+            flex: 1,
+            child: Column(
+              children: [
+                Expanded(
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (scrollNotification) {
+                      if (scrollNotification is ScrollEndNotification) {
+                        _triggerHapticFeedback();
+                        return true;
+                      }
+                      return false;
+                    },
+                    child: ListWheelScrollView.useDelegate(
+                      controller: _minuteScrollController,
+                      itemExtent: _WheelTimePickerDesign.itemExtent,
+                      squeeze: _WheelTimePickerDesign.squeeze,
+                      diameterRatio: _WheelTimePickerDesign.diameterRatio,
+                      physics: const FixedExtentScrollPhysics(),
+                      onSelectedItemChanged: (index) {
+                        final minute = index % 60;
+                        final hour = _hourScrollController.selectedItem;
+                        _onTimeChanged(hour, minute);
+                      },
+                      childDelegate: ListWheelChildBuilderDelegate(
+                        childCount: 60 * 3, // Allow infinite scrolling
+                        builder: (context, index) {
+                          final minute = index % 60;
+                          final isSelected = minute == _selectedTime.minute;
+                          final distance = ((minute - _selectedTime.minute).abs() % 60);
+                          final isNear = distance == 1 || distance == 59;
+
+                          return Container(
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(horizontal: _WheelTimePickerDesign.spacingSmall),
+                            child: Text(
+                              minute.toString().padLeft(2, '0'),
+                              style: TextStyle(
+                                fontSize: isCompactScreen ? 20 : 24,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                color: isSelected
+                                    ? Theme.of(context).colorScheme.primary
+                                    : isNear
+                                        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
+                                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: _WheelTimePickerDesign.spacingSmall),
+                  child: Text(
+                    'Minute',
+                    style: TextStyle(
+                      fontSize: _WheelTimePickerDesign.fontSizeSmall,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
