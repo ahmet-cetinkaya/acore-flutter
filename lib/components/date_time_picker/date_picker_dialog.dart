@@ -828,8 +828,15 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         result = DatePickerResult.cleared();
       }
     } else {
-      result = DatePickerResult.range(_selectedStartDate!, _selectedEndDate!,
-          isRefreshEnabled: _refreshEnabled, quickSelectionKey: _selectedQuickRangeKey);
+      // Additional safety check for range selection
+      if (_selectedStartDate != null && _selectedEndDate != null) {
+        // Use null assertion operators since we've already checked for null
+        result = DatePickerResult.range(_selectedStartDate!, _selectedEndDate!,
+            isRefreshEnabled: _refreshEnabled, quickSelectionKey: _selectedQuickRangeKey);
+      } else {
+        // Date range was cleared - this happens with "No Date" selection
+        result = DatePickerResult.cleared();
+      }
     }
 
     Navigator.of(context).pop(result);

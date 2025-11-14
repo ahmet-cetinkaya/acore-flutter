@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/cupertino.dart';
 import 'numeric_input_translation_keys.dart';
 
 class NumericInput extends StatefulWidget {

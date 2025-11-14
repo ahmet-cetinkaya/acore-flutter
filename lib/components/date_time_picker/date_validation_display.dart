@@ -179,7 +179,20 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
     final validationErrors =
         useCached ? (_cachedValidationResult == null ? <String>[] : ['validation_error']) : _getValidationErrors();
 
-    if (validationErrors.isNotEmpty) {
+    // Always trigger validation notification for valid selections
+    if (validationErrors.isEmpty) {
+      if (!useCached || _cachedValidationResult != null) {
+        // Update cache for valid selections
+        setState(() {
+          _cachedValidationResult = null;
+          _lastValidationCheck = DateTime.now();
+        });
+        // Notify parent after the current build phase to avoid setState during build
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.onValidationChanged?.call(true);
+        });
+      }
+    } else if (validationErrors.isNotEmpty) {
       // Trigger debounced validation for next update
       if (!useCached) {
         WidgetsBinding.instance.addPostFrameCallback((_) {

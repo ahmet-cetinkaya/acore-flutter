@@ -147,7 +147,6 @@ class _DatePickerErrorBoundaryState extends State<DatePickerErrorBoundary> {
 
     // In release mode, you might want to send this to a crash reporting service
     if (!kDebugMode && error.level == DatePickerErrorLevel.critical) {
-      // TODO: Integrate with crash reporting service (Firebase Crashlytics, Sentry, etc.)
       debugPrint('Critical error in production: ${error.component} - ${error.error}');
     }
   }
