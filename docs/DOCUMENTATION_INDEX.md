@@ -238,7 +238,7 @@ Read: **[Comprehensive Documentation](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)** 
 ## 🔗 External Resources
 
 ### Related Documentation
-- [WHPH Main Documentation](../../../README.md)
+- [WHPH Main Documentation](https://github.com/ahmet-cetinkaya/whph/blob/main/README.md)
 - [Flutter Documentation](https://flutter.dev/docs)
 - [Dart Language Guide](https://dart.dev/guides)
 

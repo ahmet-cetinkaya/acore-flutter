@@ -323,12 +323,8 @@ try {
 ### Validation
 
 ```dart
-bool isRegistered<T>() {
-  return Container.instance._factories.containsKey(T);
-}
-
 // Usage
-if (!isRegistered<ILogger>()) {
+if (!Container.instance.isRegistered<ILogger>()) {
   throw Exception('Logger not registered. Call setupDependencies() first.');
 }
 ```

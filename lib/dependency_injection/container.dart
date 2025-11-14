@@ -17,4 +17,9 @@ class Container implements IContainer {
   void registerSingleton<T>(T Function(IContainer) factory) {
     _container.registerSingleton((_) => factory(this));
   }
+
+  @override
+  bool isRegistered<T>() {
+    return _container.isRegistered<T>();
+  }
 }

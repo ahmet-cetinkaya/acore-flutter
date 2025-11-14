@@ -123,7 +123,7 @@ Object-to-object mapping capabilities with customizable mapping functions
 Collection comparison, caching, responsive design, and platform utilities
 - Classes: `CollectionUtils`, `LRUCache`, `ResponsiveUtil`, `PlatformUtils`, etc.
 
-**📖 Detailed Documentation**: See [Utils Documentation](./utils/)
+**📖 Detailed Documentation**: See [Utils Documentation](./DOCUMENTATION_INDEX.md#utility-documentation)
 
 ## Quick Start Guide
 

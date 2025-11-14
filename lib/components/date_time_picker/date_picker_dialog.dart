@@ -730,7 +730,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     return _selectedStartDate == null && _selectedEndDate == null;
   }
 
-  
   bool _isQuickRangeSelected(QuickDateRange range) {
     if (_selectedStartDate == null || _selectedEndDate == null) return false;
 
@@ -1094,7 +1093,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   }
 
   // Build mobile-friendly action button with proper touch targets
-  
+
   Widget _buildActionButton({
     required BuildContext context,
     required VoidCallback? onPressed,

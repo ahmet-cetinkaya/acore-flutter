@@ -943,8 +943,8 @@ class TimeSelector extends StatefulWidget {
 
 // ❌ Avoid: Generic names, unclear purpose
 class PickerWidget extends StatefulWidget {
-  final var time;
-  final Function cb;
+  final dynamic time;
+  final VoidCallback cb;
 }
 ```
 

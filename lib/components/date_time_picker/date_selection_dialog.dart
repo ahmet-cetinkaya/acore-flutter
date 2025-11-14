@@ -214,7 +214,7 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
   }
 
   /// Build mobile-friendly action button with proper touch targets
-  
+
   /// Build calendar picker widget
   Widget _buildCalendarPicker() {
     return Container(

@@ -152,7 +152,7 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
   }
 
   /// Build mobile-friendly action button with proper touch targets
-  
+
   @override
   Widget build(BuildContext context) {
     final theme = widget.config.theme ?? Theme.of(context);
