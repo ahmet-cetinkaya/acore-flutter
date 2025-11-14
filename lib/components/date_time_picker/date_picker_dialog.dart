@@ -432,77 +432,80 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     IconData? icon,
     String? label,
   }) {
-    return GestureDetector(
-      onTap: () {
-        onTap();
-        _triggerHapticFeedback();
-      },
-      child: Container(
-        width: double.infinity, // Full width for vertical layout
-        height: 44, // Slightly increased height for better touch targets
-        padding: const EdgeInsets.symmetric(
-          horizontal: _DatePickerDesign.spacingMedium,
-          vertical: _DatePickerDesign.spacingSmall,
-        ),
-        decoration: BoxDecoration(
+    return Ink(
+      decoration: BoxDecoration(
+        color: isSelected
+            ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
+        border: Border.all(
           color: isSelected
-              ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
-              : Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
-          border: Border.all(
-            color: isSelected
-                ? Theme.of(context).primaryColor
-                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-            width: isSelected ? 2.0 : _DatePickerDesign.borderWidth,
-          ),
+              ? Theme.of(context).primaryColor
+              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          width: isSelected ? 2.0 : _DatePickerDesign.borderWidth,
         ),
-        child: Row(
-          children: [
-            // Left icon or number with container styling
-            Container(
-              width: 28, // Slightly larger for better visibility
-              height: 28,
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? Theme.of(context).primaryColor.withValues(alpha: 0.3)
-                    : Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
-              ),
-              child: Center(
-                child: icon != null
-                    ? Icon(
-                        icon,
-                        size: 16,
-                        color: isSelected
-                            ? Theme.of(context).primaryColor
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
-                      )
-                    : Text(
-                        text,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: isSelected
-                                  ? Theme.of(context).primaryColor
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                      ),
-              ),
-            ),
-            const SizedBox(width: _DatePickerDesign.spacingSmall),
-            // Right text
-            Expanded(
-              child: Text(
-                label ?? text, // Use label if provided, otherwise use text
-                style: TextStyle(
-                  fontSize: _DatePickerDesign.fontSizeMedium,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
+      child: InkWell(
+        onTap: () {
+          onTap();
+          _triggerHapticFeedback();
+        },
+        borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
+        child: Container(
+          width: double.infinity, // Full width for vertical layout
+          height: 44, // Slightly increased height for better touch targets
+          padding: const EdgeInsets.symmetric(
+            horizontal: _DatePickerDesign.spacingMedium,
+            vertical: _DatePickerDesign.spacingSmall,
+          ),
+          child: Row(
+            children: [
+              // Left icon or number with container styling
+              Container(
+                width: 28, // Slightly larger for better visibility
+                height: 28,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Theme.of(context).primaryColor.withValues(alpha: 0.3)
+                      : Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
                 ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
+                child: Center(
+                  child: icon != null
+                      ? Icon(
+                          icon,
+                          size: 16,
+                          color: isSelected
+                              ? Theme.of(context).primaryColor
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        )
+                      : Text(
+                          text,
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: isSelected
+                                    ? Theme.of(context).primaryColor
+                                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(width: _DatePickerDesign.spacingSmall),
+              // Right text
+              Expanded(
+                child: Text(
+                  label ?? text, // Use label if provided, otherwise use text
+                  style: TextStyle(
+                    fontSize: _DatePickerDesign.fontSizeMedium,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

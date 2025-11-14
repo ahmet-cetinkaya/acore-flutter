@@ -5,6 +5,10 @@ class ResponsiveBreakpoints {
   static const double mobile = 600.0;
   static const double tablet = 900.0;
   static const double desktop = 1200.0;
+
+  // Aspect ratio thresholds for landscape layout strategies
+  static const double wideAspectRatio = 1.5;
+  static const double ultraWideAspectRatio = 2.0;
 }
 
 /// Device type enumeration for responsive design
@@ -181,9 +185,9 @@ class ResponsiveUtil {
     final screenHeight = MediaQuery.of(context).size.height;
     final aspectRatio = screenWidth / screenHeight;
 
-    if (aspectRatio > 2.0) {
+    if (aspectRatio > ResponsiveBreakpoints.ultraWideAspectRatio) {
       return LandscapeLayoutStrategy.ultraWide;
-    } else if (aspectRatio > 1.5) {
+    } else if (aspectRatio > ResponsiveBreakpoints.wideAspectRatio) {
       return LandscapeLayoutStrategy.wide;
     } else if (requiresLandscapeAdaptation(context)) {
       return LandscapeLayoutStrategy.compact;

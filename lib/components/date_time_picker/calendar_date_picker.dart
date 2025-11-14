@@ -196,25 +196,6 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
           return;
         }
 
-        // If there's a minDate constraint and selected date is on the same day as minDate,
-        // ensure the time is not before minDate time
-        if (widget.minDate != null && widget.showTime) {
-          final minDate = widget.minDate!;
-          final minDateOnly = DateTime(minDate.year, minDate.month, minDate.day);
-          final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-
-          if (selectedDateOnly.isAtSameMomentAs(minDateOnly)) {
-            // Set the time to minDate time if selecting today
-            selectedDate = DateTime(
-              selectedDate.year,
-              selectedDate.month,
-              selectedDate.day,
-              minDate.hour,
-              minDate.minute,
-            );
-          }
-        }
-
         widget.onSingleDateSelected(selectedDate);
         widget.onUserHasSelectedQuickRangeChanged?.call();
 
