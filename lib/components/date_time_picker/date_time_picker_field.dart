@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide DatePickerDialog;
 import '../../time/date_format_service.dart';
-import 'date_picker_dialog.dart';
+import 'date_picker_dialog.dart' as picker;
 import 'date_time_picker_translation_keys.dart';
 import 'date_picker_types.dart';
 
@@ -90,7 +90,7 @@ class DateTimePickerField extends StatelessWidget {
       }
     }
 
-    final config = DatePickerConfig(
+    final config = picker.DatePickerConfig(
       selectionMode: DateSelectionMode.single,
       initialDate: initialDate,
       minDate: minDateTime,
@@ -111,7 +111,7 @@ class DateTimePickerField extends StatelessWidget {
     );
 
     if (!context.mounted) return;
-    final result = await DatePickerDialog.show(
+    final result = await picker.DatePickerDialog.show(
       context: context,
       config: config,
     );

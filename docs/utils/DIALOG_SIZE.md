@@ -394,12 +394,12 @@ ResponsiveDialogHelper.showResponsiveDialog(
 
 ## Size Comparison Chart
 
-| Size       | Desktop Width    | Desktop Height | Mobile Initial | Mobile Max    | Best For              |
-| ---------- | ---------------- | -------------- | -------------- | ------------- | --------------------- |
-| **min**    | Content-based    | Content-based  | Content-based  | Content-based | Alerts, confirmations |
-| **small**  | 50% (max 600px)  | 40%            | 20%            | 95%           | Quick actions         |
-| **medium** | 60% (max 900px)  | 70%            | 85%            | 95%           | Standard dialogs      |
-| **large**  | 80% (max 1200px) | 80%            | 95%            | 95%           | Complex content       |
+| Size       | Desktop Width    | Desktop Height | Mobile Initial | Mobile Max    | Best For                         |
+| ---------- | ---------------- | -------------- | -------------- | ------------- | -------------------------------- |
+| **min**    | Content-based    | Content-based  | Content-based  | Content-based | Alerts, confirmations            |
+| **small**  | 50% (max 600px)  | 40%            | 20%            | 95%           | Quick actions                    |
+| **medium** | 60% (max 900px)  | 70%            | 85%            | 95%           | Standard dialogs                 |
+| **large**  | 80% (max 1200px) | 80%            | 95%            | 95%           | Complex content                  |
 | **max**    | 95% (no max)     | 95%            | 95%            | 95%           | Maximum content, near-fullscreen |
 
 ## Troubleshooting

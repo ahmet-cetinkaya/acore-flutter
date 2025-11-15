@@ -114,7 +114,6 @@ class ResponsiveDialogHelper {
         expand: false,
         builder: (BuildContext context) {
           final mediaQuery = MediaQuery.of(context);
-          final safeAreaBottom = mediaQuery.viewPadding.bottom;
           final screenHeight = mediaQuery.size.height;
           final keyboardHeight = mediaQuery.viewInsets.bottom;
 
