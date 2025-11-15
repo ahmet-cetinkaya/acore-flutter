@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'numeric_input_translation_keys.dart';
 
 class NumericInput extends StatefulWidget {
   final int initialValue;
@@ -9,11 +10,10 @@ class NumericInput extends StatefulWidget {
   final int incrementValue;
   final int decrementValue;
   final void Function(int) onValueChanged;
-  final String? decrementTooltip;
-  final String? incrementTooltip;
   final String? valueSuffix;
   final double? iconSize;
   final Color? iconColor;
+  final Map<NumericInputTranslationKey, String>? translations;
 
   const NumericInput({
     super.key,
@@ -24,11 +24,10 @@ class NumericInput extends StatefulWidget {
     this.incrementValue = 1,
     this.decrementValue = 1,
     required this.onValueChanged,
-    this.decrementTooltip,
-    this.incrementTooltip,
     this.valueSuffix,
     this.iconSize,
     this.iconColor,
+    this.translations,
   });
 
   @override
@@ -37,12 +36,16 @@ class NumericInput extends StatefulWidget {
 
 class _NumericInputState extends State<NumericInput> {
   late TextEditingController _controller;
+  late FocusNode _containerFocusNode;
+  late FocusNode _textFieldFocusNode;
 
   @override
   void initState() {
     super.initState();
     final startValue = widget.value ?? widget.initialValue;
     _controller = TextEditingController(text: startValue.toString());
+    _containerFocusNode = FocusNode();
+    _textFieldFocusNode = FocusNode();
   }
 
   @override
@@ -61,6 +64,22 @@ class _NumericInputState extends State<NumericInput> {
     }
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    _containerFocusNode.dispose();
+    _textFieldFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _triggerHapticFeedback() {
+    HapticFeedback.lightImpact();
+  }
+
+  String _getTranslation(NumericInputTranslationKey key, String fallback) {
+    return widget.translations?[key] ?? fallback;
+  }
+
   void _increment() {
     int? value = int.tryParse(_controller.text);
     if (value == null) return;
@@ -76,6 +95,7 @@ class _NumericInputState extends State<NumericInput> {
         _controller.value = TextEditingValue(text: nextValue.toString());
       });
     }
+    _triggerHapticFeedback();
     widget.onValueChanged(nextValue);
   }
 
@@ -94,6 +114,7 @@ class _NumericInputState extends State<NumericInput> {
         _controller.value = TextEditingValue(text: nextValue.toString());
       });
     }
+    _triggerHapticFeedback();
     widget.onValueChanged(nextValue);
   }
 
@@ -143,10 +164,15 @@ class _NumericInputState extends State<NumericInput> {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
+        Semantics(
+          button: true,
+          label: _getTranslation(
+            NumericInputTranslationKey.decrementButtonLabel,
+            'Decrement button',
           ),
+          hint: currentValue > minValue
+              ? _getTranslation(NumericInputTranslationKey.decrementHint, 'Decreases the current value')
+              : _getTranslation(NumericInputTranslationKey.atMinimumValue, 'Already at minimum value'),
           child: IconButton(
             icon: Icon(
               Icons.remove,
@@ -154,28 +180,63 @@ class _NumericInputState extends State<NumericInput> {
               color: widget.iconColor,
             ),
             onPressed: currentValue > minValue ? _decrement : null,
-            tooltip: widget.decrementTooltip ?? 'Decrease',
+            tooltip: _getTranslation(NumericInputTranslationKey.decrementTooltip, 'Decrease'),
             style: IconButton.styleFrom(
               shape: const CircleBorder(),
             ),
           ),
         ),
-        SizedBox(
-          width: (_controller.text.length * 12.0).clamp(50.0, 100.0), // Minimum 50, maximum 100 width
-          child: TextField(
-            controller: _controller,
-            textAlign: TextAlign.center,
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')), // Only allow digits
-            ],
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              isDense: true,
+        Semantics(
+          textField: true,
+          label: _getTranslation(NumericInputTranslationKey.textFieldLabel, 'Numeric input'),
+          hint: widget.valueSuffix != null
+              ? _getTranslation(
+                  NumericInputTranslationKey.textFieldHint,
+                  'Enter a number between $minValue and ${maxValue ?? 'unlimited'} ${widget.valueSuffix}',
+                )
+              : _getTranslation(
+                  NumericInputTranslationKey.textFieldHint,
+                  'Enter a number between $minValue and ${maxValue ?? 'unlimited'}',
+                ),
+          value: _controller.text,
+          child: SizedBox(
+            width: (_controller.text.length * 12.0).clamp(50.0, 100.0), // Minimum 50, maximum 100 width
+            child: Focus(
+              focusNode: _containerFocusNode,
+              onKeyEvent: (node, event) {
+                // Handle keyboard navigation
+                if (event is KeyDownEvent) {
+                  if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                    if (currentValue < (maxValue ?? double.infinity)) {
+                      _increment();
+                      return KeyEventResult.handled;
+                    }
+                  } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                    if (currentValue > minValue) {
+                      _decrement();
+                      return KeyEventResult.handled;
+                    }
+                  }
+                }
+                return KeyEventResult.ignored;
+              },
+              child: TextField(
+                controller: _controller,
+                focusNode: _textFieldFocusNode,
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')), // Only allow digits
+                ],
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  isDense: true,
+                ),
+                style: Theme.of(context).textTheme.bodyMedium,
+                onChanged: _onValueChanged,
+              ),
             ),
-            style: Theme.of(context).textTheme.bodyMedium,
-            onChanged: _onValueChanged,
           ),
         ),
         if (widget.valueSuffix != null)
@@ -190,10 +251,15 @@ class _NumericInputState extends State<NumericInput> {
               ),
             ),
           ),
-        Container(
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
+        Semantics(
+          button: true,
+          label: _getTranslation(
+            NumericInputTranslationKey.incrementButtonLabel,
+            'Increment button',
           ),
+          hint: maxValue == null || currentValue < maxValue
+              ? _getTranslation(NumericInputTranslationKey.incrementHint, 'Increases the current value')
+              : _getTranslation(NumericInputTranslationKey.atMaximumValue, 'Already at maximum value'),
           child: IconButton(
             icon: Icon(
               Icons.add,
@@ -201,7 +267,7 @@ class _NumericInputState extends State<NumericInput> {
               color: widget.iconColor,
             ),
             onPressed: maxValue == null || currentValue < maxValue ? _increment : null,
-            tooltip: widget.incrementTooltip ?? 'Increase',
+            tooltip: _getTranslation(NumericInputTranslationKey.incrementTooltip, 'Increase'),
             style: IconButton.styleFrom(
               shape: const CircleBorder(),
             ),
