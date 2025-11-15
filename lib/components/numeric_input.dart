@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 class NumericInput extends StatefulWidget {
   final int initialValue;
+  final int? value; // Optional dynamic value that can update the widget
   final int? minValue;
   final int? maxValue;
   final int incrementValue;
@@ -17,6 +18,7 @@ class NumericInput extends StatefulWidget {
   const NumericInput({
     super.key,
     this.initialValue = 0,
+    this.value, // Use this for dynamic updates
     this.minValue,
     this.maxValue,
     this.incrementValue = 1,
@@ -39,7 +41,24 @@ class _NumericInputState extends State<NumericInput> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.initialValue.toString());
+    final startValue = widget.value ?? widget.initialValue;
+    _controller = TextEditingController(text: startValue.toString());
+  }
+
+  @override
+  void didUpdateWidget(NumericInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Update the controller if the external value changed
+    if (widget.value != null && widget.value != oldWidget.value) {
+      final currentValue = int.tryParse(_controller.text) ?? 0;
+      if (currentValue != widget.value) {
+        _controller.text = widget.value!.toString();
+        _controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: _controller.text.length),
+        );
+      }
+    }
   }
 
   void _increment() {
