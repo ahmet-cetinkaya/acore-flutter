@@ -1,7 +1,6 @@
 import 'abstraction/i_mapper.dart';
 
 class CoreMapper implements IMapper {
-  // <<TDestination, TSource>, MapperFunction>
   final Map<Map<Type, Type>, Function> _maps = {};
 
   @override

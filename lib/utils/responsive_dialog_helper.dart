@@ -38,13 +38,6 @@ class ResponsiveDialogHelper {
   static ResponsiveDialogConfig get config => _config;
 
   /// Shows a details page responsively.
-  /// On desktop, it appears as a modal dialog.
-  /// On mobile, it appears as a bottom sheet.
-  ///
-  /// [mobileChild] can be provided for a mobile-optimized layout with Scaffold.
-  /// If [mobileChild] is provided, it will be used on mobile instead of [child].
-  ///
-  /// Returns the result from the dialog/bottom sheet when closed.
   static Future<T?> showResponsiveDialog<T>({
     required BuildContext context,
     required Widget child,
@@ -60,17 +53,13 @@ class ResponsiveDialogHelper {
     final screenSize = MediaQuery.sizeOf(context);
 
     if (isDesktop) {
-      // Show as modal dialog on desktop
       return showDialog<T>(
         context: context,
         barrierDismissible: isDismissible,
         builder: (BuildContext context) {
-          // For minimum size, use default Dialog behavior (content-based sizing)
           if (size == DialogSize.min) {
-            return Dialog(child: child); // Maintain dialog semantics while using default sizing
+            return Dialog(child: child);
           }
-
-          // For other sizes, use ratio-based sizing
           final dialogHeight = screenSize.height * size.desktopHeightRatio;
           final dialogWidth = screenSize.width * size.desktopWidthRatio;
           final maxWidth = size.maxDesktopWidth;
@@ -99,10 +88,7 @@ class ResponsiveDialogHelper {
         },
       );
     } else {
-      // Show as bottom sheet on mobile
       final effectiveMobileChild = mobileChild ?? child;
-
-      // For minimum size, use keyboard-aware modal dialog instead of bottom sheet
       if (size == DialogSize.min) {
         return showDialog<T>(
           context: context,
@@ -116,34 +102,26 @@ class ResponsiveDialogHelper {
           },
         );
       }
-
-      // For other sizes, use modal bottom sheet with keyboard awareness
       return showMaterialModalBottomSheet<T>(
         context: context,
         isDismissible: isDismissible,
         enableDrag: enableDrag,
         useRootNavigator: false,
-        // Enable scroll control for better keyboard handling
         expand: false,
         builder: (BuildContext context) {
           final mediaQuery = MediaQuery.of(context);
           final screenHeight = mediaQuery.size.height;
           final keyboardHeight = mediaQuery.viewInsets.bottom;
 
-          // Use full screen height for better space utilization
-          // The modal_bottom_sheet package handles safe areas and keyboard avoidance automatically
           final availableHeight = screenHeight;
           final maxHeight = availableHeight * size.mobileMaxSizeRatio;
           final initialHeight = availableHeight * size.mobileInitialSizeRatio;
-
-          // If mobileChild is provided, apply height constraints while preserving Scaffold functionality
           if (mobileChild != null) {
             return ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: maxHeight,
               ),
               child: Container(
-                // Use flexible initial height that can expand with content
                 constraints: BoxConstraints(
                   minHeight: keyboardHeight > 0
                       ? min(initialHeight * _kKeyboardVisibleHeightShrinkFactor, maxHeight)
@@ -157,7 +135,6 @@ class ResponsiveDialogHelper {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Flexible wrapper allows content to adapt when keyboard appears
                       Flexible(
                         child: effectiveMobileChild,
                       ),
@@ -168,13 +145,11 @@ class ResponsiveDialogHelper {
             );
           }
 
-          // Remove the manual keyboard padding since modal_bottom_sheet handles it
           return ConstrainedBox(
             constraints: BoxConstraints(
               maxHeight: maxHeight,
             ),
             child: Container(
-              // Use flexible initial height that can expand with content
               constraints: BoxConstraints(
                 minHeight: keyboardHeight > 0
                     ? min(initialHeight * _kKeyboardVisibleHeightShrinkFactor, maxHeight)
@@ -188,7 +163,6 @@ class ResponsiveDialogHelper {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Flexible wrapper allows content to adapt when keyboard appears
                     Flexible(
                       child: SafeArea(
                         top: false,
@@ -205,8 +179,6 @@ class ResponsiveDialogHelper {
     }
   }
 
-  /// Wraps content with appropriate constraints to prevent unbounded height errors
-  /// when content contains a Scaffold or similar widget that expects bounded height.
   static Widget _wrapWithConstrainedContent(
     BuildContext context,
     Widget child, {
@@ -215,11 +187,6 @@ class ResponsiveDialogHelper {
     double? maxWidth,
   }) {
     Widget constrainedContent = child;
-
-    // For bottom sheets, we don't need special handling anymore since we're using Flexible
-    // Bottom sheet constraints are now handled by the parent Column/Flexible structure
-
-    // For desktop dialogs, use the original constraint-based approach
     if (maxHeight != null || maxWidth != null) {
       constrainedContent = ConstrainedBox(
         constraints: BoxConstraints(
@@ -229,8 +196,6 @@ class ResponsiveDialogHelper {
         child: child,
       );
     }
-
-    // If scrollable for desktop dialogs
     if (isScrollable && maxHeight != null) {
       constrainedContent = SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -242,14 +207,11 @@ class ResponsiveDialogHelper {
   }
 }
 
-/// Legacy function for backward compatibility and simple use cases.
-/// Shows a responsive bottom sheet that properly handles keyboard insets.
 void showResponsiveBottomSheet(
   BuildContext context, {
   required Widget child,
   ResponsiveDialogConfig? config,
 }) {
-  // Use the more robust ResponsiveDialogHelper with medium size for standard bottom sheets
   ResponsiveDialogHelper.showResponsiveDialog<void>(
     context: context,
     child: SingleChildScrollView(

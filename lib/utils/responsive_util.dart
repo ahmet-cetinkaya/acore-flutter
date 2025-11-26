@@ -6,7 +6,6 @@ class ResponsiveBreakpoints {
   static const double tablet = 900.0;
   static const double desktop = 1200.0;
 
-  // Aspect ratio thresholds for landscape layout strategies
   static const double wideAspectRatio = 1.5;
   static const double ultraWideAspectRatio = 2.0;
 }
@@ -25,19 +24,17 @@ enum ResponsiveLayoutType {
   expanded,
 }
 
-/// Landscape layout strategy enumeration
 enum LandscapeLayoutStrategy {
-  portrait, // Portrait mode
-  standard, // Standard landscape (aspect ratio ~1.3-1.5)
-  compact, // Compact landscape (limited height)
-  wide, // Wide landscape (aspect ratio ~1.5-2.0)
-  ultraWide, // Ultra-wide landscape (aspect ratio > 2.0)
+  portrait,
+  standard,
+  compact,
+  wide,
+  ultraWide,
 }
 
 /// Responsive utility for dynamic breakpoint calculation and device adaptation
 /// Provides centralized responsive design logic for date picker components
 class ResponsiveUtil {
-  /// Get device type based on screen width
   static ResponsiveDeviceType getDeviceType(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
@@ -50,7 +47,6 @@ class ResponsiveUtil {
     }
   }
 
-  /// Get layout type based on screen width
   static ResponsiveLayoutType getLayoutType(BuildContext context) {
     final deviceType = getDeviceType(context);
 
@@ -64,37 +60,30 @@ class ResponsiveUtil {
     }
   }
 
-  /// Check if current device is mobile
   static bool isMobile(BuildContext context) {
     return getDeviceType(context) == ResponsiveDeviceType.mobile;
   }
 
-  /// Check if current device is tablet
   static bool isTablet(BuildContext context) {
     return getDeviceType(context) == ResponsiveDeviceType.tablet;
   }
 
-  /// Check if current device is desktop
   static bool isDesktop(BuildContext context) {
     return getDeviceType(context) == ResponsiveDeviceType.desktop;
   }
 
-  /// Check if layout should be compact (mobile)
   static bool isCompactLayout(BuildContext context) {
     return getLayoutType(context) == ResponsiveLayoutType.compact;
   }
 
-  /// Check if layout should be expanded (desktop/tablet)
   static bool isExpandedLayout(BuildContext context) {
     return getLayoutType(context) != ResponsiveLayoutType.compact;
   }
 
-  /// Check if device is in landscape orientation
   static bool isLandscape(BuildContext context) {
     return MediaQuery.of(context).orientation == Orientation.landscape;
   }
 
-  /// Check if device is in portrait orientation
   static bool isPortrait(BuildContext context) {
     return MediaQuery.of(context).orientation == Orientation.portrait;
   }
@@ -118,7 +107,6 @@ class ResponsiveUtil {
     }
   }
 
-  /// Get responsive value with compact/normal/expanded layout types
   static T getResponsiveLayoutValue<T>({
     required BuildContext context,
     required T compact,
@@ -137,30 +125,28 @@ class ResponsiveUtil {
     }
   }
 
-  /// Calculate dialog width based on screen size and device type
   static double calculateDialogWidth(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final deviceType = getDeviceType(context);
 
     switch (deviceType) {
       case ResponsiveDeviceType.mobile:
-        return screenWidth * 0.95; // 95% of screen width for mobile
+        return screenWidth * 0.95;
       case ResponsiveDeviceType.tablet:
-        return (screenWidth * 0.6).clamp(400.0, 600.0); // 60% width for tablet
+        return (screenWidth * 0.6).clamp(400.0, 600.0);
       case ResponsiveDeviceType.desktop:
-        return (screenWidth * 0.4).clamp(400.0, 800.0); // 40% width for desktop
+        return (screenWidth * 0.4).clamp(400.0, 800.0);
     }
   }
 
-  /// Calculate dialog height based on screen size and orientation
   static double calculateDialogHeight(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
     if (isLandscape) {
-      return screenHeight * 0.9; // 90% height in landscape
+      return screenHeight * 0.9;
     } else {
-      return screenHeight * 0.8; // 80% height in portrait
+      return screenHeight * 0.8;
     }
   }
 
@@ -171,7 +157,6 @@ class ResponsiveUtil {
     final screenWidth = MediaQuery.of(context).size.width;
     final aspectRatio = screenWidth / screenHeight;
 
-    // Require adaptation if landscape with limited vertical space
     return isLandscapeMode && (aspectRatio > 1.5 || screenHeight < 600);
   }
 
@@ -196,7 +181,6 @@ class ResponsiveUtil {
     }
   }
 
-  /// Get responsive spacing optimized for landscape orientation
   static double getLandscapeSpacing(
     BuildContext context, {
     double mobile = 8.0,
@@ -207,13 +191,12 @@ class ResponsiveUtil {
     final baseSpacing = getSpacing(context, mobile: mobile, tablet: tablet, desktop: desktop);
 
     if (requiresLandscapeAdaptation(context)) {
-      return baseSpacing * landscapeReduction; // Reduce spacing in landscape
+      return baseSpacing * landscapeReduction;
     }
 
     return baseSpacing;
   }
 
-  /// Calculate optimal calendar layout for landscape mode
   static CalendarLayoutConfig calculateCalendarLayout(BuildContext context) {
     final isLandscapeMode = isLandscape(context);
     final strategy = getLandscapeLayoutStrategy(context);
@@ -221,27 +204,26 @@ class ResponsiveUtil {
     final screenHeight = MediaQuery.of(context).size.height;
 
     if (isLandscapeMode && strategy != LandscapeLayoutStrategy.portrait) {
-      // Landscape: optimize for wider layout, potentially side-by-side
       switch (strategy) {
         case LandscapeLayoutStrategy.ultraWide:
           return CalendarLayoutConfig(
             maxWidth: screenWidth * 0.7,
             maxHeight: screenHeight * 0.8,
-            columns: 3, // Multi-column layout for very wide screens
+            columns: 3,
             compactMode: true,
           );
         case LandscapeLayoutStrategy.wide:
           return CalendarLayoutConfig(
             maxWidth: screenWidth * 0.6,
             maxHeight: screenHeight * 0.85,
-            columns: 2, // Two-column for wide screens
+            columns: 2,
             compactMode: true,
           );
         case LandscapeLayoutStrategy.compact:
           return CalendarLayoutConfig(
             maxWidth: screenWidth * 0.9,
             maxHeight: screenHeight * 0.75,
-            columns: 1, // Single column but compressed
+            columns: 1,
             compactMode: true,
           );
         case LandscapeLayoutStrategy.standard:
@@ -261,7 +243,6 @@ class ResponsiveUtil {
       }
     }
 
-    // Portrait: standard layout
     return CalendarLayoutConfig(
       maxWidth: ResponsiveCalendarConstants.calendarWidth(context),
       maxHeight: screenHeight * 0.8,
@@ -270,7 +251,6 @@ class ResponsiveUtil {
     );
   }
 
-  /// Get responsive dialog configuration optimized for orientation
   static DialogConfig getDialogConfig(BuildContext context) {
     final strategy = getLandscapeLayoutStrategy(context);
     final screenWidth = MediaQuery.of(context).size.width;
@@ -315,7 +295,6 @@ class ResponsiveUtil {
     }
   }
 
-  /// Get responsive spacing based on device type
   static double getSpacing(
     BuildContext context, {
     double mobile = 8.0,
@@ -330,7 +309,6 @@ class ResponsiveUtil {
     );
   }
 
-  /// Get responsive font size
   static double getFontSize(
     BuildContext context, {
     double mobile = 14.0,
@@ -345,7 +323,6 @@ class ResponsiveUtil {
     );
   }
 
-  /// Get responsive icon size
   static double getIconSize(
     BuildContext context, {
     double mobile = 20.0,
@@ -360,7 +337,6 @@ class ResponsiveUtil {
     );
   }
 
-  /// Get responsive border radius
   static double getBorderRadius(
     BuildContext context, {
     double mobile = 8.0,
@@ -375,7 +351,6 @@ class ResponsiveUtil {
     );
   }
 
-  /// Get responsive padding
   static EdgeInsets getResponsivePadding(
     BuildContext context, {
     EdgeInsets mobile = const EdgeInsets.all(8.0),
@@ -390,7 +365,6 @@ class ResponsiveUtil {
     );
   }
 
-  /// Calculate responsive item count for grids/lists based on screen width
   static int calculateResponsiveItemCount(
     BuildContext context, {
     int mobileCount = 1,
@@ -410,7 +384,6 @@ class ResponsiveUtil {
   }
 }
 
-/// Get device-specific design constants for calendar widgets
 class ResponsiveCalendarConstants {
   static double dayWidth(BuildContext context) {
     return ResponsiveUtil.getResponsiveValue(
@@ -440,7 +413,6 @@ class ResponsiveCalendarConstants {
   }
 }
 
-/// Get device-specific design constants for time widgets
 class ResponsiveTimeConstants {
   static double pickerHeight(BuildContext context) {
     return ResponsiveUtil.getResponsiveValue(
@@ -461,7 +433,6 @@ class ResponsiveTimeConstants {
   }
 }
 
-/// Configuration for calendar layout in different orientations
 class CalendarLayoutConfig {
   final double maxWidth;
   final double maxHeight;
@@ -481,7 +452,6 @@ class CalendarLayoutConfig {
   }
 }
 
-/// Configuration for dialog layout in different orientations
 class DialogConfig {
   final double width;
   final double height;

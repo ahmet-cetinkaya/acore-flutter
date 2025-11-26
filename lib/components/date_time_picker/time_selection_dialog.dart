@@ -7,26 +7,19 @@ import '../../utils/dialog_size.dart';
 import 'time_picker_mobile_content.dart';
 import '../mobile_action_button.dart';
 
-/// Design constants for time selection dialog
 class _TimeSelectionDialogDesign {
-  // Spacing
   static const double spacingSmall = 8.0;
   static const double spacingMedium = 12.0;
 
-  // Border radius
   static const double radiusMedium = 12.0;
 
-  // Border width
   static const double borderWidth = 1.0;
 
-  // Font sizes
   static const double fontSizeMedium = 16.0;
   static const double fontSizeXLarge = 20.0;
 
-  // Icon sizes
   static const double iconSizeMedium = 20.0;
 
-  // Dialog sizing
   static const double maxDialogWidth = 240.0;
   static const double minDialogWidth = 200.0;
 }
@@ -41,12 +34,10 @@ class TimeSelectionDialogConfig {
   final double? actionButtonRadius;
   final bool initialIsAllDay;
 
-  // Responsive dialog configuration
   final bool useResponsiveDialog;
   final DialogSize dialogSize;
   final bool useMobileScaffoldLayout;
 
-  // Mobile bottom sheet specific
   final bool hideActionButtons;
   final bool hideTitle;
 
@@ -122,14 +113,10 @@ class TimeSelectionDialog extends StatefulWidget {
     );
   }
 
-  /// Shows the time selection dialog with responsive behavior
-  /// On desktop: shows as modal dialog
-  /// On mobile: shows as bottom sheet
   static Future<TimeSelectionResult?> showResponsive({
     required BuildContext context,
     required TimeSelectionDialogConfig config,
   }) async {
-    // Create mobile content if enabled
     Widget? mobileChild;
     if (config.useMobileScaffoldLayout) {
       mobileChild = TimePickerMobileContent(
@@ -155,9 +142,6 @@ class TimeSelectionDialog extends StatefulWidget {
     );
   }
 
-  /// Shows the time selection dialog with automatic responsive behavior detection
-  /// Uses show() when config.useResponsiveDialog is false
-  /// Uses showResponsive() when config.useResponsiveDialog is true
   static Future<TimeSelectionResult?> showAuto({
     required BuildContext context,
     required TimeSelectionDialogConfig config,
@@ -181,27 +165,22 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
     _isAllDay = widget.config.initialIsAllDay;
   }
 
-  /// Trigger haptic feedback for better mobile experience
   void _triggerHapticFeedback() {
     HapticFeedbackUtil.triggerHapticFeedback(context);
   }
 
-  /// Get localized text with fallback
   String _getLocalizedText(DateTimePickerTranslationKey key, String fallback) {
     return widget.config.translations[key] ?? fallback;
   }
 
-  /// Handle time confirmation
   void _onConfirm() {
     Navigator.of(context).pop(TimeSelectionResult.confirmed(_selectedTime, isAllDay: _isAllDay));
   }
 
-  /// Handle dialog cancellation
   void _onCancel() {
     Navigator.of(context).pop(TimeSelectionResult.cancelled());
   }
 
-  /// Build wheel-style time picker
   Widget _buildWheelTimePicker() {
     return WheelTimePicker(
       initialTime: _selectedTime,
@@ -216,14 +195,11 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
     );
   }
 
-  /// Build mobile-friendly action button with proper touch targets
-
   @override
   Widget build(BuildContext context) {
     final theme = widget.config.theme ?? Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // Responsive dialog sizing
     final dialogWidth = screenWidth.clamp(
       _TimeSelectionDialogDesign.minDialogWidth,
       _TimeSelectionDialogDesign.maxDialogWidth,
@@ -235,7 +211,6 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Wheel-style time picker (disabled when All Day)
             IgnorePointer(
               ignoring: _isAllDay,
               child: Opacity(
@@ -246,10 +221,7 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
                 ),
               ),
             ),
-
             const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
-
-            // All Day checkbox (placed at the bottom)
             Material(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(_TimeSelectionDialogDesign.radiusMedium),
@@ -310,14 +282,12 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
                 ),
               ),
             ),
-
             const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
           ],
         ),
       ),
     );
 
-    // If using mobile scaffold layout, return content directly (it will be wrapped in Scaffold by TimePickerMobileContent in showResponsive)
     if (widget.config.useMobileScaffoldLayout) {
       return Theme(
         data: theme,
@@ -325,8 +295,6 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
       );
     }
 
-    // For desktop/dialog mode, create proper AlertDialog without nested Scaffold
-    // TimePickerMobileContent contains a Scaffold which is incompatible with AlertDialog
     return Theme(
       data: theme,
       child: AlertDialog(
@@ -375,14 +343,12 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
               ),
         content: SizedBox(
           width: dialogWidth,
-          // Constrain height to avoid overflow
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 400),
             child: content,
           ),
         ),
         actions: [
-          // Cancel button
           MobileActionButton(
             context: context,
             onPressed: _onCancel,
@@ -392,7 +358,6 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
             borderRadius: widget.config.actionButtonRadius,
           ),
           const SizedBox(width: _TimeSelectionDialogDesign.spacingSmall),
-          // Confirm button
           MobileActionButton(
             context: context,
             onPressed: _onConfirm,

@@ -17,7 +17,6 @@ abstract class BaseEntity<TId> {
 
   bool get isDeleted => deletedDate != null;
 
-  /// Convert BaseEntity to JSON map
   Map<String, dynamic> toJson() => {
         'id': id,
         'createdDate': createdDate.toIso8601String(),
@@ -25,7 +24,6 @@ abstract class BaseEntity<TId> {
         'deletedDate': deletedDate?.toIso8601String(),
       };
 
-  /// Create BaseEntity from JSON map (used by subclasses)
   static Map<String, dynamic> baseFromJson(Map<String, dynamic> json) => {
         'id': json['id'],
         'createdDate': DateTime.parse(json['createdDate'] as String),
