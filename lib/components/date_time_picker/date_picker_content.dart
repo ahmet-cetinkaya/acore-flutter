@@ -27,6 +27,20 @@ class _DatePickerDesign {
   static const double borderWidth = 1.0;
 }
 
+/// Common constants shared across date picker components
+class _DatePickerConstants {
+  // Weekday translation keys - consistently ordered (Mon-Sun)
+  static const List<DateTimePickerTranslationKey> weekdayKeys = [
+    DateTimePickerTranslationKey.weekdayMonShort,
+    DateTimePickerTranslationKey.weekdayTueShort,
+    DateTimePickerTranslationKey.weekdayWedShort,
+    DateTimePickerTranslationKey.weekdayThuShort,
+    DateTimePickerTranslationKey.weekdayFriShort,
+    DateTimePickerTranslationKey.weekdaySatShort,
+    DateTimePickerTranslationKey.weekdaySunShort,
+  ];
+}
+
 /// Configuration for the date picker content component
 class DatePickerContentConfig {
   final DateSelectionMode selectionMode;
@@ -207,70 +221,37 @@ class _DatePickerContentState extends State<DatePickerContent> {
   /// Get the current day of week abbreviation (Mon, Tue, etc.)
   String _getDayOfWeek() {
     final now = DateTime.now();
-    final days = [
-      DateTimePickerTranslationKey.weekdayMonShort,
-      DateTimePickerTranslationKey.weekdayTueShort,
-      DateTimePickerTranslationKey.weekdayWedShort,
-      DateTimePickerTranslationKey.weekdayThuShort,
-      DateTimePickerTranslationKey.weekdayFriShort,
-      DateTimePickerTranslationKey.weekdaySatShort,
-      DateTimePickerTranslationKey.weekdaySunShort,
-    ];
-    return _getLocalizedText(days[now.weekday - 1], 'Mon');
+    return _getLocalizedText(_DatePickerConstants.weekdayKeys[now.weekday - 1], 'Mon');
   }
 
   /// Get tomorrow's day of week abbreviation
   String _getTomorrowDayOfWeek() {
     final tomorrow = DateTime.now().add(const Duration(days: 1));
-    final days = [
-      DateTimePickerTranslationKey.weekdayMonShort,
-      DateTimePickerTranslationKey.weekdayTueShort,
-      DateTimePickerTranslationKey.weekdayWedShort,
-      DateTimePickerTranslationKey.weekdayThuShort,
-      DateTimePickerTranslationKey.weekdayFriShort,
-      DateTimePickerTranslationKey.weekdaySatShort,
-      DateTimePickerTranslationKey.weekdaySunShort,
-    ];
-    return _getLocalizedText(days[tomorrow.weekday - 1], 'Tue');
+    return _getLocalizedText(_DatePickerConstants.weekdayKeys[tomorrow.weekday - 1], 'Tue');
   }
 
   /// Get next week's day of week abbreviation (next Monday)
   String _getNextWeekDayOfWeek() {
     final now = DateTime.now();
-    final daysUntilNextMonday = (7 - now.weekday + 1) % 7 + 1;
+    // Calculate days until next Monday (where Monday is 1)
+    // If today is Monday (1), we want next Monday, not today: (8 - 1) = 7 days
+    // If today is Tuesday (2), we want next Monday: (8 - 2) = 6 days
+    // If today is Sunday (7), we want next Monday: (8 - 7) = 1 day
+    final daysUntilNextMonday = now.weekday == DateTime.monday ? 7 : (8 - now.weekday);
     final nextMonday = now.add(Duration(days: daysUntilNextMonday));
 
-    final days = [
-      DateTimePickerTranslationKey.weekdayMonShort,
-      DateTimePickerTranslationKey.weekdayTueShort,
-      DateTimePickerTranslationKey.weekdayWedShort,
-      DateTimePickerTranslationKey.weekdayThuShort,
-      DateTimePickerTranslationKey.weekdayFriShort,
-      DateTimePickerTranslationKey.weekdaySatShort,
-      DateTimePickerTranslationKey.weekdaySunShort,
-    ];
-    return _getLocalizedText(days[nextMonday.weekday - 1], 'Mon');
+    return _getLocalizedText(_DatePickerConstants.weekdayKeys[nextMonday.weekday - 1], 'Mon');
   }
 
   /// Get the weekend day of week abbreviation (Saturday)
   String _getWeekendDayOfWeek() {
     final now = DateTime.now();
-    final days = [
-      DateTimePickerTranslationKey.weekdayMonShort,
-      DateTimePickerTranslationKey.weekdayTueShort,
-      DateTimePickerTranslationKey.weekdayWedShort,
-      DateTimePickerTranslationKey.weekdayThuShort,
-      DateTimePickerTranslationKey.weekdayFriShort,
-      DateTimePickerTranslationKey.weekdaySatShort,
-      DateTimePickerTranslationKey.weekdaySunShort,
-    ];
-
     // Find the next Saturday
-    var saturday = now;
+    DateTime saturday = now;
     while (saturday.weekday != DateTime.saturday) {
       saturday = saturday.add(const Duration(days: 1));
     }
-    return _getLocalizedText(days[saturday.weekday - 1], 'Sat');
+    return _getLocalizedText(_DatePickerConstants.weekdayKeys[saturday.weekday - 1], 'Sat');
   }
 
   /// Build compact Todoist-style quick selection with vertical layout
@@ -521,7 +502,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
   void _selectThisWeekend() {
     final now = DateTime.now();
     // Find the Saturday of the current week
-    var saturday = now.add(Duration(days: DateTime.saturday - now.weekday));
+    DateTime saturday = now.add(Duration(days: DateTime.saturday - now.weekday));
     setState(() {
       _selectedDate = DateTime(
         saturday.year,
@@ -543,8 +524,11 @@ class _DatePickerContentState extends State<DatePickerContent> {
 
   void _selectNextWeek() {
     final now = DateTime.now();
-    // Get next Monday
-    final daysUntilNextMonday = (7 - now.weekday + 1) % 7 + 1;
+    // Calculate days until next Monday (where Monday is 1)
+    // If today is Monday (1), we want next Monday, not today: (8 - 1) = 7 days
+    // If today is Tuesday (2), we want next Monday: (8 - 2) = 6 days
+    // If today is Sunday (7), we want next Monday: (8 - 7) = 1 day
+    final daysUntilNextMonday = now.weekday == DateTime.monday ? 7 : (8 - now.weekday);
     final nextMonday = now.add(Duration(days: daysUntilNextMonday));
 
     setState(() {
@@ -574,7 +558,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
 
   void _select7DaysAgo() {
     final now = DateTime.now();
-    // Get the last 7 days (from 7 days ago to yesterday)
+    // Get the last 7 days (from 6 days ago to yesterday) - this gives us exactly 7 days
     final endDate = now.subtract(const Duration(days: 1));
     final startDate = now.subtract(const Duration(days: 7));
 
@@ -628,7 +612,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
   bool _isThisWeekendSelected() {
     if (_selectedDate == null) return false;
     final now = DateTime.now();
-    var saturday = now;
+    DateTime saturday = now;
     while (saturday.weekday != DateTime.saturday) {
       saturday = saturday.add(const Duration(days: 1));
     }

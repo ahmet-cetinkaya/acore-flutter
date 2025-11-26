@@ -5,6 +5,7 @@ import '../../utils/haptic_feedback_util.dart';
 import '../../utils/responsive_dialog_helper.dart';
 import '../../utils/dialog_size.dart';
 import 'time_picker_mobile_content.dart';
+import '../mobile_action_button.dart';
 
 /// Design constants for time selection dialog
 class _TimeSelectionDialogDesign {
@@ -20,6 +21,10 @@ class _TimeSelectionDialogDesign {
 
   // Font sizes
   static const double fontSizeMedium = 16.0;
+  static const double fontSizeXLarge = 20.0;
+
+  // Icon sizes
+  static const double iconSizeMedium = 20.0;
 
   // Dialog sizing
   static const double maxDialogWidth = 240.0;
@@ -320,37 +325,83 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
       );
     }
 
-    // For desktop/dialog mode, wrap TimePickerMobileContent in AlertDialog
-    // This ensures consistent AppBar styling with cardColor across all platforms
+    // For desktop/dialog mode, create proper AlertDialog without nested Scaffold
+    // TimePickerMobileContent contains a Scaffold which is incompatible with AlertDialog
     return Theme(
       data: theme,
       child: AlertDialog(
         insetPadding: const EdgeInsets.all(16.0),
-        contentPadding: EdgeInsets.zero,
-        backgroundColor: theme.colorScheme.surface,
-        surfaceTintColor: theme.colorScheme.surfaceTint,
-        shadowColor: theme.shadowColor,
-        elevation: 6.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(_TimeSelectionDialogDesign.radiusMedium),
+        contentPadding: EdgeInsets.fromLTRB(
+          _TimeSelectionDialogDesign.spacingSmall,
+          _TimeSelectionDialogDesign.spacingSmall,
+          _TimeSelectionDialogDesign.spacingSmall,
+          _TimeSelectionDialogDesign.spacingSmall,
         ),
+        actionsPadding: EdgeInsets.fromLTRB(
+          _TimeSelectionDialogDesign.spacingSmall,
+          0.0,
+          _TimeSelectionDialogDesign.spacingSmall,
+          _TimeSelectionDialogDesign.spacingMedium,
+        ),
+        title: widget.config.hideTitle
+            ? null
+            : Semantics(
+                label: _getLocalizedText(
+                  DateTimePickerTranslationKey.selectTimeTitle,
+                  'Select Time',
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.access_time,
+                      color: Theme.of(context).primaryColor,
+                      size: _TimeSelectionDialogDesign.iconSizeMedium,
+                    ),
+                    const SizedBox(width: _TimeSelectionDialogDesign.spacingSmall),
+                    Text(
+                      _getLocalizedText(
+                        DateTimePickerTranslationKey.selectTimeTitle,
+                        'Select Time',
+                      ),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontSize: _TimeSelectionDialogDesign.fontSizeXLarge,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
         content: SizedBox(
           width: dialogWidth,
-          // Constrain height to avoid overflow, similar to DatePickerDialog
-          height: 400,
-          child: TimePickerMobileContent(
-            timeSelectionDialog: content,
-            appBarTitle: widget.config.hideTitle
-                ? null
-                : _getLocalizedText(
-                    DateTimePickerTranslationKey.selectTimeTitle,
-                    'Select Time',
-                  ),
-            confirmButtonText: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Done'),
-            onConfirm: _onConfirm,
-            onCancel: _onCancel,
+          // Constrain height to avoid overflow
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 400),
+            child: content,
           ),
         ),
+        actions: [
+          // Cancel button
+          MobileActionButton(
+            context: context,
+            onPressed: _onCancel,
+            text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
+            icon: Icons.close,
+            isPrimary: false,
+            borderRadius: widget.config.actionButtonRadius,
+          ),
+          const SizedBox(width: _TimeSelectionDialogDesign.spacingSmall),
+          // Confirm button
+          MobileActionButton(
+            context: context,
+            onPressed: _onConfirm,
+            text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
+            icon: Icons.check,
+            isPrimary: true,
+            borderRadius: widget.config.actionButtonRadius,
+          ),
+        ],
       ),
     );
   }

@@ -96,7 +96,7 @@ class DateTimePickerField extends StatelessWidget {
       initialDate: initialDate,
       minDate: minDateTime,
       maxDate: maxDateTime,
-      formatType: 'dateTime',
+      formatType: DateFormatType.dateTime,
       showTime: true,
       enableManualInput: true,
       translations: {

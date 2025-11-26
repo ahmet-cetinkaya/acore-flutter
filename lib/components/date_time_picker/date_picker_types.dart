@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'date_time_picker_translation_keys.dart';
+import '../../time/date_format_service.dart';
+import 'quick_range_selector.dart';
 
 // Shared types for date picker components
 
@@ -18,11 +20,11 @@ class DatePickerConfig {
   final DateTime? initialEndDate;
   final DateTime? minDate;
   final DateTime? maxDate;
-  final dynamic formatType; // Using dynamic to avoid conflicts
+  final DateFormatType? formatType;
   final String? titleText;
   final String? singleDateTitle;
   final String? dateRangeTitle;
-  final List<dynamic>? quickRanges; // Using dynamic to avoid conflicts
+  final List<QuickDateRange>? quickRanges;
   final bool showTime;
   final bool showQuickRanges;
   final bool enableManualInput;
@@ -49,7 +51,7 @@ class DatePickerConfig {
     this.initialEndDate,
     this.minDate,
     this.maxDate,
-    this.formatType = 'auto', // Using string to avoid conflicts
+    this.formatType,
     this.titleText,
     this.singleDateTitle,
     this.dateRangeTitle,
