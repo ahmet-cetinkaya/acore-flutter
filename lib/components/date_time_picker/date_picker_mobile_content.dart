@@ -176,57 +176,60 @@ class _DatePickerMobileContentState extends State<DatePickerMobileContent> {
         ),
       );
     } else {
-      // Desktop version - keep existing structure
-      return Container(
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(DateTimePickerConstants.containerBorderRadius),
-        ),
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-            DateTimePickerConstants.sizeLarge,
-            DateTimePickerConstants.sizeSmall,
-            DateTimePickerConstants.sizeLarge,
-            DateTimePickerConstants.sizeSmall,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Title bar for desktop
-              Padding(
-                padding: EdgeInsets.only(bottom: DateTimePickerConstants.sizeLarge),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      widget.appBarTitle ?? 'Select Date & Time',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: _handleConfirm,
-                      child: Text(
-                        widget.doneButtonText ?? 'Done',
-                        style: TextStyle(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
+      // This should not happen since this is a mobile-specific component
+      // Return the mobile layout as fallback
+      return Theme(
+        data: theme,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(
+              widget.appBarTitle ?? 'Select Date & Time',
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            automaticallyImplyLeading: false,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.of(context).pop(),
+              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            ),
+            actions: [
+              TextButton(
+                key: const Key('date_picker_done_button'),
+                onPressed: _handleConfirm,
+                child: Text(
+                  widget.doneButtonText ?? 'Done',
+                  style: TextStyle(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-
-              // Date picker content
-              DatePickerContent(
+              const SizedBox(width: DateTimePickerConstants.sizeSmall),
+            ],
+          ),
+          body: GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                DateTimePickerConstants.sizeLarge,
+                DateTimePickerConstants.sizeSmall,
+                DateTimePickerConstants.sizeLarge,
+                DateTimePickerConstants.sizeSmall,
+              ),
+              child: DatePickerContent(
                 config: contentConfig,
                 onComplete: (result) {
-                  // Handle completion if needed
+                  if (result != null) {
+                    _handleSelectionChanged(result);
+                    _handleConfirm();
+                  }
                 },
                 onCancel: widget.onCancel,
               ),
-            ],
+            ),
           ),
         ),
       );

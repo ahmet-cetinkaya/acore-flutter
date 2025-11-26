@@ -281,8 +281,8 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       initialEndDate: widget.config.initialEndDate,
       minDate: widget.config.minDate,
       maxDate: widget.config.maxDate,
-      formatType: DateFormatType.dateTime, // Default to dateTime since we can't safely convert dynamic
-      quickRanges: null, // Skip quickRanges for now to avoid type issues
+      formatType: widget.config.formatType ?? DateFormatType.date,
+      quickRanges: widget.config.quickRanges,
       showTime: widget.config.showTime,
       showQuickRanges: widget.config.showQuickRanges,
       enableManualInput: widget.config.enableManualInput,

@@ -203,6 +203,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
     if (widget.config.quickRanges != null && _selectedStartDate != null && _selectedEndDate != null) {
       for (final range in widget.config.quickRanges!) {
         if (_isQuickRangeSelected(range)) {
+          // Found matching quick range, could track selection state here if needed
           break;
         }
       }
@@ -501,8 +502,12 @@ class _DatePickerContentState extends State<DatePickerContent> {
 
   void _selectThisWeekend() {
     final now = DateTime.now();
-    // Find the Saturday of the current week
-    DateTime saturday = now.add(Duration(days: DateTime.saturday - now.weekday));
+    // Find the Saturday of the current week. If today is Sunday, it should find the *next* Saturday.
+    int daysUntilSaturday = DateTime.saturday - now.weekday;
+    if (daysUntilSaturday < 0) {
+      daysUntilSaturday += 7;
+    }
+    var saturday = now.add(Duration(days: daysUntilSaturday));
     setState(() {
       _selectedDate = DateTime(
         saturday.year,
@@ -626,8 +631,8 @@ class _DatePickerContentState extends State<DatePickerContent> {
   bool _isNextWeekSelected() {
     if (_selectedDate == null) return false;
     final now = DateTime.now();
-    // Get next Monday
-    final daysUntilNextMonday = (7 - now.weekday + 1) % 7 + 1;
+    // Get next Monday. If today is Monday, it will be 7 days from now.
+    final daysUntilNextMonday = now.weekday == DateTime.monday ? 7 : (8 - now.weekday);
     final nextMonday = now.add(Duration(days: daysUntilNextMonday));
     return _isSameDay(_selectedDate!, nextMonday);
   }
