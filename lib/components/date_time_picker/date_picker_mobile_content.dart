@@ -87,7 +87,7 @@ class _DatePickerMobileContentState extends State<DatePickerMobileContent> {
 
   @override
   Widget build(BuildContext context) {
-        final theme = Theme.of(context);
+    final theme = Theme.of(context);
 
     // Create a modified config that includes our selection listener
     final contentConfig = DatePickerContentConfig(
@@ -118,64 +118,64 @@ class _DatePickerMobileContentState extends State<DatePickerMobileContent> {
       onSelectionChanged: _handleSelectionChanged,
     );
 
-          // Use Scaffold with AppBar styling to match other dialog content (e.g., PrioritySelectionDialogContent)
-      return Scaffold(
-        resizeToAvoidBottomInset: true,
-        appBar: AppBar(
-          backgroundColor: theme.cardColor,
-          title: Text(
-            widget.appBarTitle ?? 'Select Date & Time',
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: theme.colorScheme.onSurface,
-              fontWeight: FontWeight.w600,
-            ),
+    // Use Scaffold with AppBar styling to match other dialog content (e.g., PrioritySelectionDialogContent)
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        backgroundColor: theme.cardColor,
+        title: Text(
+          widget.appBarTitle ?? 'Select Date & Time',
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: theme.colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
           ),
-          automaticallyImplyLeading: false,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.of(context).pop(),
-            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-          ),
-          actions: [
-            TextButton(
-              key: const Key('date_picker_done_button'),
-              onPressed: _handleConfirm,
-              child: Text(
-                widget.doneButtonText ?? 'Done',
-                style: TextStyle(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+        ),
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+        ),
+        actions: [
+          TextButton(
+            key: const Key('date_picker_done_button'),
+            onPressed: _handleConfirm,
+            child: Text(
+              widget.doneButtonText ?? 'Done',
+              style: TextStyle(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(width: DateTimePickerConstants.sizeSmall),
-          ],
-        ),
-        body: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: DatePickerContent(
-              config: contentConfig,
-              onComplete: (result) {
-                // Convert DatePickerContentResult back to DatePickerResult for compatibility
-                if (result != null) {
-                  final datePickerResult = DatePickerResult(
-                    selectedDate: result.selectedDate,
-                    startDate: result.startDate,
-                    endDate: result.endDate,
-                    isRefreshEnabled: result.isRefreshEnabled ?? false,
-                    quickSelectionKey: result.quickSelectionKey,
-                    isAllDay: result.isAllDay,
-                  );
-                  // Update current result before confirming
-                  _currentResult = datePickerResult;
-                  _handleConfirm();
-                }
-              },
-            ),
+          ),
+          const SizedBox(width: DateTimePickerConstants.sizeSmall),
+        ],
+      ),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: DatePickerContent(
+            config: contentConfig,
+            onComplete: (result) {
+              // Convert DatePickerContentResult back to DatePickerResult for compatibility
+              if (result != null) {
+                final datePickerResult = DatePickerResult(
+                  selectedDate: result.selectedDate,
+                  startDate: result.startDate,
+                  endDate: result.endDate,
+                  isRefreshEnabled: result.isRefreshEnabled ?? false,
+                  quickSelectionKey: result.quickSelectionKey,
+                  isAllDay: result.isAllDay,
+                );
+                // Update current result before confirming
+                _currentResult = datePickerResult;
+                _handleConfirm();
+              }
+            },
           ),
         ),
-      );
+      ),
+    );
   }
 }

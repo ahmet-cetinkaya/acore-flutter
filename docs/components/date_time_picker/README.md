@@ -315,19 +315,19 @@ DateTimePickerField(
 
 #### API Reference
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `controller` | `TextEditingController` | ✅ | - | Text controller for the input field |
-| `onConfirm` | `Function(DateTime?)` | ✅ | - | Callback when date/time is selected |
-| `minDateTime` | `DateTime?` | ❌ | `null` | Minimum selectable date/time |
-| `maxDateTime` | `DateTime?` | ❌ | `null` | Maximum selectable date/time |
-| `initialValue` | `DateTime?` | ❌ | `null` | Initial date/time value |
-| `textStyle` | `TextStyle?` | ❌ | `null` | Style for the input text |
-| `hintStyle` | `TextStyle?` | ❌ | `null` | Style for hint text |
-| `decoration` | `InputDecoration?` | ❌ | `null` | Text field decoration |
-| `iconSize` | `double?` | ❌ | `16.0` | Size of the edit icon |
-| `iconColor` | `Color?` | ❌ | `theme.iconTheme.color` | Color of the edit icon |
-| `translateKey` | `Function(DateTimePickerTranslationKey)?` | ❌ | `null` | Optional translation function |
+| Parameter      | Type                                      | Required | Default                 | Description                         |
+| -------------- | ----------------------------------------- | -------- | ----------------------- | ----------------------------------- |
+| `controller`   | `TextEditingController`                   | ✅       | -                       | Text controller for the input field |
+| `onConfirm`    | `Function(DateTime?)`                     | ✅       | -                       | Callback when date/time is selected |
+| `minDateTime`  | `DateTime?`                               | ❌       | `null`                  | Minimum selectable date/time        |
+| `maxDateTime`  | `DateTime?`                               | ❌       | `null`                  | Maximum selectable date/time        |
+| `initialValue` | `DateTime?`                               | ❌       | `null`                  | Initial date/time value             |
+| `textStyle`    | `TextStyle?`                              | ❌       | `null`                  | Style for the input text            |
+| `hintStyle`    | `TextStyle?`                              | ❌       | `null`                  | Style for hint text                 |
+| `decoration`   | `InputDecoration?`                        | ❌       | `null`                  | Text field decoration               |
+| `iconSize`     | `double?`                                 | ❌       | `16.0`                  | Size of the edit icon               |
+| `iconColor`    | `Color?`                                  | ❌       | `theme.iconTheme.color` | Color of the edit icon              |
+| `translateKey` | `Function(DateTimePickerTranslationKey)?` | ❌       | `null`                  | Optional translation function       |
 
 #### Features
 
@@ -490,16 +490,16 @@ TimeSelectionDialog.show(
 
 #### API Reference
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `context` | `BuildContext` | ✅ | - | Build context for dialog |
-| `initialTime` | `TimeOfDay` | ✅ | - | Initial time to display |
-| `title` | `String` | ✅ | - | Dialog title |
-| `confirmButtonText` | `String` | ✅ | - | Text for confirm button |
-| `cancelButtonText` | `String` | ✅ | - | Text for cancel button |
-| `translations` | `Map<DateTimePickerTranslationKey, String>` | ✅ | - | Translation strings |
-| `onTimeSelected` | `Function(TimeOfDay)` | ✅ | - | Callback when time is selected |
-| `useMobileLayout` | `bool` | ❌ | `true` on mobile | Force mobile layout |
+| Parameter           | Type                                        | Required | Default          | Description                    |
+| ------------------- | ------------------------------------------- | -------- | ---------------- | ------------------------------ |
+| `context`           | `BuildContext`                              | ✅       | -                | Build context for dialog       |
+| `initialTime`       | `TimeOfDay`                                 | ✅       | -                | Initial time to display        |
+| `title`             | `String`                                    | ✅       | -                | Dialog title                   |
+| `confirmButtonText` | `String`                                    | ✅       | -                | Text for confirm button        |
+| `cancelButtonText`  | `String`                                    | ✅       | -                | Text for cancel button         |
+| `translations`      | `Map<DateTimePickerTranslationKey, String>` | ✅       | -                | Translation strings            |
+| `onTimeSelected`    | `Function(TimeOfDay)`                       | ✅       | -                | Callback when time is selected |
+| `useMobileLayout`   | `bool`                                      | ❌       | `true` on mobile | Force mobile layout            |
 
 #### Features
 
@@ -1089,14 +1089,14 @@ class PickerWidget extends StatefulWidget {
 
 ### Component Parameters Overview
 
-| Component              | Required Parameters | Optional Parameters | Key Features                           |
-| ---------------------- | ------------------- | ------------------- | -------------------------------------- |
+| Component               | Required Parameters | Optional Parameters | Key Features                           |
+| ----------------------- | ------------------- | ------------------- | -------------------------------------- |
 | **DateTimePickerField** | 2                   | 9                   | Complete field with dialog integration |
-| **CalendarDatePicker** | 7                   | 6                   | Single/range selection, accessibility  |
-| **TimeSelector**       | 5                   | 1                   | Inline picker, keyboard navigation     |
+| **CalendarDatePicker**  | 7                   | 6                   | Single/range selection, accessibility  |
+| **TimeSelector**        | 5                   | 1                   | Inline picker, keyboard navigation     |
 | **TimeSelectionDialog** | 6                   | 1                   | Full-screen time picker with wheel     |
-| **QuickRangeSelector** | 7                   | 4                   | Predefined ranges, clear functionality |
-| **ResponsiveUtil**     | 1+                  | -                   | Centralized responsive logic           |
+| **QuickRangeSelector**  | 7                   | 4                   | Predefined ranges, clear functionality |
+| **ResponsiveUtil**      | 1+                  | -                   | Centralized responsive logic           |
 
 ### Common Patterns
 
