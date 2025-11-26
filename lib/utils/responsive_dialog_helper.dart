@@ -41,10 +41,14 @@ class ResponsiveDialogHelper {
   /// On desktop, it appears as a modal dialog.
   /// On mobile, it appears as a bottom sheet.
   ///
+  /// [mobileChild] can be provided for a mobile-optimized layout with Scaffold.
+  /// If [mobileChild] is provided, it will be used on mobile instead of [child].
+  ///
   /// Returns the result from the dialog/bottom sheet when closed.
   static Future<T?> showResponsiveDialog<T>({
     required BuildContext context,
     required Widget child,
+    Widget? mobileChild,
     DialogSize size = DialogSize.medium,
     bool isScrollable = true,
     bool isDismissible = true,
@@ -72,6 +76,13 @@ class ResponsiveDialogHelper {
           final maxWidth = size.maxDesktopWidth;
 
           return Dialog(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+            shadowColor: Theme.of(context).shadowColor,
+            elevation: 6.0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(effectiveConfig.containerBorderRadius),
+            ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(effectiveConfig.containerBorderRadius),
               child: SizedBox(
@@ -89,6 +100,8 @@ class ResponsiveDialogHelper {
       );
     } else {
       // Show as bottom sheet on mobile
+      final effectiveMobileChild = mobileChild ?? child;
+
       // For minimum size, use keyboard-aware modal dialog instead of bottom sheet
       if (size == DialogSize.min) {
         return showDialog<T>(
@@ -97,7 +110,7 @@ class ResponsiveDialogHelper {
           builder: (BuildContext context) {
             return Center(
               child: SingleChildScrollView(
-                child: child,
+                child: effectiveMobileChild,
               ),
             );
           },
@@ -123,6 +136,36 @@ class ResponsiveDialogHelper {
           final maxHeight = availableHeight * size.mobileMaxSizeRatio;
           final initialHeight = availableHeight * size.mobileInitialSizeRatio;
 
+          // If mobileChild is provided, apply height constraints while preserving Scaffold functionality
+          if (mobileChild != null) {
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: maxHeight,
+              ),
+              child: Container(
+                // Use flexible initial height that can expand with content
+                constraints: BoxConstraints(
+                  minHeight: keyboardHeight > 0 ? initialHeight * _kKeyboardVisibleHeightShrinkFactor : initialHeight,
+                  maxHeight: maxHeight,
+                ),
+                child: Material(
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(effectiveConfig.containerBorderRadius),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Flexible wrapper allows content to adapt when keyboard appears
+                      Flexible(
+                        child: effectiveMobileChild,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+
           // Remove the manual keyboard padding since modal_bottom_sheet handles it
           return ConstrainedBox(
             constraints: BoxConstraints(
@@ -145,7 +188,7 @@ class ResponsiveDialogHelper {
                     Flexible(
                       child: SafeArea(
                         top: false,
-                        child: child,
+                        child: effectiveMobileChild,
                       ),
                     ),
                   ],

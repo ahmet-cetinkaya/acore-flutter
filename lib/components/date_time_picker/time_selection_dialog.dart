@@ -3,6 +3,9 @@ import 'date_time_picker_translation_keys.dart';
 import 'wheel_time_picker.dart';
 import '../mobile_action_button.dart';
 import '../../utils/haptic_feedback_util.dart';
+import '../../utils/responsive_dialog_helper.dart';
+import '../../utils/dialog_size.dart';
+import 'time_picker_mobile_content.dart';
 
 /// Design constants for time selection dialog
 class _TimeSelectionDialogDesign {
@@ -38,6 +41,15 @@ class TimeSelectionDialogConfig {
   final double? actionButtonRadius;
   final bool initialIsAllDay;
 
+  // Responsive dialog configuration
+  final bool useResponsiveDialog;
+  final DialogSize dialogSize;
+  final bool useMobileScaffoldLayout;
+
+  // Mobile bottom sheet specific
+  final bool hideActionButtons;
+  final bool hideTitle;
+
   const TimeSelectionDialogConfig({
     required this.selectedDate,
     required this.initialTime,
@@ -46,6 +58,11 @@ class TimeSelectionDialogConfig {
     this.locale,
     this.actionButtonRadius,
     this.initialIsAllDay = false,
+    this.useResponsiveDialog = false,
+    this.dialogSize = DialogSize.small,
+    this.useMobileScaffoldLayout = false,
+    this.hideActionButtons = false,
+    this.hideTitle = false,
   });
 }
 
@@ -104,6 +121,53 @@ class TimeSelectionDialog extends StatefulWidget {
       builder: (context) => TimeSelectionDialog(config: config),
     );
   }
+
+  /// Shows the time selection dialog with responsive behavior
+  /// On desktop: shows as modal dialog
+  /// On mobile: shows as bottom sheet
+  static Future<TimeSelectionResult?> showResponsive({
+    required BuildContext context,
+    required TimeSelectionDialogConfig config,
+  }) async {
+    // Create mobile content if enabled
+    Widget? mobileChild;
+    if (config.useMobileScaffoldLayout) {
+      mobileChild = TimePickerMobileContent(
+        timeSelectionDialog: TimeSelectionDialog(config: config),
+        appBarTitle: config.translations[DateTimePickerTranslationKey.selectTimeTitle] ?? 'Select Time',
+        confirmButtonText: config.translations[DateTimePickerTranslationKey.confirm] ?? 'Confirm',
+        onConfirm: () {
+          Navigator.of(context).pop();
+        },
+        onCancel: () {
+          Navigator.of(context).pop();
+        },
+      );
+    }
+
+    return await ResponsiveDialogHelper.showResponsiveDialog<TimeSelectionResult>(
+      context: context,
+      size: config.dialogSize,
+      isDismissible: false, // Prevent accidental dismissal
+      enableDrag: true,
+      child: config.useMobileScaffoldLayout && mobileChild != null ? mobileChild : TimeSelectionDialog(config: config),
+      mobileChild: mobileChild,
+    );
+  }
+
+  /// Shows the time selection dialog with automatic responsive behavior detection
+  /// Uses show() when config.useResponsiveDialog is false
+  /// Uses showResponsive() when config.useResponsiveDialog is true
+  static Future<TimeSelectionResult?> showAuto({
+    required BuildContext context,
+    required TimeSelectionDialogConfig config,
+  }) async {
+    if (config.useResponsiveDialog) {
+      return await showResponsive(context: context, config: config);
+    } else {
+      return await show(context: context, config: config);
+    }
+  }
 }
 
 class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
@@ -141,6 +205,7 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
   Widget _buildWheelTimePicker() {
     return WheelTimePicker(
       initialTime: _selectedTime,
+      translations: widget.config.translations,
       onTimeChanged: (newTime) {
         setState(() {
           _selectedTime = newTime;
@@ -164,151 +229,133 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
       _TimeSelectionDialogDesign.maxDialogWidth,
     );
 
+    final content = SizedBox(
+      width: dialogWidth,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Wheel-style time picker (disabled when All Day)
+            IgnorePointer(
+              ignoring: _isAllDay,
+              child: Opacity(
+                opacity: _isAllDay ? 0.3 : 1.0,
+                child: Semantics(
+                  label: 'Time picker with hour and minute wheels. Scroll to change values.',
+                  child: _buildWheelTimePicker(),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
+
+            // All Day checkbox (placed at the bottom)
+            Material(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(_TimeSelectionDialogDesign.radiusMedium),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _isAllDay = !_isAllDay;
+                  });
+                  _triggerHapticFeedback();
+                },
+                borderRadius: BorderRadius.circular(_TimeSelectionDialogDesign.radiusMedium),
+                splashColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                highlightColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(_TimeSelectionDialogDesign.spacingMedium),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(_TimeSelectionDialogDesign.radiusMedium),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                      width: _TimeSelectionDialogDesign.borderWidth,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: _isAllDay,
+                        onChanged: (value) {
+                          setState(() {
+                            _isAllDay = value ?? false;
+                          });
+                          _triggerHapticFeedback();
+                        },
+                        activeColor: Theme.of(context).colorScheme.primary,
+                        checkColor: Theme.of(context).colorScheme.onPrimary,
+                        side: BorderSide(
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                          width: 2.0,
+                        ),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      const SizedBox(width: _TimeSelectionDialogDesign.spacingSmall),
+                      Expanded(
+                        child: Text(
+                          _getLocalizedText(
+                            DateTimePickerTranslationKey.allDay,
+                            'All Day',
+                          ),
+                          style: TextStyle(
+                            fontSize: _TimeSelectionDialogDesign.fontSizeMedium,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
+          ],
+        ),
+      ),
+    );
+
+    // If using mobile scaffold layout, return content directly (it will be wrapped in Scaffold by TimePickerMobileContent in showResponsive)
+    if (widget.config.useMobileScaffoldLayout) {
+      return Theme(
+        data: theme,
+        child: content,
+      );
+    }
+
+    // For desktop/dialog mode, wrap TimePickerMobileContent in AlertDialog
+    // This ensures consistent AppBar styling with cardColor across all platforms
     return Theme(
       data: theme,
       child: AlertDialog(
         insetPadding: const EdgeInsets.all(16.0),
-        contentPadding: EdgeInsets.fromLTRB(
-          _TimeSelectionDialogDesign.spacingSmall,
-          _TimeSelectionDialogDesign.spacingSmall,
-          _TimeSelectionDialogDesign.spacingSmall,
-          _TimeSelectionDialogDesign.spacingSmall,
-        ),
-        actionsPadding: EdgeInsets.fromLTRB(
-          _TimeSelectionDialogDesign.spacingSmall,
-          0.0,
-          _TimeSelectionDialogDesign.spacingSmall,
-          _TimeSelectionDialogDesign.spacingMedium,
-        ),
-        title: Semantics(
-          label: _getLocalizedText(
-            DateTimePickerTranslationKey.selectTimeTitle,
-            'Select Time',
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.access_time,
-                color: Theme.of(context).primaryColor,
-                size: _TimeSelectionDialogDesign.iconSizeMedium,
-              ),
-              const SizedBox(width: _TimeSelectionDialogDesign.spacingSmall),
-              Text(
-                _getLocalizedText(
-                  DateTimePickerTranslationKey.selectTimeTitle,
-                  'Select Time',
-                ),
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontSize: _TimeSelectionDialogDesign.fontSizeXLarge,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).primaryColor,
-                    ),
-              ),
-            ],
-          ),
+        contentPadding: EdgeInsets.zero,
+        backgroundColor: theme.colorScheme.surface,
+        surfaceTintColor: theme.colorScheme.surfaceTint,
+        shadowColor: theme.shadowColor,
+        elevation: 6.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(_TimeSelectionDialogDesign.radiusMedium),
         ),
         content: SizedBox(
           width: dialogWidth,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Wheel-style time picker (shown when not All Day)
-              if (!_isAllDay)
-                Semantics(
-                  label: 'Time picker with hour and minute wheels. Scroll to change values.',
-                  child: _buildWheelTimePicker(),
-                ),
-
-              if (!_isAllDay) const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
-
-              // All Day checkbox (placed at the bottom)
-              Material(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(_TimeSelectionDialogDesign.radiusMedium),
-                child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      _isAllDay = !_isAllDay;
-                    });
-                    _triggerHapticFeedback();
-                  },
-                  borderRadius: BorderRadius.circular(_TimeSelectionDialogDesign.radiusMedium),
-                  splashColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                  highlightColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(_TimeSelectionDialogDesign.spacingMedium),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(_TimeSelectionDialogDesign.radiusMedium),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-                        width: _TimeSelectionDialogDesign.borderWidth,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Checkbox(
-                          value: _isAllDay,
-                          onChanged: (value) {
-                            setState(() {
-                              _isAllDay = value ?? false;
-                            });
-                            _triggerHapticFeedback();
-                          },
-                          activeColor: Theme.of(context).colorScheme.primary,
-                          checkColor: Theme.of(context).colorScheme.onPrimary,
-                          side: BorderSide(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                            width: 2.0,
-                          ),
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        const SizedBox(width: _TimeSelectionDialogDesign.spacingSmall),
-                        Expanded(
-                          child: Text(
-                            _getLocalizedText(
-                              DateTimePickerTranslationKey.allDay,
-                              'All Day',
-                            ),
-                            style: TextStyle(
-                              fontSize: _TimeSelectionDialogDesign.fontSizeMedium,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+          // Constrain height to avoid overflow, similar to DatePickerDialog
+          height: 400,
+          child: TimePickerMobileContent(
+            timeSelectionDialog: content,
+            appBarTitle: widget.config.hideTitle
+                ? null
+                : _getLocalizedText(
+                    DateTimePickerTranslationKey.selectTimeTitle,
+                    'Select Time',
                   ),
-                ),
-              ),
-
-              const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
-            ],
+            confirmButtonText: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Done'),
+            onConfirm: _onConfirm,
+            onCancel: _onCancel,
           ),
         ),
-        actions: [
-          // Cancel button
-          MobileActionButton(
-            context: context,
-            onPressed: _onCancel,
-            text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
-            icon: Icons.close,
-            isPrimary: false,
-            borderRadius: widget.config.actionButtonRadius,
-          ),
-          const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
-          // Confirm button
-          MobileActionButton(
-            context: context,
-            onPressed: _onConfirm,
-            text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
-            icon: Icons.check,
-            isPrimary: true,
-            borderRadius: widget.config.actionButtonRadius,
-          ),
-        ],
       ),
     );
   }

@@ -92,4 +92,9 @@ enum DateTimePickerTranslationKey {
   weekdayFriShort,
   weekdaySatShort,
   weekdaySunShort,
+
+  /// Time picker labels
+  timePickerHourLabel,
+  timePickerMinuteLabel,
+  timePickerAllDayLabel,
 }

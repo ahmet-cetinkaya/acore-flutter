@@ -15,6 +15,9 @@ enum DialogSize {
   /// Large dialog size
   large,
 
+  /// Extra Large dialog size - 90% height for mobile
+  xLarge,
+
   /// Fullscreen dialog size
   max;
 
@@ -29,6 +32,8 @@ enum DialogSize {
         return 0.6;
       case DialogSize.large:
         return 0.8;
+      case DialogSize.xLarge:
+        return 0.9;
       case DialogSize.max:
         return 0.95;
     }
@@ -45,6 +50,8 @@ enum DialogSize {
         return 0.7;
       case DialogSize.large:
         return 0.8;
+      case DialogSize.xLarge:
+        return 0.9;
       case DialogSize.max:
         return 0.95;
     }
@@ -61,6 +68,8 @@ enum DialogSize {
         return 900;
       case DialogSize.large:
         return 1200;
+      case DialogSize.xLarge:
+        return 1400;
       case DialogSize.max:
         return double.infinity;
     }
@@ -74,9 +83,11 @@ enum DialogSize {
       case DialogSize.small:
         return 0.2;
       case DialogSize.medium:
-        return 0.85;
+        return 0.5;
       case DialogSize.large:
         return 0.95;
+      case DialogSize.xLarge:
+        return 0.9; // Exactly 90% as requested
       case DialogSize.max:
         return 0.95; // Match max height ratio to prevent constraints error
     }
@@ -89,6 +100,17 @@ enum DialogSize {
 
   /// Returns the maximum child size for mobile bottom sheets
   double get mobileMaxSizeRatio {
-    return 0.95; // Maximum size for all mobile dialogs
+    switch (this) {
+      case DialogSize.min:
+        return double.infinity; // Let min size expand as needed (it uses showDialog usually)
+      case DialogSize.small:
+        return 0.5; // Restrict small to half screen
+      case DialogSize.medium:
+        return 0.6; // Restrict medium to 60% screen (prevent full screen expansion)
+      case DialogSize.large:
+      case DialogSize.xLarge:
+      case DialogSize.max:
+        return 0.95; // Allow large dialogs to go almost full screen
+    }
   }
 }

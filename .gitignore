@@ -50,6 +50,8 @@ android/app/release
 .claude/
 .qodo/
 .zencoder/
+.serena/
+CLAUDE.md
 
 # FVM Version Cache
 .fvm/

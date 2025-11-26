@@ -8,7 +8,6 @@ import '../../utils/responsive_util.dart';
 /// Design constants for calendar date picker
 class _CalendarDatePickerDesign {
   // Border radius
-  static const double radiusMedium = 12.0;
   static const double radiusFull = 50.0;
 
   // Font sizes
@@ -316,10 +315,6 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
       child: Container(
         width: calendarLayout.maxWidth,
         constraints: BoxConstraints(maxWidth: calendarLayout.maxWidth),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(_CalendarDatePickerDesign.radiusMedium),
-          color: Theme.of(context).colorScheme.surface,
-        ),
         child: CalendarDatePicker2(
           config: _cachedConfig!,
           value: _getCalendarPickerValue(),
