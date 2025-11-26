@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 import '../../time/date_format_service.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'date_picker_types.dart';
@@ -18,12 +17,9 @@ class _DateValidationDisplayDesign {
   static const double borderWidth = 1.0;
 
   // Font sizes
-  static const double fontSizeXSmall = 10.0;
   static const double fontSizeSmall = 14.0;
-  static const double fontSizeMedium = 16.0;
 
   // Icon sizes
-  static const double iconSizeMedium = 20.0;
   static const double iconSizeLarge = 24.0;
 }
 

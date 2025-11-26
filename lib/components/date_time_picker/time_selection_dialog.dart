@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'wheel_time_picker.dart';
-import '../mobile_action_button.dart';
 import '../../utils/haptic_feedback_util.dart';
 import '../../utils/responsive_dialog_helper.dart';
 import '../../utils/dialog_size.dart';
@@ -21,10 +20,6 @@ class _TimeSelectionDialogDesign {
 
   // Font sizes
   static const double fontSizeMedium = 16.0;
-  static const double fontSizeXLarge = 20.0;
-
-  // Icon sizes
-  static const double iconSizeMedium = 20.0;
 
   // Dialog sizing
   static const double maxDialogWidth = 240.0;

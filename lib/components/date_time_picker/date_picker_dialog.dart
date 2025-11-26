@@ -268,14 +268,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     return _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Done');
   }
 
-  /// Get the localized cancel button text
-  String _getCancelButtonText() {
-    if (widget.config.cancelButtonText != null) {
-      return widget.config.cancelButtonText!;
-    }
-    return _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel');
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = widget.config.theme ?? Theme.of(context);
@@ -538,14 +530,6 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
       return widget.config.doneButtonText!;
     }
     return _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Done');
-  }
-
-  /// Get the localized cancel button text
-  String _getCancelButtonText() {
-    if (widget.config.cancelButtonText != null) {
-      return widget.config.cancelButtonText!;
-    }
-    return _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel');
   }
 
   @override

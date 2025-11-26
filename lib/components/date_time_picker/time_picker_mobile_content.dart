@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:acore/acore.dart' hide Container;
 import 'date_time_picker_constants.dart';
@@ -62,7 +61,7 @@ class TimePickerMobileContent extends StatelessWidget {
           const SizedBox(width: DateTimePickerConstants.sizeSmall),
         ],
       ),
-      body: Container(
+      body: SizedBox(
         width: double.infinity,
         // Removed explicit color to use default scaffold/theme background
         child: Padding(
