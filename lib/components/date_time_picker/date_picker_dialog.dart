@@ -140,7 +140,7 @@ class DatePickerDialog extends StatefulWidget {
       context: context,
       child: desktopContent,
       mobileChild: mobileContent,
-      size: DialogSize.medium,
+      size: config.dialogSize ?? DialogSize.medium,
       isScrollable: true,
       isDismissible: true,
       enableDrag: true,
