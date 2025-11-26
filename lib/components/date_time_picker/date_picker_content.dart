@@ -161,6 +161,12 @@ class DatePickerContent extends StatefulWidget {
 }
 
 class _DatePickerContentState extends State<DatePickerContent> {
+  // Note: This state class is large (800+ lines) and handles multiple responsibilities.
+  // Consider refactoring into smaller focused widgets for better maintainability:
+  // - QuickSelectionWidget (for quick range selection UI)
+  // - DateRangeValidationWidget (for range validation logic)
+  // - TimeSelectionWidget (for time-related functionality)
+
   late DateTime? _selectedDate;
   late DateTime? _selectedStartDate;
   late DateTime? _selectedEndDate;
@@ -263,7 +269,6 @@ class _DatePickerContentState extends State<DatePickerContent> {
     return Container(
       margin: const EdgeInsets.only(bottom: _DatePickerDesign.spacingMedium),
       child: Column(
-        spacing: _DatePickerDesign.spacingXSmall,
         children: [
           if (isRangeMode) ...[
             // Range selection buttons
@@ -274,6 +279,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
               isSelected: _isRangeTodaySelected(),
               label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionToday, 'Today'),
             ),
+            SizedBox(height: _DatePickerDesign.spacingXSmall),
             _buildCompactQuickSelectionButton(
               text: '7',
               onTap: () => _select7DaysAgo(),
@@ -281,6 +287,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
               isSelected: _is7DaysAgoSelected(),
               label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionLastWeek, 'Last Week'),
             ),
+            SizedBox(height: _DatePickerDesign.spacingXSmall),
             _buildCompactQuickSelectionButton(
               text: '30',
               onTap: () => _select30DaysAgo(),
@@ -288,6 +295,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
               isSelected: _is30DaysAgoSelected(),
               label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionLastMonth, 'Last Month'),
             ),
+            SizedBox(height: _DatePickerDesign.spacingXSmall),
             _buildCompactQuickSelectionButton(
               text: 'x',
               icon: Icons.close,
@@ -298,7 +306,8 @@ class _DatePickerContentState extends State<DatePickerContent> {
             ),
 
             // Refresh checkbox for range selection (only show when date is selected)
-            if (!_isNoDateRangeSelected())
+            if (!_isNoDateRangeSelected()) ...[
+              SizedBox(height: _DatePickerDesign.spacingXSmall),
               _buildCompactQuickSelectionButton(
                 text: _refreshEnabled ? '✓' : '↻',
                 icon: Icons.autorenew,
@@ -313,6 +322,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
                 isSelected: _refreshEnabled,
                 label: _getLocalizedText(DateTimePickerTranslationKey.refreshSettings, 'Auto-refresh'),
               ),
+            ],
           ] else ...[
             // Single date selection buttons
             if (widget.config.quickRanges != null && widget.config.quickRanges!.isNotEmpty)

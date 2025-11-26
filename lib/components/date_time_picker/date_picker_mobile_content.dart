@@ -7,6 +7,11 @@ import 'date_picker_content.dart';
 /// Mobile-optimized date picker content with Scaffold layout
 /// Designed for bottom sheet display with proper mobile UX patterns
 /// Matches QuickAddTaskDialog styling for visual consistency
+///
+/// IMPORTANT: This is a mobile-specific component. Responsive switching between
+/// mobile/desktop layouts should be handled by parent components like
+/// DatePickerDialog.showResponsive(). The else block provides a fallback
+/// mobile layout if this component is used in non-mobile contexts.
 class DatePickerMobileContent extends StatefulWidget {
   final DatePickerContentConfig config;
   final String? appBarTitle;

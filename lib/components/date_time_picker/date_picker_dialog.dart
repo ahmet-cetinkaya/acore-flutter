@@ -78,21 +78,13 @@ class DatePickerDialog extends StatefulWidget {
     // Resolve title
     String appBarTitle;
     if (config.selectionMode == DateSelectionMode.single) {
-      if (config.singleDateTitle != null) {
-        appBarTitle = config.singleDateTitle!;
-      } else if (config.titleText != null) {
-        appBarTitle = config.titleText!;
-      } else {
-        appBarTitle = getLocalizedText(DateTimePickerTranslationKey.selectDateTitle, 'Select Date & Time');
-      }
+      appBarTitle = config.singleDateTitle ??
+          config.titleText ??
+          getLocalizedText(DateTimePickerTranslationKey.selectDateTitle, 'Select Date & Time');
     } else {
-      if (config.dateRangeTitle != null) {
-        appBarTitle = config.dateRangeTitle!;
-      } else if (config.titleText != null) {
-        appBarTitle = config.titleText!;
-      } else {
-        appBarTitle = getLocalizedText(DateTimePickerTranslationKey.selectDateRangeTitle, 'Select Date Range');
-      }
+      appBarTitle = config.dateRangeTitle ??
+          config.titleText ??
+          getLocalizedText(DateTimePickerTranslationKey.selectDateRangeTitle, 'Select Date Range');
     }
 
     // Resolve button texts
@@ -566,51 +558,75 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
       onSelectionChanged: _handleSelectionChanged,
     );
 
-    // Use Scaffold structure for proper layout
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: theme.cardColor,
-        title: Text(
-          appBarTitle,
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: theme.colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
-          ),
+    // Use basic layout structure for dialog (no Scaffold nesting)
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.9,
         ),
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-        ),
-        actions: [
-          TextButton(
-            key: const Key('date_picker_done_button'),
-            onPressed: _handleConfirm,
-            child: Text(
-              _getDoneButtonText(),
-              style: TextStyle(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.w600,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Custom header
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 12.0,
+              ),
+              decoration: BoxDecoration(
+                color: theme.cardColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12.0),
+                  topRight: Radius.circular(12.0),
+                ),
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.of(context).pop(),
+                    tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                  ),
+                  Expanded(
+                    child: Text(
+                      appBarTitle,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: theme.colorScheme.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  TextButton(
+                    key: const Key('date_picker_done_button'),
+                    onPressed: _handleConfirm,
+                    child: Text(
+                      _getDoneButtonText(),
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          const SizedBox(width: DateTimePickerConstants.sizeSmall),
-        ],
-      ),
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Theme(
-            data: theme,
-            child: DatePickerContent(
-              config: contentConfig,
-              onComplete: widget.onComplete,
-              onCancel: widget.onCancel,
+            // Content
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Theme(
+                  data: theme,
+                  child: DatePickerContent(
+                    config: contentConfig,
+                    onComplete: widget.onComplete,
+                    onCancel: widget.onCancel,
+                  ),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

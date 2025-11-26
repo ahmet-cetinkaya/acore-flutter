@@ -157,6 +157,10 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
     final validationErrors = _getValidationErrors();
     final isValid = validationErrors.isEmpty;
 
+    // Performance note: _getValidationErrors() runs on every rebuild.
+    // This provides immediate feedback but could be optimized with debouncing
+    // if complex dateTimeValidator functions are used frequently.
+
     // Notify parent of validation state change only if it changed
     if (_lastIsValid != isValid) {
       _lastIsValid = isValid;
