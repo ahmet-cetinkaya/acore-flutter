@@ -118,16 +118,23 @@ class TimeSelectionDialog extends StatefulWidget {
     required TimeSelectionDialogConfig config,
   }) async {
     Widget? mobileChild;
+    TimeSelectionResult? capturedResult;
+
     if (config.useMobileScaffoldLayout) {
       mobileChild = TimePickerMobileContent(
-        timeSelectionDialog: TimeSelectionDialog(config: config),
+        timeSelectionDialog: _TimeSelectionDialogWithCallback(
+          config: config,
+          onResult: (result) {
+            capturedResult = result;
+          },
+        ),
         appBarTitle: config.translations[DateTimePickerTranslationKey.selectTimeTitle] ?? 'Select Time',
         confirmButtonText: config.translations[DateTimePickerTranslationKey.confirm] ?? 'Confirm',
         onConfirm: () {
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(capturedResult ?? TimeSelectionResult.cancelled());
         },
         onCancel: () {
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(TimeSelectionResult.cancelled());
         },
       );
     }
@@ -366,6 +373,142 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
             isPrimary: true,
             borderRadius: widget.config.actionButtonRadius,
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Internal wrapper class that captures the result from TimeSelectionDialog
+class _TimeSelectionDialogWithCallback extends StatefulWidget {
+  final TimeSelectionDialogConfig config;
+  final void Function(TimeSelectionResult) onResult;
+
+  const _TimeSelectionDialogWithCallback({
+    required this.config,
+    required this.onResult,
+  });
+
+  @override
+  State<_TimeSelectionDialogWithCallback> createState() => _TimeSelectionDialogWithCallbackState();
+}
+
+class _TimeSelectionDialogWithCallbackState extends State<_TimeSelectionDialogWithCallback> {
+  late TimeOfDay _selectedTime;
+  late bool _isAllDay;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedTime = widget.config.initialTime;
+    _isAllDay = widget.config.initialIsAllDay;
+  }
+
+  void _triggerHapticFeedback() {
+    HapticFeedbackUtil.triggerHapticFeedback(context);
+  }
+
+  String _getLocalizedText(DateTimePickerTranslationKey key, String fallback) {
+    return widget.config.translations[key] ?? fallback;
+  }
+
+  void _onConfirm() {
+    final result = TimeSelectionResult.confirmed(_selectedTime, isAllDay: _isAllDay);
+    widget.onResult(result);
+  }
+
+  void _onCancel() {
+    final result = TimeSelectionResult.cancelled();
+    widget.onResult(result);
+  }
+
+  Widget _buildWheelTimePicker() {
+    return WheelTimePicker(
+      initialTime: _selectedTime,
+      onTimeChanged: (time) {
+        setState(() {
+          _selectedTime = time;
+          _isAllDay = false;
+        });
+        _triggerHapticFeedback();
+      },
+    );
+  }
+
+  Widget _buildAllDayToggle() {
+    if (!widget.config.hideActionButtons) {
+      return Row(
+        children: [
+          Checkbox(
+            value: _isAllDay,
+            onChanged: (value) {
+              setState(() {
+                _isAllDay = value ?? false;
+              });
+              _triggerHapticFeedback();
+            },
+          ),
+          Text(
+            _getLocalizedText(DateTimePickerTranslationKey.allDay, 'All day'),
+            style: TextStyle(fontSize: _TimeSelectionDialogDesign.fontSizeMedium),
+          ),
+        ],
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(_TimeSelectionDialogDesign.spacingMedium),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!widget.config.hideTitle) ...[
+            Text(
+              _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
+              style: TextStyle(
+                fontSize: _TimeSelectionDialogDesign.fontSizeXLarge,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
+          ],
+          _buildAllDayToggle(),
+          if (!_isAllDay) ...[
+            const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
+            SizedBox(
+              height: 180,
+              child: _buildWheelTimePicker(),
+            ),
+          ],
+          if (!widget.config.hideActionButtons) ...[
+            const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                MobileActionButton(
+                  context: context,
+                  onPressed: _onCancel,
+                  text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
+                  icon: Icons.close,
+                  isPrimary: false,
+                  borderRadius: widget.config.actionButtonRadius,
+                ),
+                const SizedBox(width: _TimeSelectionDialogDesign.spacingSmall),
+                MobileActionButton(
+                  context: context,
+                  onPressed: _onConfirm,
+                  text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
+                  icon: Icons.check,
+                  isPrimary: true,
+                  borderRadius: widget.config.actionButtonRadius,
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

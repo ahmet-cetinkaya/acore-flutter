@@ -573,7 +573,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
 
   void _select7DaysAgo() {
     final now = DateTime.now();
-    // Get the last 7 days (from 6 days ago to yesterday) - this gives us exactly 7 days
+    // Get the last 7 days (from 7 days ago up to yesterday)
     final endDate = now.subtract(const Duration(days: 1));
     final startDate = now.subtract(const Duration(days: 7));
 

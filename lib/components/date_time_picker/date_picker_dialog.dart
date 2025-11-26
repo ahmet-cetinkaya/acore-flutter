@@ -6,7 +6,6 @@ import '../../utils/dialog_size.dart';
 
 import 'date_picker_types.dart';
 import 'date_picker_mobile_content.dart';
-import 'quick_range_selector.dart';
 import 'date_time_picker_constants.dart';
 import 'date_time_picker_translation_keys.dart';
 
@@ -104,8 +103,8 @@ class DatePickerDialog extends StatefulWidget {
         initialEndDate: config.initialEndDate,
         minDate: config.minDate,
         maxDate: config.maxDate,
-        formatType: DateFormatType.dateTime,
-        quickRanges: config.quickRanges?.cast<QuickDateRange>(),
+        formatType: config.formatType ?? DateFormatType.date,
+        quickRanges: config.quickRanges,
         showTime: config.showTime,
         showQuickRanges: config.showQuickRanges,
         enableManualInput: config.enableManualInput,
@@ -537,8 +536,8 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
       initialEndDate: widget.config.initialEndDate,
       minDate: widget.config.minDate,
       maxDate: widget.config.maxDate,
-      formatType: DateFormatType.dateTime,
-      quickRanges: widget.config.quickRanges?.cast<QuickDateRange>(),
+      formatType: widget.config.formatType ?? DateFormatType.date,
+      quickRanges: widget.config.quickRanges,
       showTime: widget.config.showTime,
       showQuickRanges: widget.config.showQuickRanges,
       enableManualInput: widget.config.enableManualInput,
