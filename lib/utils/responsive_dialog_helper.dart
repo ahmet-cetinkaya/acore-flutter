@@ -145,7 +145,9 @@ class ResponsiveDialogHelper {
               child: Container(
                 // Use flexible initial height that can expand with content
                 constraints: BoxConstraints(
-                  minHeight: keyboardHeight > 0 ? initialHeight * _kKeyboardVisibleHeightShrinkFactor : initialHeight,
+                  minHeight: keyboardHeight > 0
+                      ? min(initialHeight * _kKeyboardVisibleHeightShrinkFactor, maxHeight)
+                      : min(initialHeight, maxHeight),
                   maxHeight: maxHeight,
                 ),
                 child: Material(
@@ -174,7 +176,9 @@ class ResponsiveDialogHelper {
             child: Container(
               // Use flexible initial height that can expand with content
               constraints: BoxConstraints(
-                minHeight: keyboardHeight > 0 ? initialHeight * _kKeyboardVisibleHeightShrinkFactor : initialHeight,
+                minHeight: keyboardHeight > 0
+                    ? min(initialHeight * _kKeyboardVisibleHeightShrinkFactor, maxHeight)
+                    : min(initialHeight, maxHeight),
                 maxHeight: maxHeight,
               ),
               child: Material(

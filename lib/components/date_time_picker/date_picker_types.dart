@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'date_time_picker_translation_keys.dart';
 import '../../time/date_format_service.dart';
+import '../../utils/dialog_size.dart';
 import 'quick_range_selector.dart';
 
 // Shared types for date picker components
@@ -43,6 +44,7 @@ class DatePickerConfig {
   final bool validationErrorAtTop;
   final String? doneButtonText;
   final String? cancelButtonText;
+  final DialogSize? dialogSize;
 
   const DatePickerConfig({
     required this.selectionMode,
@@ -74,6 +76,7 @@ class DatePickerConfig {
     this.validationErrorAtTop = false,
     this.doneButtonText,
     this.cancelButtonText,
+    this.dialogSize,
   });
 }
 
