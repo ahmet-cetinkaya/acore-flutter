@@ -122,6 +122,7 @@ class _DatePickerMobileContentState extends State<DatePickerMobileContent> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
+        centerTitle: false,
         backgroundColor: theme.cardColor,
         title: Text(
           widget.appBarTitle ?? 'Select Date & Time',

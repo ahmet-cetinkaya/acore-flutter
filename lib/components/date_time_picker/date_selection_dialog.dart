@@ -266,7 +266,7 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
           ),
           const SizedBox(height: _DateSelectionDialogDesign.spacingSmall),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Icon(
                 icon,
@@ -282,7 +282,7 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).primaryColor,
                   ),
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.start,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -332,7 +332,7 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
               ? _getLocalizedText(DateTimePickerTranslationKey.selectDateTitle, 'Select Date')
               : _getLocalizedText(DateTimePickerTranslationKey.selectDateRangeTitle, 'Select Date Range'),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Icon(
                 widget.config.selectionMode == DateSelectionMode.single ? Icons.event : Icons.date_range,

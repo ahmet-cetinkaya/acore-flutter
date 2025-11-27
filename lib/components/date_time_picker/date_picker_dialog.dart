@@ -284,6 +284,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
+            centerTitle: false,
             backgroundColor: theme.cardColor,
             title: Text(
               _getDialogTitle(),
@@ -350,6 +351,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           resizeToAvoidBottomInset: false,
           backgroundColor: Colors.transparent,
           appBar: AppBar(
+            centerTitle: false,
             backgroundColor: theme.cardColor,
             title: Text(
               appBarTitle,
@@ -574,7 +576,7 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
                         color: theme.colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
-                      textAlign: TextAlign.center,
+                      textAlign: TextAlign.start,
                     ),
                   ),
                   TextButton(
