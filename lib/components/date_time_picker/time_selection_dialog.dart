@@ -121,9 +121,26 @@ class TimeSelectionDialog extends StatefulWidget {
     TimeSelectionResult? capturedResult;
 
     if (config.useMobileScaffoldLayout) {
+      // Create a modified config that hides title and action buttons
+      // since TimePickerMobileContent handles them in its AppBar
+      final mobileConfig = TimeSelectionDialogConfig(
+        selectedDate: config.selectedDate,
+        initialTime: config.initialTime,
+        translations: config.translations,
+        theme: config.theme,
+        locale: config.locale,
+        actionButtonRadius: config.actionButtonRadius,
+        initialIsAllDay: config.initialIsAllDay,
+        useResponsiveDialog: config.useResponsiveDialog,
+        dialogSize: config.dialogSize,
+        useMobileScaffoldLayout: false, // Don't nest layouts
+        hideActionButtons: true, // Hide content action buttons
+        hideTitle: true, // Hide content title
+      );
+
       mobileChild = TimePickerMobileContent(
         timeSelectionDialog: _TimeSelectionDialogWithCallback(
-          config: config,
+          config: mobileConfig,
           onResult: (result) {
             capturedResult = result;
           },

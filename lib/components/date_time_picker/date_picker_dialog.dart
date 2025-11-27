@@ -116,7 +116,7 @@ class DatePickerDialog extends StatefulWidget {
         showRefreshToggle: config.showRefreshToggle,
         initialRefreshEnabled: config.initialRefreshEnabled,
         onRefreshToggleChanged: config.onRefreshToggleChanged,
-        dateTimeValidator: config.dateTimeValidator != null ? (date) => config.dateTimeValidator!(date) != null : null,
+        dateTimeValidator: config.dateTimeValidator,
         validationErrorMessage: config.validationErrorMessage,
         actionButtonRadius: config.actionButtonRadius,
       ),
@@ -190,22 +190,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     setState(() {
       _currentResult = datePickerResult;
     });
-  }
-
-  void _onComplete(DatePickerContentResult? result) {
-    if (result != null) {
-      final datePickerResult = DatePickerResult(
-        selectedDate: result.selectedDate,
-        startDate: result.startDate,
-        endDate: result.endDate,
-        isRefreshEnabled: result.isRefreshEnabled ?? false,
-        quickSelectionKey: result.quickSelectionKey,
-        isAllDay: result.isAllDay,
-      );
-      Navigator.of(context).pop(datePickerResult);
-    } else {
-      Navigator.of(context).pop(null);
-    }
   }
 
   void _onCancel() {
@@ -285,8 +269,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       showRefreshToggle: widget.config.showRefreshToggle,
       initialRefreshEnabled: widget.config.initialRefreshEnabled,
       onRefreshToggleChanged: widget.config.onRefreshToggleChanged,
-      dateTimeValidator:
-          widget.config.dateTimeValidator != null ? (date) => widget.config.dateTimeValidator!(date) != null : null,
+      dateTimeValidator: widget.config.dateTimeValidator,
       validationErrorMessage: widget.config.validationErrorMessage,
       actionButtonRadius: widget.config.actionButtonRadius,
       // Force validation at top if using mobile scaffold layout
@@ -336,7 +319,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
               padding: const EdgeInsets.all(16.0),
               child: DatePickerContent(
                 config: contentConfig,
-                onComplete: _onComplete,
                 onCancel: _onCancel,
               ),
             ),
@@ -405,7 +387,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                 data: theme,
                 child: DatePickerContent(
                   config: contentConfig,
-                  onComplete: _onComplete,
                   onCancel: _onCancel,
                 ),
               ),
@@ -549,8 +530,7 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
       showRefreshToggle: widget.config.showRefreshToggle,
       initialRefreshEnabled: widget.config.initialRefreshEnabled,
       onRefreshToggleChanged: widget.config.onRefreshToggleChanged,
-      dateTimeValidator:
-          widget.config.dateTimeValidator != null ? (date) => widget.config.dateTimeValidator!(date) != null : null,
+      dateTimeValidator: widget.config.dateTimeValidator,
       validationErrorMessage: widget.config.validationErrorMessage,
       actionButtonRadius: widget.config.actionButtonRadius,
       validationErrorAtTop: true, // Always show validation at top for responsive layout

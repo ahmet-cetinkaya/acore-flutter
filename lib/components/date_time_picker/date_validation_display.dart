@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../time/date_format_service.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'date_picker_types.dart';
+
+/// Debounce delay for validation to prevent excessive function calls
+const Duration _validationDebounceDelay = Duration(milliseconds: 300);
 
 /// Design constants for date validation display
 class _DateValidationDisplayDesign {
@@ -34,7 +39,7 @@ class DateValidationDisplay extends StatefulWidget {
   final DateTime? selectedEndDate;
   final DateTime? minDate;
   final DateTime? maxDate;
-  final bool Function(DateTime?)? dateTimeValidator;
+  final DateTime? Function(DateTime?)? dateTimeValidator;
   final String? validationErrorMessage;
   final bool allowNullConfirm;
   final Map<DateTimePickerTranslationKey, String> translations;
@@ -63,10 +68,44 @@ class DateValidationDisplay extends StatefulWidget {
 
 class _DateValidationDisplayState extends State<DateValidationDisplay> {
   bool? _lastIsValid;
+  Timer? _validationTimer;
+  List<String>? _cachedValidationErrors;
+  bool? _cachedIsValid;
 
   @override
   void dispose() {
+    _validationTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(DateValidationDisplay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Trigger validation when relevant dependencies change
+    final oldDateHash = Object.hash(
+      oldWidget.selectedDate,
+      oldWidget.selectedStartDate,
+      oldWidget.selectedEndDate,
+      oldWidget.minDate,
+      oldWidget.maxDate,
+      oldWidget.dateTimeValidator,
+      oldWidget.allowNullConfirm,
+    );
+
+    final newDateHash = Object.hash(
+      widget.selectedDate,
+      widget.selectedStartDate,
+      widget.selectedEndDate,
+      widget.minDate,
+      widget.maxDate,
+      widget.dateTimeValidator,
+      widget.allowNullConfirm,
+    );
+
+    if (oldDateHash != newDateHash) {
+      _scheduleValidation();
+    }
   }
 
   /// Get localized text with fallback
@@ -74,8 +113,21 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
     return widget.translations[key] ?? fallback;
   }
 
-  /// Returns a list of validation error messages for the current selection
-  List<String> _getValidationErrors() {
+  /// Triggers debounced validation to prevent excessive function calls
+  void _scheduleValidation() {
+    _validationTimer?.cancel();
+    _validationTimer = Timer(_validationDebounceDelay, () {
+      if (mounted) {
+        setState(() {
+          _cachedValidationErrors = _performValidation();
+          _cachedIsValid = _cachedValidationErrors!.isEmpty;
+        });
+      }
+    });
+  }
+
+  /// Performs the actual validation logic
+  List<String> _performValidation() {
     List<String> validationErrors = [];
 
     if (widget.selectionMode == DateSelectionMode.single) {
@@ -89,10 +141,18 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
       }
 
       // Check custom validator
-      if (widget.dateTimeValidator != null &&
-          !widget.dateTimeValidator!(widget.selectedDate) &&
-          widget.validationErrorMessage != null) {
-        validationErrors.add(widget.validationErrorMessage!);
+      if (widget.dateTimeValidator != null) {
+        final validationResult = widget.dateTimeValidator!(widget.selectedDate);
+        if (validationResult == null) {
+          // Validator returned null, meaning the date is invalid
+          if (widget.validationErrorMessage != null) {
+            validationErrors.add(widget.validationErrorMessage!);
+          } else {
+            validationErrors.add(_getLocalizedText(
+                DateTimePickerTranslationKey.selectedDateMustBeAtOrBefore, 'Selected date is invalid'));
+          }
+        }
+        // If validator returns a DateTime, consider it valid (no error)
       }
 
       // Check min/max date constraints (ensure consistent timezone handling)
@@ -154,12 +214,21 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
       return const SizedBox.shrink();
     }
 
-    final validationErrors = _getValidationErrors();
-    final isValid = validationErrors.isEmpty;
+    // Schedule validation on first build or when dependencies change
+    if (_cachedValidationErrors == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _scheduleValidation();
+        }
+      });
 
-    // Performance note: _getValidationErrors() runs on every rebuild.
-    // This provides immediate feedback but could be optimized with debouncing
-    // if complex dateTimeValidator functions are used frequently.
+      // Show initial validation immediately for better UX
+      _cachedValidationErrors = _performValidation();
+      _cachedIsValid = _cachedValidationErrors!.isEmpty;
+    }
+
+    final validationErrors = _cachedValidationErrors!;
+    final isValid = _cachedIsValid!;
 
     // Notify parent of validation state change only if it changed
     if (_lastIsValid != isValid) {

@@ -63,7 +63,7 @@ class DatePickerContentConfig {
   final bool showRefreshToggle;
   final bool initialRefreshEnabled;
   final void Function(bool)? onRefreshToggleChanged;
-  final bool Function(DateTime?)? dateTimeValidator;
+  final DateTime? Function(DateTime?)? dateTimeValidator;
   final String? validationErrorMessage;
   final double? actionButtonRadius;
   final void Function(DatePickerContentResult)? onSelectionChanged;
@@ -146,14 +146,14 @@ class DatePickerContentResult {
 /// A clean date picker content component that can be used in dialogs or as standalone content
 class DatePickerContent extends StatefulWidget {
   final DatePickerContentConfig config;
-  final void Function(DatePickerContentResult?)? onComplete;
   final VoidCallback? onCancel;
+  final void Function(DatePickerContentResult?)? onComplete;
 
   const DatePickerContent({
     super.key,
     required this.config,
-    this.onComplete,
     this.onCancel,
+    this.onComplete,
   });
 
   @override
