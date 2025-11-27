@@ -458,6 +458,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
                                         ? Theme.of(context).primaryColor
                                         : Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
+                              overflow: TextOverflow.clip,
                             ),
                     ),
                   ),
