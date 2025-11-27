@@ -4,7 +4,7 @@ import 'numeric_input_translation_keys.dart';
 
 class NumericInput extends StatefulWidget {
   final int initialValue;
-  final int? value; // Optional dynamic value that can update the widget
+  final int? value;
   final int? minValue;
   final int? maxValue;
   final int incrementValue;
@@ -18,7 +18,7 @@ class NumericInput extends StatefulWidget {
   const NumericInput({
     super.key,
     this.initialValue = 0,
-    this.value, // Use this for dynamic updates
+    this.value,
     this.minValue,
     this.maxValue,
     this.incrementValue = 1,
@@ -52,7 +52,6 @@ class _NumericInputState extends State<NumericInput> {
   void didUpdateWidget(NumericInput oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Update the controller if the external value changed
     if (widget.value != null && widget.value != oldWidget.value) {
       final currentValue = int.tryParse(_controller.text) ?? 0;
       if (currentValue != widget.value) {
@@ -104,7 +103,7 @@ class _NumericInputState extends State<NumericInput> {
     if (value == null) return;
 
     int nextValue = value - widget.decrementValue;
-    final minValue = widget.minValue ?? 0; // Default minimum is 0
+    final minValue = widget.minValue ?? 0;
     if (nextValue < minValue) {
       nextValue = minValue;
     }
@@ -122,10 +121,9 @@ class _NumericInputState extends State<NumericInput> {
     int? newValue = int.tryParse(value);
     if (newValue == null) return;
 
-    final minValue = widget.minValue ?? 0; // Default minimum is 0
+    final minValue = widget.minValue ?? 0;
     final maxValue = widget.maxValue;
 
-    // Enforce minimum value constraint
     if (newValue < minValue) {
       setState(() {
         _controller.value = TextEditingValue(
@@ -138,7 +136,6 @@ class _NumericInputState extends State<NumericInput> {
       newValue = minValue;
     }
 
-    // Enforce maximum value constraint
     if (maxValue != null && newValue > maxValue) {
       setState(() {
         _controller.value = TextEditingValue(
@@ -157,7 +154,7 @@ class _NumericInputState extends State<NumericInput> {
   @override
   Widget build(BuildContext context) {
     final currentValue = int.tryParse(_controller.text) ?? 0;
-    final minValue = widget.minValue ?? 0; // Default minimum is 0
+    final minValue = widget.minValue ?? 0;
     final maxValue = widget.maxValue;
 
     return Row(
@@ -200,11 +197,10 @@ class _NumericInputState extends State<NumericInput> {
                 ),
           value: _controller.text,
           child: SizedBox(
-            width: (_controller.text.length * 12.0).clamp(50.0, 100.0), // Minimum 50, maximum 100 width
+            width: (_controller.text.length * 12.0).clamp(50.0, 100.0),
             child: Focus(
               focusNode: _containerFocusNode,
               onKeyEvent: (node, event) {
-                // Handle keyboard navigation
                 if (event is KeyDownEvent) {
                   if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
                     if (currentValue < (maxValue ?? double.infinity)) {
@@ -226,7 +222,7 @@ class _NumericInputState extends State<NumericInput> {
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')), // Only allow digits
+                  FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')),
                 ],
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),

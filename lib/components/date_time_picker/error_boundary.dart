@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
-/// Error level for categorizing different types of errors
 enum DatePickerErrorLevel {
-  warning, // Minor issues that don't prevent functionality
-  error, // Errors that affect functionality but don't crash
-  critical, // Critical errors that may cause crashes
+  warning,
+  error,
+  critical,
 }
 
 /// Error information for date picker components
@@ -94,7 +93,6 @@ class _DatePickerErrorBoundaryState extends State<DatePickerErrorBoundary> {
       _logError(datePickerError);
     }
 
-    // Call appropriate error handler
     if (level == DatePickerErrorLevel.warning && widget.onWarning != null) {
       widget.onWarning!(datePickerError);
     } else if (level == DatePickerErrorLevel.error && widget.onError != null) {
@@ -105,7 +103,6 @@ class _DatePickerErrorBoundaryState extends State<DatePickerErrorBoundary> {
   }
 
   String _getUserFriendlyMessage(Object error, DatePickerErrorLevel level) {
-    // Convert technical errors to user-friendly messages
     final errorString = error.toString().toLowerCase();
 
     if (errorString.contains('range') || errorString.contains('bounds')) {
@@ -145,7 +142,6 @@ class _DatePickerErrorBoundaryState extends State<DatePickerErrorBoundary> {
       debugPrint('========================');
     }
 
-    // In release mode, you might want to send this to a crash reporting service
     if (!kDebugMode && error.level == DatePickerErrorLevel.critical) {
       debugPrint('Critical error in production: ${error.component} - ${error.error}');
     }
@@ -239,7 +235,6 @@ class _DatePickerErrorBoundaryState extends State<DatePickerErrorBoundary> {
               const SizedBox(width: 8),
               TextButton.icon(
                 onPressed: () {
-                  // Dismiss the error boundary and show minimal fallback
                   setState(() {
                     _hasError = false;
                   });
@@ -294,7 +289,6 @@ class _DatePickerErrorBoundaryState extends State<DatePickerErrorBoundary> {
       return _buildErrorWidget();
     }
 
-    // Wrap child with additional error handling for runtime errors
     try {
       return widget.child;
     } catch (error, stackTrace) {

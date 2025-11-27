@@ -5,16 +5,10 @@ import 'date_picker_types.dart';
 import '../../utils/haptic_feedback_util.dart';
 import '../../utils/responsive_util.dart';
 
-/// Design constants for calendar date picker
 class _CalendarDatePickerDesign {
-  // Border radius
-  static const double radiusMedium = 12.0;
   static const double radiusFull = 50.0;
-
-  // Font sizes
   static const double fontSizeSmall = 14.0;
 
-  // Prevent instantiation
   _CalendarDatePickerDesign._();
 }
 
@@ -55,25 +49,20 @@ class CalendarDatePicker extends StatefulWidget {
 }
 
 class _CalendarDatePickerState extends State<CalendarDatePicker> {
-  // Cache for expensive calculations
   bool? _cachedIsCompactScreen;
   CalendarDatePicker2Config? _cachedConfig;
   List<DateTime>? _cachedCalendarValue;
 
-  /// Checks if the current screen is compact (mobile)
   bool _isCompactScreen(BuildContext context) {
     _cachedIsCompactScreen ??= ResponsiveUtil.isCompactLayout(context);
     return _cachedIsCompactScreen!;
   }
 
-  /// Trigger haptic feedback for better mobile experience
   void _triggerHapticFeedback() {
     HapticFeedbackUtil.triggerHapticFeedback(context);
   }
 
-  /// Get the calendar picker value based on selection mode and selected dates
   List<DateTime> _getCalendarPickerValue() {
-    // Use cached value if available and widgets haven't changed
     if (_cachedCalendarValue != null && _shouldUseCachedValue()) {
       return _cachedCalendarValue!;
     }
@@ -82,7 +71,6 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
     if (widget.selectionMode == DateSelectionMode.single) {
       value = widget.selectedDate != null ? [widget.selectedDate!] : [];
     } else {
-      // Range selection mode
       value = [];
       if (widget.selectedStartDate != null) {
         value.add(widget.selectedStartDate!);
@@ -96,14 +84,10 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
     return value;
   }
 
-  /// Check if cached values should be used
   bool _shouldUseCachedValue() {
-    // For simplicity, we'll rebuild cached values when dependencies change
-    // In a real implementation, you might want more sophisticated caching logic
     return false;
   }
 
-  /// Clear cached values when widget dependencies change
   void _clearCache() {
     _cachedIsCompactScreen = null;
     _cachedConfig = null;
@@ -113,7 +97,6 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
   @override
   void didUpdateWidget(CalendarDatePicker oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Clear cache when widget properties change
     if (oldWidget.selectedDate != widget.selectedDate ||
         oldWidget.selectedStartDate != widget.selectedStartDate ||
         oldWidget.selectedEndDate != widget.selectedEndDate ||
@@ -125,11 +108,9 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
     }
   }
 
-  /// Shows time picker for the selected date
   Future<void> _selectTime(DateTime date, bool isStartDate) async {
     if (!widget.showTime) return;
 
-    // Check if the selected date is before minDate and handle time constraints
     TimeOfDay? initialTime = TimeOfDay.fromDateTime(date);
     TimeOfDay? earliestTime;
     TimeOfDay? latestTime;
@@ -140,12 +121,9 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
       final minDate = widget.minDate!;
       final minDateOnly = DateTime(minDate.year, minDate.month, minDate.day);
 
-      // If selected date is the same as minDate, restrict time to be >= minDate time
       if (selectedDateOnly.isAtSameMomentAs(minDateOnly)) {
         earliestTime = TimeOfDay.fromDateTime(minDate);
-      }
-      // If selected date is before minDate, prevent selection
-      else if (selectedDateOnly.isBefore(minDateOnly)) {
+      } else if (selectedDateOnly.isBefore(minDateOnly)) {
         return;
       }
     }
@@ -154,17 +132,13 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
       final maxDate = widget.maxDate!;
       final maxDateOnly = DateTime(maxDate.year, maxDate.month, maxDate.day);
 
-      // If selected date is the same as maxDate, restrict time to be <= maxDate time
       if (selectedDateOnly.isAtSameMomentAs(maxDateOnly)) {
         latestTime = TimeOfDay.fromDateTime(maxDate);
-      }
-      // If selected date is after maxDate, prevent selection
-      else if (selectedDateOnly.isAfter(maxDateOnly)) {
+      } else if (selectedDateOnly.isAfter(maxDateOnly)) {
         return;
       }
     }
 
-    // Adjust initial time if it's outside bounds
     if (earliestTime != null && _isTimeBefore(initialTime, earliestTime)) {
       initialTime = earliestTime;
     }
@@ -172,14 +146,12 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
       initialTime = latestTime;
     }
 
-    // Use the native time picker which automatically respects device settings
     final timeOfDay = await showTimePicker(
       context: context,
       initialTime: initialTime,
     );
 
     if (timeOfDay != null && mounted) {
-      // Validate time constraints before applying
       if (earliestTime != null && _isTimeBefore(timeOfDay, earliestTime)) {
         return;
       }
@@ -188,7 +160,6 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
         return;
       }
 
-      // Apply the selected time to the date
       final updatedDate = DateTime(
         date.year,
         date.month,
@@ -200,7 +171,6 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
       if (widget.selectionMode == DateSelectionMode.single) {
         widget.onSingleDateSelected(updatedDate);
       } else {
-        // For range mode, update the appropriate start or end date
         if (isStartDate && widget.selectedStartDate != null) {
           widget.onRangeSelected(updatedDate, widget.selectedEndDate);
         } else if (!isStartDate && widget.selectedEndDate != null) {
@@ -210,7 +180,6 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
     }
   }
 
-  /// Validates if a date selection is within constraints
   bool _isDateValid(DateTime selectedDate) {
     final selectedDateOnly = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
 
@@ -231,13 +200,11 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
     return true;
   }
 
-  /// Handles date selection changes
   void _onDateChanged(List<DateTime?> dates) async {
     if (widget.selectionMode == DateSelectionMode.single) {
       if (dates.isNotEmpty) {
         DateTime selectedDate = dates.first!;
 
-        // Validate date constraints before proceeding
         if (!_isDateValid(selectedDate)) {
           return;
         }
@@ -245,18 +212,15 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
         widget.onSingleDateSelected(selectedDate);
         widget.onUserHasSelectedQuickRangeChanged?.call();
 
-        // Add haptic feedback for mobile date selection
         if (_isCompactScreen(context)) {
           _triggerHapticFeedback();
         }
 
-        // If time selection is enabled, automatically show time picker
         if (widget.showTime) {
           await _selectTime(selectedDate, true);
         }
       }
     } else {
-      // Range selection
       if (dates.length == 2) {
         final startDate = dates[0]!;
         final endDate = DateTime(
@@ -268,7 +232,6 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
           59,
         );
 
-        // Validate range constraints
         if (widget.minDate != null && startDate.isBefore(widget.minDate!)) {
           return;
         }
@@ -280,12 +243,10 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
         widget.onRangeSelected(startDate, endDate);
         widget.onUserHasSelectedQuickRangeChanged?.call();
 
-        // Add haptic feedback for mobile range selection
         if (_isCompactScreen(context)) {
           _triggerHapticFeedback();
         }
 
-        // If time selection is enabled, allow user to select times for start and end dates
         if (widget.showTime) {
           await _selectRangeTimes(startDate, endDate);
         }
@@ -293,7 +254,6 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
         widget.onRangeSelected(dates[0]!, null);
         widget.onUserHasSelectedQuickRangeChanged?.call();
 
-        // Add haptic feedback for mobile partial range selection
         if (_isCompactScreen(context)) {
           _triggerHapticFeedback();
         }
@@ -306,7 +266,6 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
     final isCompactScreen = _isCompactScreen(context);
     final calendarLayout = ResponsiveUtil.calculateCalendarLayout(context);
 
-    // Cache expensive config creation
     _cachedConfig ??= _buildCalendarConfig(isCompactScreen);
 
     return Semantics(
@@ -316,10 +275,6 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
       child: Container(
         width: calendarLayout.maxWidth,
         constraints: BoxConstraints(maxWidth: calendarLayout.maxWidth),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(_CalendarDatePickerDesign.radiusMedium),
-          color: Theme.of(context).colorScheme.surface,
-        ),
         child: CalendarDatePicker2(
           config: _cachedConfig!,
           value: _getCalendarPickerValue(),
@@ -329,7 +284,6 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
     );
   }
 
-  /// Build and cache the calendar configuration
   CalendarDatePicker2Config _buildCalendarConfig(bool isCompactScreen) {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
@@ -352,8 +306,7 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
       centerAlignModePicker: true,
       selectedYearTextStyle: const TextStyle(fontWeight: FontWeight.bold),
       rangeBidirectional: true,
-      // Enhanced mobile-specific configurations
-      dayMaxWidth: ResponsiveCalendarConstants.dayWidth(context), // Optimized for touch
+      dayMaxWidth: ResponsiveCalendarConstants.dayWidth(context),
       dayTextStyle: TextStyle(
         fontSize: isCompactScreen ? 14 : 16,
         fontWeight: FontWeight.w500,
@@ -379,40 +332,31 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
         fontWeight: FontWeight.w600,
         color: onSurfaceColor.withValues(alpha: 0.6),
       ),
-      // Enhanced visual feedback for mobile - supported parameters only
       dayBorderRadius: BorderRadius.circular(_CalendarDatePickerDesign.radiusFull),
       daySplashColor: primaryColor.withValues(alpha: 0.1),
     );
   }
 
-  /// Check if time1 is before time2
   bool _isTimeBefore(TimeOfDay t1, TimeOfDay t2) {
     return t1.hour < t2.hour || (t1.hour == t2.hour && t1.minute < t2.minute);
   }
 
-  /// Check if time1 is after time2
   bool _isTimeAfter(TimeOfDay t1, TimeOfDay t2) {
     return t1.hour > t2.hour || (t1.hour == t2.hour && t1.minute > t2.minute);
   }
 
-  /// Select times for date range selection
   Future<void> _selectRangeTimes(DateTime startDate, DateTime endDate) async {
     if (!widget.showTime) return;
 
-    // First, select start time
     await _selectTime(startDate, true);
 
-    // Then, select end time if the widget is still mounted
     if (mounted) {
-      // Use the original end date (not widget state, as it might not be updated yet)
       await _selectTime(endDate, false);
 
-      // Ensure the range is valid after time selection
       if (widget.selectedStartDate != null && widget.selectedEndDate != null) {
         final start = widget.selectedStartDate!;
         final end = widget.selectedEndDate!;
 
-        // If start time is after end time, adjust end time to be after start time
         if (start.isAfter(end)) {
           final adjustedEnd = DateTime(
             end.year,

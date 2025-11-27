@@ -5,29 +5,22 @@ import 'calendar_date_picker.dart' as custom;
 import '../mobile_action_button.dart';
 import '../../utils/haptic_feedback_util.dart';
 
-/// Design constants for date selection dialog
 class _DateSelectionDialogDesign {
-  // Spacing
   static const double spacingSmall = 8.0;
   static const double spacingMedium = 12.0;
   static const double spacingLarge = 16.0;
   static const double spacingXLarge = 24.0;
 
-  // Border radius
   static const double radiusLarge = 16.0;
 
-  // Border width
   static const double borderWidth = 1.0;
 
-  // Font sizes
   static const double fontSizeSmall = 12.0;
   static const double fontSizeLarge = 18.0;
   static const double fontSizeXLarge = 20.0;
 
-  // Icon sizes
   static const double iconSizeLarge = 24.0;
 
-  // Dialog sizing
   static const double maxDialogWidth = 500.0;
   static const double minDialogWidth = 320.0;
   static const double maxDialogHeight = 700.0;
@@ -145,45 +138,37 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
     }
   }
 
-  /// Trigger haptic feedback for better mobile experience
   void _triggerHapticFeedback() {
     HapticFeedbackUtil.triggerHapticFeedback(context);
   }
 
-  /// Format date for display
   String _formatDateForDisplay(DateTime? date) {
     if (date == null) return '';
 
-    // Try to use MaterialLocalizations if available
     try {
       final localizations = MaterialLocalizations.of(context);
       return localizations.formatCompactDate(date);
     } catch (e) {
-      // Fallback formatting
       return '${date.day}/${date.month}/${date.year}';
     }
   }
 
-  /// Get localized text with fallback
   String _getLocalizedText(DateTimePickerTranslationKey key, String fallback) {
     return widget.config.translations[key] ?? fallback;
   }
 
-  /// Handle date confirmation
   void _onConfirm() {
     DateSelectionResult result;
     if (widget.config.selectionMode == DateSelectionMode.single) {
       if (_selectedDate != null) {
         result = DateSelectionResult.single(_selectedDate!);
       } else {
-        // No date selected, just close dialog
         result = DateSelectionResult.cancelled();
       }
     } else {
       if (_selectedStartDate != null && _selectedEndDate != null) {
         result = DateSelectionResult.range(_selectedStartDate!, _selectedEndDate!);
       } else {
-        // Incomplete range selection
         result = DateSelectionResult.cancelled();
       }
     }
@@ -191,12 +176,10 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
     Navigator.of(context).pop(result);
   }
 
-  /// Handle dialog cancellation
   void _onCancel() {
     Navigator.of(context).pop(DateSelectionResult.cancelled());
   }
 
-  /// Handle single date selection
   void _onSingleDateSelected(DateTime? date) {
     setState(() {
       _selectedDate = date;
@@ -204,7 +187,6 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
     _triggerHapticFeedback();
   }
 
-  /// Handle range selection
   void _onRangeSelected(DateTime? startDate, DateTime? endDate) {
     setState(() {
       _selectedStartDate = startDate;
@@ -213,9 +195,6 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
     _triggerHapticFeedback();
   }
 
-  /// Build mobile-friendly action button with proper touch targets
-
-  /// Build calendar picker widget
   Widget _buildCalendarPicker() {
     return Container(
       decoration: BoxDecoration(
@@ -241,7 +220,6 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
     );
   }
 
-  /// Build current selection display
   Widget _buildSelectionDisplay() {
     String displayText;
     IconData icon;
@@ -288,7 +266,7 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
           ),
           const SizedBox(height: _DateSelectionDialogDesign.spacingSmall),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Icon(
                 icon,
@@ -304,7 +282,7 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).primaryColor,
                   ),
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.start,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -328,7 +306,6 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
     final theme = widget.config.theme ?? Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // Responsive dialog sizing
     final dialogWidth = screenWidth.clamp(
       _DateSelectionDialogDesign.minDialogWidth,
       _DateSelectionDialogDesign.maxDialogWidth,
@@ -355,7 +332,7 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
               ? _getLocalizedText(DateTimePickerTranslationKey.selectDateTitle, 'Select Date')
               : _getLocalizedText(DateTimePickerTranslationKey.selectDateRangeTitle, 'Select Date Range'),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Icon(
                 widget.config.selectionMode == DateSelectionMode.single ? Icons.event : Icons.date_range,
@@ -403,7 +380,6 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
           ),
         ),
         actions: [
-          // Cancel button
           MobileActionButton(
             context: context,
             onPressed: _onCancel,
@@ -413,7 +389,6 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
             borderRadius: widget.config.actionButtonRadius,
           ),
           const SizedBox(height: _DateSelectionDialogDesign.spacingMedium),
-          // Confirm button
           MobileActionButton(
             context: context,
             onPressed: _isSelectionValid() ? _onConfirm : null,

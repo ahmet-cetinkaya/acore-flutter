@@ -105,6 +105,7 @@ class _TimeSelectorState extends State<TimeSelector> {
   Widget _buildWheelTimePicker() {
     return WheelTimePicker(
       initialTime: _tempSelectedTime ?? widget.initialTime,
+      translations: widget.translations,
       onTimeChanged: (newTime) {
         setState(() {
           _tempSelectedTime = newTime;

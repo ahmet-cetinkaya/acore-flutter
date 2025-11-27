@@ -1,8 +1,12 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 import '../../time/date_format_service.dart';
 import 'date_time_picker_translation_keys.dart';
 import 'date_picker_types.dart';
+
+/// Debounce delay for validation to prevent excessive function calls
+const Duration _validationDebounceDelay = Duration(milliseconds: 300);
 
 /// Design constants for date validation display
 class _DateValidationDisplayDesign {
@@ -18,11 +22,10 @@ class _DateValidationDisplayDesign {
   static const double borderWidth = 1.0;
 
   // Font sizes
-  static const double fontSizeXSmall = 10.0;
-  static const double fontSizeSmall = 12.0;
+  static const double fontSizeSmall = 14.0;
 
   // Icon sizes
-  static const double iconSizeMedium = 20.0;
+  static const double iconSizeLarge = 24.0;
 }
 
 /// A reusable date validation display component extracted from DatePickerDialog
@@ -36,7 +39,7 @@ class DateValidationDisplay extends StatefulWidget {
   final DateTime? selectedEndDate;
   final DateTime? minDate;
   final DateTime? maxDate;
-  final bool Function(DateTime?)? dateTimeValidator;
+  final DateTime? Function(DateTime?)? dateTimeValidator;
   final String? validationErrorMessage;
   final bool allowNullConfirm;
   final Map<DateTimePickerTranslationKey, String> translations;
@@ -64,17 +67,45 @@ class DateValidationDisplay extends StatefulWidget {
 }
 
 class _DateValidationDisplayState extends State<DateValidationDisplay> {
-  // Performance optimization: debounce timer for validation
-  Timer? _validationDebounceTimer;
-
-  // Performance optimization: cached validation results
-  String? _cachedValidationResult;
-  DateTime? _lastValidationCheck;
+  bool? _lastIsValid;
+  Timer? _validationTimer;
+  List<String>? _cachedValidationErrors;
+  bool? _cachedIsValid;
 
   @override
   void dispose() {
-    _validationDebounceTimer?.cancel();
+    _validationTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(DateValidationDisplay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Trigger validation when relevant dependencies change
+    final oldDateHash = Object.hash(
+      oldWidget.selectedDate,
+      oldWidget.selectedStartDate,
+      oldWidget.selectedEndDate,
+      oldWidget.minDate,
+      oldWidget.maxDate,
+      oldWidget.dateTimeValidator,
+      oldWidget.allowNullConfirm,
+    );
+
+    final newDateHash = Object.hash(
+      widget.selectedDate,
+      widget.selectedStartDate,
+      widget.selectedEndDate,
+      widget.minDate,
+      widget.maxDate,
+      widget.dateTimeValidator,
+      widget.allowNullConfirm,
+    );
+
+    if (oldDateHash != newDateHash) {
+      _scheduleValidation();
+    }
   }
 
   /// Get localized text with fallback
@@ -82,8 +113,21 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
     return widget.translations[key] ?? fallback;
   }
 
-  /// Returns a list of validation error messages for the current selection
-  List<String> _getValidationErrors() {
+  /// Triggers debounced validation to prevent excessive function calls
+  void _scheduleValidation() {
+    _validationTimer?.cancel();
+    _validationTimer = Timer(_validationDebounceDelay, () {
+      if (mounted) {
+        setState(() {
+          _cachedValidationErrors = _performValidation();
+          _cachedIsValid = _cachedValidationErrors!.isEmpty;
+        });
+      }
+    });
+  }
+
+  /// Performs the actual validation logic
+  List<String> _performValidation() {
     List<String> validationErrors = [];
 
     if (widget.selectionMode == DateSelectionMode.single) {
@@ -97,10 +141,18 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
       }
 
       // Check custom validator
-      if (widget.dateTimeValidator != null &&
-          !widget.dateTimeValidator!(widget.selectedDate) &&
-          widget.validationErrorMessage != null) {
-        validationErrors.add(widget.validationErrorMessage!);
+      if (widget.dateTimeValidator != null) {
+        final validationResult = widget.dateTimeValidator!(widget.selectedDate);
+        if (validationResult == null) {
+          // Validator returned null, meaning the date is invalid
+          if (widget.validationErrorMessage != null) {
+            validationErrors.add(widget.validationErrorMessage!);
+          } else {
+            validationErrors.add(_getLocalizedText(
+                DateTimePickerTranslationKey.selectedDateMustBeAtOrBefore, 'Selected date is invalid'));
+          }
+        }
+        // If validator returns a DateTime, consider it valid (no error)
       }
 
       // Check min/max date constraints (ensure consistent timezone handling)
@@ -109,12 +161,16 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
       final maxLocal = widget.maxDate?.toLocal();
 
       if (minLocal != null && selectedLocal.isBefore(minLocal)) {
-        validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.selectedDateMustBeAtOrAfter,
-            'Selected date must be at or after ${DateFormatService.formatForInput(minLocal, context, type: DateFormatType.dateTime)}'));
+        final dateStr = DateFormatService.formatForInput(minLocal, context, type: DateFormatType.dateTime);
+        validationErrors.add(_getLocalizedText(
+                DateTimePickerTranslationKey.selectedDateMustBeAtOrAfter, 'Selected date must be at or after $dateStr')
+            .replaceAll('{date}', dateStr));
       }
       if (maxLocal != null && selectedLocal.isAfter(maxLocal)) {
+        final dateStr = DateFormatService.formatForInput(maxLocal, context, type: DateFormatType.dateTime);
         validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.selectedDateMustBeAtOrBefore,
-            'Selected date must be at or before ${DateFormatService.formatForInput(maxLocal, context, type: DateFormatType.dateTime)}'));
+                'Selected date must be at or before $dateStr')
+            .replaceAll('{date}', dateStr));
       }
     } else {
       // Range selection validation
@@ -136,32 +192,20 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
             DateTimePickerTranslationKey.startDateCannotBeAfterEndDate, 'Start date cannot be after end date'));
       }
       if (minLocal != null && startLocal.isBefore(minLocal)) {
-        validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.startDateMustBeAtOrAfter,
-            'Start date must be at or after ${DateFormatService.formatForInput(minLocal, context, type: DateFormatType.date)}'));
+        final dateStr = DateFormatService.formatForInput(minLocal, context, type: DateFormatType.date);
+        validationErrors.add(_getLocalizedText(
+                DateTimePickerTranslationKey.startDateMustBeAtOrAfter, 'Start date must be at or after $dateStr')
+            .replaceAll('{date}', dateStr));
       }
       if (maxLocal != null && endLocal.isAfter(maxLocal)) {
-        validationErrors.add(_getLocalizedText(DateTimePickerTranslationKey.endDateMustBeAtOrBefore,
-            'End date must be at or before ${DateFormatService.formatForInput(maxLocal, context, type: DateFormatType.date)}'));
+        final dateStr = DateFormatService.formatForInput(maxLocal, context, type: DateFormatType.date);
+        validationErrors.add(_getLocalizedText(
+                DateTimePickerTranslationKey.endDateMustBeAtOrBefore, 'End date must be at or before $dateStr')
+            .replaceAll('{date}', dateStr));
       }
     }
 
     return validationErrors;
-  }
-
-  // Debounced validation for performance optimization
-  void _debouncedValidation() {
-    _validationDebounceTimer?.cancel();
-    _validationDebounceTimer = Timer(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        final isValid = _getValidationErrors().isEmpty;
-        setState(() {
-          _cachedValidationResult = isValid ? null : 'has_errors';
-          _lastValidationCheck = DateTime.now();
-        });
-        // Notify parent of validation change
-        widget.onValidationChanged?.call(isValid);
-      }
-    });
   }
 
   @override
@@ -170,112 +214,82 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
       return const SizedBox.shrink();
     }
 
-    // Use cached validation result if available and recent
-    final now = DateTime.now();
-    final useCached = _cachedValidationResult != null &&
-        _lastValidationCheck != null &&
-        now.difference(_lastValidationCheck!).inMilliseconds < 500;
+    // Schedule validation on first build or when dependencies change
+    if (_cachedValidationErrors == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _scheduleValidation();
+        }
+      });
 
-    final validationErrors =
-        useCached ? (_cachedValidationResult == null ? <String>[] : ['validation_error']) : _getValidationErrors();
-
-    // Always trigger validation notification for valid selections
-    if (validationErrors.isEmpty) {
-      if (!useCached || _cachedValidationResult != null) {
-        // Update cache for valid selections
-        setState(() {
-          _cachedValidationResult = null;
-          _lastValidationCheck = DateTime.now();
-        });
-        // Notify parent after the current build phase to avoid setState during build
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          widget.onValidationChanged?.call(true);
-        });
-      }
-    } else if (validationErrors.isNotEmpty) {
-      // Trigger debounced validation for next update
-      if (!useCached) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _debouncedValidation();
-        });
-      }
-
-      return Semantics(
-        container: true,
-        liveRegion: true,
-        label: 'Validation errors',
-        child: Container(
-          padding: const EdgeInsets.all(_DateValidationDisplayDesign.spacingMedium),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.errorContainer,
-            borderRadius: BorderRadius.circular(_DateValidationDisplayDesign.radiusSmall),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
-              width: _DateValidationDisplayDesign.borderWidth,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    color: Theme.of(context).colorScheme.error,
-                    size: _DateValidationDisplayDesign.iconSizeMedium,
-                  ),
-                  const SizedBox(width: _DateValidationDisplayDesign.spacingSmall),
-                  Expanded(
-                    child: Text(
-                      _getLocalizedText(DateTimePickerTranslationKey.cannotSelectDateBeforeMinDate, 'Validation Error'),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onErrorContainer,
-                        fontSize: _DateValidationDisplayDesign.fontSizeSmall,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              if (validationErrors.first != 'validation_error') ...[
-                const SizedBox(height: _DateValidationDisplayDesign.spacingSmall),
-                ...validationErrors.map((error) => Padding(
-                      padding: const EdgeInsets.only(bottom: _DateValidationDisplayDesign.spacingXSmall),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: _DateValidationDisplayDesign.spacingXSmall,
-                            height: _DateValidationDisplayDesign.spacingXSmall,
-                            margin: const EdgeInsets.only(
-                                top: _DateValidationDisplayDesign.spacingSmall -
-                                    _DateValidationDisplayDesign.spacingXSmall,
-                                right: _DateValidationDisplayDesign.spacingSmall),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.error,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              error,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onErrorContainer,
-                                fontSize: _DateValidationDisplayDesign.fontSizeXSmall,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )),
-              ],
-            ],
-          ),
-        ),
-      );
+      // Show initial validation immediately for better UX
+      _cachedValidationErrors = _performValidation();
+      _cachedIsValid = _cachedValidationErrors!.isEmpty;
     }
 
-    return const SizedBox.shrink(); // Return empty widget if no errors
+    final validationErrors = _cachedValidationErrors!;
+    final isValid = _cachedIsValid!;
+
+    // Notify parent of validation state change only if it changed
+    if (_lastIsValid != isValid) {
+      _lastIsValid = isValid;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          widget.onValidationChanged?.call(isValid);
+        }
+      });
+    }
+
+    if (validationErrors.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      label: 'Validation errors',
+      child: Container(
+        padding: const EdgeInsets.all(_DateValidationDisplayDesign.spacingMedium),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.errorContainer,
+          borderRadius: BorderRadius.circular(_DateValidationDisplayDesign.radiusSmall),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+            width: _DateValidationDisplayDesign.borderWidth,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Error messages with prominent icon
+            ...validationErrors.map((error) => Padding(
+                  padding: const EdgeInsets.only(bottom: _DateValidationDisplayDesign.spacingXSmall),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: Theme.of(context).colorScheme.onErrorContainer,
+                        size: _DateValidationDisplayDesign.iconSizeLarge,
+                      ),
+                      const SizedBox(width: _DateValidationDisplayDesign.spacingSmall),
+                      Expanded(
+                        child: Text(
+                          error,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onErrorContainer,
+                            fontSize: _DateValidationDisplayDesign.fontSizeSmall,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -3,6 +3,7 @@ import '../../time/date_format_service.dart';
 import 'date_picker_dialog.dart' as picker;
 import 'date_time_picker_translation_keys.dart';
 import 'date_picker_types.dart';
+import 'date_time_picker_constants.dart';
 
 class DateTimePickerField extends StatelessWidget {
   final TextEditingController controller;
@@ -32,7 +33,6 @@ class DateTimePickerField extends StatelessWidget {
     this.translateKey,
   });
 
-  // Helper method to normalize DateTime to minute precision (ignoring seconds and milliseconds)
   DateTime _normalizeToMinute(DateTime dateTime) {
     return DateTime(
       dateTime.year,
@@ -43,7 +43,6 @@ class DateTimePickerField extends StatelessWidget {
     );
   }
 
-  // Helper method to compare dates ignoring seconds and milliseconds
   bool _isBeforeIgnoringSeconds(DateTime date1, DateTime date2) {
     final normalized1 = _normalizeToMinute(date1);
     final normalized2 = _normalizeToMinute(date2);
@@ -56,16 +55,13 @@ class DateTimePickerField extends StatelessWidget {
     return normalized1.isAfter(normalized2);
   }
 
-  // Helper method to get translation with fallback
   String _getTranslation(DateTimePickerTranslationKey key, String fallback) {
     return translateKey?.call(key) ?? fallback;
   }
 
   Future<void> _selectDateTime(BuildContext context) async {
-    // Use initialValue first, then try to parse from controller, otherwise use null
     DateTime? initialDate = initialValue;
 
-    // If no initialValue provided, try to parse from controller text
     if (initialDate == null) {
       try {
         if (controller.text.isNotEmpty) {
@@ -76,11 +72,10 @@ class DateTimePickerField extends StatelessWidget {
           );
         }
       } catch (e) {
-        // Use null if parsing fails
+        // Intentionally ignore parsing errors - will use null as initial date
       }
     }
 
-    // Ensure initialDate is within bounds
     if (initialDate != null) {
       if (minDateTime != null && _isBeforeIgnoringSeconds(initialDate, minDateTime!)) {
         initialDate = minDateTime!;
@@ -90,7 +85,7 @@ class DateTimePickerField extends StatelessWidget {
       }
     }
 
-    final config = picker.DatePickerConfig(
+    final config = DatePickerConfig(
       selectionMode: DateSelectionMode.single,
       initialDate: initialDate,
       minDate: minDateTime,
@@ -116,10 +111,9 @@ class DateTimePickerField extends StatelessWidget {
       config: config,
     );
 
-    if (result != null && result.isConfirmed && result.selectedDate != null && context.mounted) {
+    if (result != null && !result.wasCancelled && result.selectedDate != null && context.mounted) {
       final selectedDateTime = result.selectedDate!;
 
-      // Format the date for display using centralized service
       final String formattedDateTime = DateFormatService.formatForInput(
         selectedDateTime,
         context,
@@ -127,7 +121,6 @@ class DateTimePickerField extends StatelessWidget {
       );
       controller.text = formattedDateTime;
 
-      // Call the callback with the selected date in local timezone
       onConfirm(selectedDateTime);
     }
   }
@@ -157,14 +150,14 @@ class DateTimePickerField extends StatelessWidget {
               hintText: _getTranslation(DateTimePickerTranslationKey.dateTimeFieldHint, 'Tap to select date and time'),
               hintStyle: effectiveHintStyle,
               suffixIcon: _buildSuffixIcons(context, effectiveIconSize, effectiveIconColor),
-              contentPadding: const EdgeInsets.only(left: 8.0),
+              contentPadding: EdgeInsets.only(left: DateTimePickerConstants.sizeSmall),
             ) ??
             InputDecoration(
               hintText: _getTranslation(DateTimePickerTranslationKey.dateTimeFieldHint, 'Tap to select date and time'),
               hintStyle: effectiveHintStyle,
               suffixIcon: _buildSuffixIcons(context, effectiveIconSize, effectiveIconColor),
               isDense: true,
-              contentPadding: const EdgeInsets.only(left: 8.0),
+              contentPadding: EdgeInsets.only(left: DateTimePickerConstants.sizeSmall),
             ),
         onTap: () async {
           await _selectDateTime(context);
@@ -185,7 +178,7 @@ class DateTimePickerField extends StatelessWidget {
             await _selectDateTime(context);
           },
           child: Padding(
-            padding: const EdgeInsets.all(4.0),
+            padding: EdgeInsets.all(DateTimePickerConstants.size2XSmall),
             child: Icon(
               Icons.edit,
               size: iconSize,

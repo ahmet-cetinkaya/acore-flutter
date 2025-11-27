@@ -57,22 +57,18 @@ class QuickRangeSelector extends StatefulWidget {
 }
 
 class _QuickRangeSelectorState extends State<QuickRangeSelector> {
-  /// Checks if the current screen is compact (mobile)
   bool _isCompactScreen(BuildContext context) {
     return widget.isCompactScreen ?? ResponsiveUtil.isCompactLayout(context);
   }
 
-  /// Get localized text with fallback
   String _getLocalizedText(DateTimePickerTranslationKey key, String fallback) {
     return widget.translations[key] ?? fallback;
   }
 
-  /// Check if there's an active quick selection
   bool _hasActiveQuickSelection() {
     return widget.selectedQuickRangeKey != null;
   }
 
-  /// Show quick selection dialog
   void _showQuickSelectionDialog() {
     showDialog<void>(
       context: context,
@@ -101,7 +97,6 @@ class _QuickRangeSelectorState extends State<QuickRangeSelector> {
 
     final hasQuickSelection = _hasActiveQuickSelection();
 
-    // Get current selection label
     String currentSelectionLabel = '';
     if (hasQuickSelection) {
       currentSelectionLabel = widget.quickRanges!
@@ -116,7 +111,6 @@ class _QuickRangeSelectorState extends State<QuickRangeSelector> {
         spacing: ResponsiveUtil.getSpacing(context, mobile: 8.0, tablet: 10.0, desktop: 12.0),
         runSpacing: ResponsiveUtil.getSpacing(context, mobile: 6.0, tablet: 8.0, desktop: 10.0),
         children: [
-          // Quick selection button with refresh indicator
           Semantics(
             button: true,
             label: hasQuickSelection
@@ -185,7 +179,6 @@ class _QuickRangeSelectorState extends State<QuickRangeSelector> {
             ),
           ),
           SizedBox(width: ResponsiveUtil.getSpacing(context, mobile: 8.0, tablet: 10.0, desktop: 12.0)),
-          // Clear button
           Semantics(
             button: true,
             label: 'Clear selection',
@@ -277,7 +270,6 @@ class _QuickSelectionDialogState extends State<_QuickSelectionDialog> {
   @override
   void didUpdateWidget(_QuickSelectionDialog oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Update local state when parent state changes
     if (oldWidget.refreshEnabled != widget.refreshEnabled) {
       setState(() {
         _localRefreshEnabled = widget.refreshEnabled;
