@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'numeric_input_translation_keys.dart';
 
+enum NumericInputStyle {
+  minimal,
+  contained,
+}
+
 class NumericInput extends StatefulWidget {
   final int initialValue;
   final int? value;
@@ -14,6 +19,7 @@ class NumericInput extends StatefulWidget {
   final double? iconSize;
   final Color? iconColor;
   final Map<NumericInputTranslationKey, String>? translations;
+  final NumericInputStyle style;
 
   const NumericInput({
     super.key,
@@ -28,6 +34,7 @@ class NumericInput extends StatefulWidget {
     this.iconSize,
     this.iconColor,
     this.translations,
+    this.style = NumericInputStyle.minimal,
   });
 
   @override
@@ -157,7 +164,7 @@ class _NumericInputState extends State<NumericInput> {
     final minValue = widget.minValue ?? 0;
     final maxValue = widget.maxValue;
 
-    return Row(
+    Widget content = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -170,83 +177,104 @@ class _NumericInputState extends State<NumericInput> {
           hint: currentValue > minValue
               ? _getTranslation(NumericInputTranslationKey.decrementHint, 'Decreases the current value')
               : _getTranslation(NumericInputTranslationKey.atMinimumValue, 'Already at minimum value'),
-          child: IconButton(
-            icon: Icon(
-              Icons.remove,
-              size: widget.iconSize,
-              color: widget.iconColor,
-            ),
-            onPressed: currentValue > minValue ? _decrement : null,
-            tooltip: _getTranslation(NumericInputTranslationKey.decrementTooltip, 'Decrease'),
-            style: IconButton.styleFrom(
-              shape: const CircleBorder(),
-            ),
-          ),
-        ),
-        Semantics(
-          textField: true,
-          label: _getTranslation(NumericInputTranslationKey.textFieldLabel, 'Numeric input'),
-          hint: widget.valueSuffix != null
-              ? _getTranslation(
-                  NumericInputTranslationKey.textFieldHint,
-                  'Enter a number between $minValue and ${maxValue ?? 'unlimited'} ${widget.valueSuffix}',
+          child: widget.style == NumericInputStyle.contained
+              ? IconButton.filledTonal(
+                  icon: Icon(
+                    Icons.remove,
+                    size: widget.iconSize,
+                    color: widget.iconColor,
+                  ),
+                  onPressed: currentValue > minValue ? _decrement : null,
+                  tooltip: _getTranslation(NumericInputTranslationKey.decrementTooltip, 'Decrease'),
+                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                 )
-              : _getTranslation(
-                  NumericInputTranslationKey.textFieldHint,
-                  'Enter a number between $minValue and ${maxValue ?? 'unlimited'}',
+              : IconButton(
+                  icon: Icon(
+                    Icons.remove,
+                    size: widget.iconSize,
+                    color: widget.iconColor,
+                  ),
+                  onPressed: currentValue > minValue ? _decrement : null,
+                  tooltip: _getTranslation(NumericInputTranslationKey.decrementTooltip, 'Decrease'),
+                  style: IconButton.styleFrom(
+                    shape: const CircleBorder(),
+                  ),
                 ),
-          value: _controller.text,
-          child: SizedBox(
-            width: (_controller.text.length * 12.0).clamp(50.0, 100.0),
-            child: Focus(
-              focusNode: _containerFocusNode,
-              onKeyEvent: (node, event) {
-                if (event is KeyDownEvent) {
-                  if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-                    if (currentValue < (maxValue ?? double.infinity)) {
-                      _increment();
-                      return KeyEventResult.handled;
-                    }
-                  } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-                    if (currentValue > minValue) {
-                      _decrement();
-                      return KeyEventResult.handled;
+        ),
+        if (widget.style == NumericInputStyle.contained)
+          Expanded(
+            child: Text(
+              widget.valueSuffix != null ? '${_controller.text} ${widget.valueSuffix}' : _controller.text,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+            ),
+          )
+        else ...[
+          Semantics(
+            textField: true,
+            label: _getTranslation(NumericInputTranslationKey.textFieldLabel, 'Numeric input'),
+            hint: widget.valueSuffix != null
+                ? _getTranslation(
+                    NumericInputTranslationKey.textFieldHint,
+                    'Enter a number between $minValue and ${maxValue ?? 'unlimited'} ${widget.valueSuffix}',
+                  )
+                : _getTranslation(
+                    NumericInputTranslationKey.textFieldHint,
+                    'Enter a number between $minValue and ${maxValue ?? 'unlimited'}',
+                  ),
+            value: _controller.text,
+            child: SizedBox(
+              width: (_controller.text.length * 12.0).clamp(50.0, 100.0),
+              child: Focus(
+                focusNode: _containerFocusNode,
+                onKeyEvent: (node, event) {
+                  if (event is KeyDownEvent) {
+                    if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                      if (currentValue < (maxValue ?? double.infinity)) {
+                        _increment();
+                        return KeyEventResult.handled;
+                      }
+                    } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                      if (currentValue > minValue) {
+                        _decrement();
+                        return KeyEventResult.handled;
+                      }
                     }
                   }
-                }
-                return KeyEventResult.ignored;
-              },
-              child: TextField(
-                controller: _controller,
-                focusNode: _textFieldFocusNode,
-                textAlign: TextAlign.center,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')),
-                ],
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  isDense: true,
+                  return KeyEventResult.ignored;
+                },
+                child: TextField(
+                  controller: _controller,
+                  focusNode: _textFieldFocusNode,
+                  textAlign: TextAlign.center,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')),
+                  ],
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    isDense: true,
+                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  onChanged: _onValueChanged,
                 ),
-                style: Theme.of(context).textTheme.bodyMedium,
-                onChanged: _onValueChanged,
               ),
             ),
           ),
-        ),
-        if (widget.valueSuffix != null)
-          SizedBox(
-            height: 40,
-            child: Center(
-              child: Text(
-                widget.valueSuffix!,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      height: 1,
-                    ),
+          if (widget.valueSuffix != null)
+            SizedBox(
+              height: 40,
+              child: Center(
+                child: Text(
+                  widget.valueSuffix!,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        height: 1,
+                      ),
+                ),
               ),
             ),
-          ),
+        ],
         Semantics(
           button: true,
           label: _getTranslation(
@@ -256,20 +284,45 @@ class _NumericInputState extends State<NumericInput> {
           hint: maxValue == null || currentValue < maxValue
               ? _getTranslation(NumericInputTranslationKey.incrementHint, 'Increases the current value')
               : _getTranslation(NumericInputTranslationKey.atMaximumValue, 'Already at maximum value'),
-          child: IconButton(
-            icon: Icon(
-              Icons.add,
-              size: widget.iconSize,
-              color: widget.iconColor,
-            ),
-            onPressed: maxValue == null || currentValue < maxValue ? _increment : null,
-            tooltip: _getTranslation(NumericInputTranslationKey.incrementTooltip, 'Increase'),
-            style: IconButton.styleFrom(
-              shape: const CircleBorder(),
-            ),
-          ),
+          child: widget.style == NumericInputStyle.contained
+              ? IconButton.filledTonal(
+                  icon: Icon(
+                    Icons.add,
+                    size: widget.iconSize,
+                    color: widget.iconColor,
+                  ),
+                  onPressed: maxValue == null || currentValue < maxValue ? _increment : null,
+                  tooltip: _getTranslation(NumericInputTranslationKey.incrementTooltip, 'Increase'),
+                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                )
+              : IconButton(
+                  icon: Icon(
+                    Icons.add,
+                    size: widget.iconSize,
+                    color: widget.iconColor,
+                  ),
+                  onPressed: maxValue == null || currentValue < maxValue ? _increment : null,
+                  tooltip: _getTranslation(NumericInputTranslationKey.incrementTooltip, 'Increase'),
+                  style: IconButton.styleFrom(
+                    shape: const CircleBorder(),
+                  ),
+                ),
         ),
       ],
     );
+
+    if (widget.style == NumericInputStyle.contained) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+        ),
+        child: content,
+      );
+    }
+
+    return content;
   }
 }
