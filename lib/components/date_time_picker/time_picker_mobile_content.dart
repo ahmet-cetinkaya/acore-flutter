@@ -28,11 +28,9 @@ class TimePickerMobileContent extends StatelessWidget {
     // Always use Scaffold with AppBar styling since this widget is intended for mobile/responsive views
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      // backgroundColor: theme.scaffoldBackgroundColor, // Default behavior
       appBar: AppBar(
-        backgroundColor: theme.cardColor,
-        scrolledUnderElevation: 0, // Prevent color change on scroll
-        elevation: 0, // Remove shadow/elevation
+        scrolledUnderElevation: 0,
+        elevation: 0,
         title: Text(
           appBarTitle ?? 'Select Time',
           style: theme.textTheme.titleLarge?.copyWith(

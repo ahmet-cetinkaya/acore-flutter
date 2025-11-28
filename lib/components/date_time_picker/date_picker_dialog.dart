@@ -96,7 +96,7 @@ class DatePickerDialog extends StatefulWidget {
       doneButtonText: doneButtonText,
       cancelButtonText: cancelButtonText,
       config: DatePickerContentConfig(
-        validationErrorAtTop: true, // Always show validation at top for mobile bottom sheet
+        validationErrorAtTop: true,
         selectionMode: config.selectionMode,
         initialDate: config.initialDate,
         initialStartDate: config.initialStartDate,
@@ -120,7 +120,7 @@ class DatePickerDialog extends StatefulWidget {
         validationErrorMessage: config.validationErrorMessage,
         actionButtonRadius: config.actionButtonRadius,
       ),
-      onConfirm: null, // Let DatePickerMobileContent handle confirmation and result return
+      onConfirm: null,
       onCancel: () {
         Navigator.of(context).pop(DatePickerResult.cancelled());
       },
@@ -285,7 +285,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             centerTitle: false,
-            backgroundColor: theme.cardColor,
             title: Text(
               _getDialogTitle(),
               style: theme.textTheme.titleLarge?.copyWith(
@@ -352,7 +351,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             centerTitle: false,
-            backgroundColor: theme.cardColor,
             title: Text(
               appBarTitle,
               style: theme.textTheme.titleLarge?.copyWith(
@@ -535,7 +533,7 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
       dateTimeValidator: widget.config.dateTimeValidator,
       validationErrorMessage: widget.config.validationErrorMessage,
       actionButtonRadius: widget.config.actionButtonRadius,
-      validationErrorAtTop: true, // Always show validation at top for responsive layout
+      validationErrorAtTop: true,
       onSelectionChanged: _handleSelectionChanged,
     );
 
