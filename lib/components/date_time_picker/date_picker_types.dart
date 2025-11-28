@@ -12,6 +12,23 @@ enum DateSelectionMode {
   range,
 }
 
+/// Footer action for date picker dialog
+class DatePickerFooterAction {
+  final IconData? Function()? icon;
+  final String? Function()? label;
+  final Color? Function()? color;
+  final Future<void> Function() onPressed;
+  final bool isPrimary;
+
+  const DatePickerFooterAction({
+    this.icon,
+    this.label,
+    this.color,
+    required this.onPressed,
+    this.isPrimary = false,
+  });
+}
+
 /// Configuration for the legacy DatePickerDialog
 /// Note: Consider using DatePickerContentConfig for new implementations
 class DatePickerConfig {
@@ -45,6 +62,8 @@ class DatePickerConfig {
   final String? doneButtonText;
   final String? cancelButtonText;
   final DialogSize? dialogSize;
+  final List<DatePickerFooterAction>? footerActions;
+  final VoidCallback? onRebuild;
 
   const DatePickerConfig({
     required this.selectionMode,
@@ -77,6 +96,8 @@ class DatePickerConfig {
     this.doneButtonText,
     this.cancelButtonText,
     this.dialogSize,
+    this.footerActions,
+    this.onRebuild,
   });
 }
 

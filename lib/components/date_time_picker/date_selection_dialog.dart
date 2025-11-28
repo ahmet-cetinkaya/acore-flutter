@@ -26,6 +26,23 @@ class _DateSelectionDialogDesign {
   static const double maxDialogHeight = 700.0;
 }
 
+/// Footer action for date selection dialog
+class DateSelectionDialogFooterAction {
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+  final Color? color;
+  final bool isPrimary;
+
+  const DateSelectionDialogFooterAction({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.color,
+    this.isPrimary = false,
+  });
+}
+
 /// Configuration for the date selection dialog
 class DateSelectionDialogConfig {
   final DateSelectionMode selectionMode;
@@ -38,6 +55,7 @@ class DateSelectionDialogConfig {
   final ThemeData? theme;
   final Locale? locale;
   final double? actionButtonRadius;
+  final List<DateSelectionDialogFooterAction>? footerActions;
 
   const DateSelectionDialogConfig({
     required this.selectionMode,
@@ -50,6 +68,7 @@ class DateSelectionDialogConfig {
     this.theme,
     this.locale,
     this.actionButtonRadius,
+    this.footerActions,
   });
 }
 
@@ -301,6 +320,61 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
     }
   }
 
+  List<Widget> _buildActions() {
+    final List<Widget> actions = [];
+
+    // Add footer actions if provided
+    if (widget.config.footerActions != null && widget.config.footerActions!.isNotEmpty) {
+      for (final action in widget.config.footerActions!) {
+        actions.add(
+          Expanded(
+            child: MobileActionButton(
+              context: context,
+              onPressed: action.onPressed,
+              text: action.label,
+              icon: action.icon,
+              isPrimary: action.isPrimary,
+              borderRadius: widget.config.actionButtonRadius,
+              customColor: action.color,
+            ),
+          ),
+        );
+        if (action != widget.config.footerActions!.last) {
+          actions.add(const SizedBox(width: _DateSelectionDialogDesign.spacingMedium));
+        }
+      }
+    } else {
+      // Default actions if no footer actions provided
+      actions.add(
+        Expanded(
+          child: MobileActionButton(
+            context: context,
+            onPressed: _onCancel,
+            text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
+            icon: Icons.close,
+            isPrimary: false,
+            borderRadius: widget.config.actionButtonRadius,
+          ),
+        ),
+      );
+      actions.add(const SizedBox(width: _DateSelectionDialogDesign.spacingMedium));
+      actions.add(
+        Expanded(
+          child: MobileActionButton(
+            context: context,
+            onPressed: _isSelectionValid() ? _onConfirm : null,
+            text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
+            icon: Icons.check,
+            isPrimary: true,
+            borderRadius: widget.config.actionButtonRadius,
+          ),
+        ),
+      );
+    }
+
+    return actions;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = widget.config.theme ?? Theme.of(context);
@@ -379,25 +453,7 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
             ],
           ),
         ),
-        actions: [
-          MobileActionButton(
-            context: context,
-            onPressed: _onCancel,
-            text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
-            icon: Icons.close,
-            isPrimary: false,
-            borderRadius: widget.config.actionButtonRadius,
-          ),
-          const SizedBox(height: _DateSelectionDialogDesign.spacingMedium),
-          MobileActionButton(
-            context: context,
-            onPressed: _isSelectionValid() ? _onConfirm : null,
-            text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
-            icon: Icons.check,
-            isPrimary: true,
-            borderRadius: widget.config.actionButtonRadius,
-          ),
-        ],
+        actions: _buildActions(),
       ),
     );
   }

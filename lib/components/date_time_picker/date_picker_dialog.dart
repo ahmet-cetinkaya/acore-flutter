@@ -275,6 +275,22 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       // Force validation at top if using mobile scaffold layout
       validationErrorAtTop: widget.config.useMobileScaffoldLayout || widget.config.validationErrorAtTop,
       onSelectionChanged: _handleSelectionChanged,
+      // Add footer actions with callback support
+      footerActions: widget.config.footerActions
+          ?.map((action) => DatePickerContentFooterAction(
+                icon: action.icon,
+                label: action.label,
+                onPressed: action.onPressed,
+                color: action.color,
+                isPrimary: action.isPrimary,
+              ))
+          .toList(),
+      // Add rebuild callback
+      onRebuildRequest: () {
+        if (mounted) {
+          setState(() {});
+        }
+      },
     );
 
     // If using mobile scaffold layout, use proper Scaffold structure
@@ -535,6 +551,21 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
       actionButtonRadius: widget.config.actionButtonRadius,
       validationErrorAtTop: true,
       onSelectionChanged: _handleSelectionChanged,
+      footerActions: widget.config.footerActions
+          ?.map((action) => DatePickerContentFooterAction(
+                icon: action.icon,
+                label: action.label,
+                onPressed: action.onPressed,
+                color: action.color,
+                isPrimary: action.isPrimary,
+              ))
+          .toList(),
+      // Add rebuild callback
+      onRebuildRequest: () {
+        if (mounted) {
+          setState(() {});
+        }
+      },
     );
 
     // Use basic layout structure for dialog (no Scaffold nesting)
