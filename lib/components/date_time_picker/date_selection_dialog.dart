@@ -4,6 +4,7 @@ import 'date_picker_types.dart';
 import 'calendar_date_picker.dart' as custom;
 import '../mobile_action_button.dart';
 import '../../utils/haptic_feedback_util.dart';
+import 'footer_action_base.dart';
 
 class _DateSelectionDialogDesign {
   static const double spacingSmall = 8.0;
@@ -24,23 +25,6 @@ class _DateSelectionDialogDesign {
   static const double maxDialogWidth = 500.0;
   static const double minDialogWidth = 320.0;
   static const double maxDialogHeight = 700.0;
-}
-
-/// Footer action for date selection dialog
-class DateSelectionDialogFooterAction {
-  final IconData icon;
-  final String label;
-  final VoidCallback onPressed;
-  final Color? color;
-  final bool isPrimary;
-
-  const DateSelectionDialogFooterAction({
-    required this.icon,
-    required this.label,
-    required this.onPressed,
-    this.color,
-    this.isPrimary = false,
-  });
 }
 
 /// Configuration for the date selection dialog
@@ -330,12 +314,12 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
           Expanded(
             child: MobileActionButton(
               context: context,
-              onPressed: action.onPressed,
-              text: action.label,
-              icon: action.icon,
+              onPressed: () => action.execute(),
+              text: action.getCurrentLabel() ?? 'Action',
+              icon: action.getCurrentIcon() ?? Icons.help,
               isPrimary: action.isPrimary,
               borderRadius: widget.config.actionButtonRadius,
-              customColor: action.color,
+              customColor: action.getCurrentColor(),
             ),
           ),
         );

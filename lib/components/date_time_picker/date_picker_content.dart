@@ -9,6 +9,7 @@ import 'date_validation_display.dart';
 import '../../utils/time_formatting_util.dart';
 import '../../utils/haptic_feedback_util.dart';
 import '../../utils/dialog_size.dart';
+import 'footer_action_base.dart';
 
 /// Design constants for date picker
 class _DatePickerDesign {
@@ -39,23 +40,9 @@ class _DatePickerConstants {
     DateTimePickerTranslationKey.weekdaySatShort,
     DateTimePickerTranslationKey.weekdaySunShort,
   ];
-}
 
-/// Footer action for date picker content
-class DatePickerContentFooterAction {
-  final IconData? Function()? icon;
-  final String? Function()? label;
-  final Color? Function()? color;
-  final Future<void> Function() onPressed;
-  final bool isPrimary;
-
-  const DatePickerContentFooterAction({
-    this.icon,
-    this.label,
-    this.color,
-    required this.onPressed,
-    this.isPrimary = false,
-  });
+  /// Symbol for "No Date" option - using close icon to represent clearing
+  static const String noDateSymbol = '×';
 }
 
 /// Configuration for the date picker content component
@@ -645,6 +632,27 @@ class _DatePickerContentState extends State<DatePickerContent> {
     return _isSameDay(_selectedDate!, now);
   }
 
+  /// Safely executes footer action callbacks with error handling
+  Future<void> _executeFooterAction(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (e) {
+      // Log the error but don't crash the UI
+      debugPrint('Error executing footer action: $e');
+      // Optionally show a subtle error message or snackbar
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Action failed: ${e.toString()}'),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   bool _isTomorrowSelected() {
     if (_selectedDate == null) return false;
     final tomorrow = DateTime.now().add(const Duration(days: 1));
@@ -775,7 +783,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
       case 'weekend':
         return _getWeekendDayOfWeek();
       case 'no_date':
-        return '×'; // Clear/close symbol to represent "No Date"
+        return _DatePickerConstants.noDateSymbol; // Clear/close symbol to represent "No Date"
       default:
         return range.label.isNotEmpty ? range.label.substring(0, 1).toUpperCase() : '';
     }
@@ -958,7 +966,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
         borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
         child: InkWell(
           onTap: () async {
-            await onPressed();
+            await _executeFooterAction(onPressed);
             // Request a rebuild from the parent if callback is available
             widget.config.onRebuildRequest?.call();
           },
@@ -1146,7 +1154,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
                             icon: icon,
                             label: label,
                             onPressed: () async {
-                              await action.onPressed();
+                              await _executeFooterAction(action.onPressed);
                               // Request a rebuild from the parent if callback is available
                               widget.config.onRebuildRequest?.call();
                             },

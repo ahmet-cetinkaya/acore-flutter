@@ -3,6 +3,7 @@ import 'date_time_picker_translation_keys.dart';
 import '../../time/date_format_service.dart';
 import '../../utils/dialog_size.dart';
 import 'quick_range_selector.dart';
+import 'footer_action_base.dart';
 
 // Shared types for date picker components
 
@@ -10,23 +11,6 @@ import 'quick_range_selector.dart';
 enum DateSelectionMode {
   single,
   range,
-}
-
-/// Footer action for date picker dialog
-class DatePickerFooterAction {
-  final IconData? Function()? icon;
-  final String? Function()? label;
-  final Color? Function()? color;
-  final Future<void> Function() onPressed;
-  final bool isPrimary;
-
-  const DatePickerFooterAction({
-    this.icon,
-    this.label,
-    this.color,
-    required this.onPressed,
-    this.isPrimary = false,
-  });
 }
 
 /// Configuration for the legacy DatePickerDialog

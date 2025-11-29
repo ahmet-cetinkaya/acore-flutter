@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/color_contrast_helper.dart';
 
 /// Shared mobile action button component used across date picker dialogs
 class MobileActionButton extends StatelessWidget {
@@ -25,13 +26,8 @@ class MobileActionButton extends StatelessWidget {
 
   Color _getTextAndIconColor(BuildContext context) {
     if (customColor != null) {
-      // Use a heuristic to determine if we should use light or dark text
-      final ThemeData theme = Theme.of(context);
-      if (customColor!.computeLuminance() > 0.5) {
-        return theme.colorScheme.onSurface;
-      } else {
-        return theme.colorScheme.onPrimary;
-      }
+      // Use the color contrast helper to ensure proper WCAG compliance
+      return ColorContrastHelper.getContrastingTextColor(customColor!);
     }
 
     return isPrimary

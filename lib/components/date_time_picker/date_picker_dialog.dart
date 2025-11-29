@@ -8,6 +8,7 @@ import 'date_picker_types.dart';
 import 'date_picker_mobile_content.dart';
 import 'date_time_picker_constants.dart';
 import 'date_time_picker_translation_keys.dart';
+import 'footer_action_base.dart';
 
 /// Unified Date Picker Dialog - clean wrapper around DatePickerContent
 ///
