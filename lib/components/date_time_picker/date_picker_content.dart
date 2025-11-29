@@ -754,6 +754,8 @@ class _DatePickerContentState extends State<DatePickerContent> {
     if (range.key == 'no_date') {
       setState(() {
         _selectedDate = null;
+        _selectedStartDate = null;
+        _selectedEndDate = null;
       });
       _triggerHapticFeedback();
       return;
@@ -956,11 +958,13 @@ class _DatePickerContentState extends State<DatePickerContent> {
     required String label,
     required Future<void> Function() onPressed,
     Color? color,
+    String? hint,
+    bool isPrimary = false,
   }) {
     return Semantics(
       button: true,
       label: label,
-      hint: 'Tap to change reminder setting',
+      hint: hint ?? 'Tap to perform action',
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
@@ -981,17 +985,21 @@ class _DatePickerContentState extends State<DatePickerContent> {
             ),
             decoration: BoxDecoration(
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-                width: _DatePickerDesign.borderWidth,
+                color: isPrimary && color == null
+                    ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
+                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                width: isPrimary && color == null ? _DatePickerDesign.borderWidth * 1.5 : _DatePickerDesign.borderWidth,
               ),
               borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
+              color: isPrimary && color == null ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : null,
             ),
             child: Row(
               children: [
                 Icon(
                   icon,
                   size: 16,
-                  color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: color ??
+                      (isPrimary ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(width: _DatePickerDesign.spacingXSmall),
                 Expanded(
@@ -999,8 +1007,9 @@ class _DatePickerContentState extends State<DatePickerContent> {
                     label,
                     style: TextStyle(
                       fontSize: _DatePickerDesign.fontSizeMedium,
-                      fontWeight: FontWeight.w600,
-                      color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: isPrimary ? FontWeight.w700 : FontWeight.w600,
+                      color: color ??
+                          (isPrimary ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
@@ -1155,10 +1164,10 @@ class _DatePickerContentState extends State<DatePickerContent> {
                             label: label,
                             onPressed: () async {
                               await _executeFooterAction(action.onPressed);
-                              // Request a rebuild from the parent if callback is available
-                              widget.config.onRebuildRequest?.call();
                             },
                             color: color,
+                            hint: action.hint?.call(),
+                            isPrimary: action.isPrimary,
                           );
                         },
                       ),

@@ -15,6 +15,10 @@ abstract class FooterActionBase {
   /// Returns null to use default theme colors
   final Color? Function()? color;
 
+  /// Hint callback that returns the accessibility hint for the action
+  /// Returns null to use default hint
+  final String? Function()? hint;
+
   /// Async callback that executes when the action is pressed
   final Future<void> Function() onPressed;
 
@@ -25,6 +29,7 @@ abstract class FooterActionBase {
     this.icon,
     this.label,
     this.color,
+    this.hint,
     required this.onPressed,
     this.isPrimary = false,
   });
@@ -37,6 +42,9 @@ abstract class FooterActionBase {
 
   /// Gets the current color for the action
   Color? getCurrentColor() => color?.call();
+
+  /// Gets the current hint for the action
+  String? getCurrentHint() => hint?.call();
 
   /// Executes the action with proper error handling
   Future<void> execute() async {
@@ -91,6 +99,9 @@ class DateSelectionDialogFooterAction extends FooterActionBase {
   /// Static color (non-callback based)
   final Color? staticColor;
 
+  /// Static hint (non-callback based)
+  final String? staticHint;
+
   /// Static callback (synchronous for compatibility)
   final VoidCallback? staticOnPressed;
 
@@ -99,12 +110,14 @@ class DateSelectionDialogFooterAction extends FooterActionBase {
     required this.staticLabel,
     required VoidCallback onPressed,
     this.staticColor,
+    this.staticHint,
     super.isPrimary,
   })  : staticOnPressed = onPressed,
         super(
           icon: null,
           label: null,
           color: null,
+          hint: null,
           onPressed: () async {
             onPressed();
           },
@@ -118,4 +131,7 @@ class DateSelectionDialogFooterAction extends FooterActionBase {
 
   @override
   Color? getCurrentColor() => staticColor;
+
+  @override
+  String? getCurrentHint() => staticHint;
 }
