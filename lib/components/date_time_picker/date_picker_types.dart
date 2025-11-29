@@ -3,6 +3,7 @@ import 'date_time_picker_translation_keys.dart';
 import '../../time/date_format_service.dart';
 import '../../utils/dialog_size.dart';
 import 'quick_range_selector.dart';
+import 'footer_action_base.dart';
 
 // Shared types for date picker components
 
@@ -45,6 +46,8 @@ class DatePickerConfig {
   final String? doneButtonText;
   final String? cancelButtonText;
   final DialogSize? dialogSize;
+  final List<DatePickerFooterAction>? footerActions;
+  final VoidCallback? onRebuild;
 
   const DatePickerConfig({
     required this.selectionMode,
@@ -77,6 +80,8 @@ class DatePickerConfig {
     this.doneButtonText,
     this.cancelButtonText,
     this.dialogSize,
+    this.footerActions,
+    this.onRebuild,
   });
 }
 

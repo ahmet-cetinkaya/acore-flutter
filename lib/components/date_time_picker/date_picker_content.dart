@@ -9,6 +9,7 @@ import 'date_validation_display.dart';
 import '../../utils/time_formatting_util.dart';
 import '../../utils/haptic_feedback_util.dart';
 import '../../utils/dialog_size.dart';
+import 'footer_action_base.dart';
 
 /// Design constants for date picker
 class _DatePickerDesign {
@@ -39,6 +40,9 @@ class _DatePickerConstants {
     DateTimePickerTranslationKey.weekdaySatShort,
     DateTimePickerTranslationKey.weekdaySunShort,
   ];
+
+  /// Symbol for "No Date" option - using close icon to represent clearing
+  static const String noDateSymbol = '×';
 }
 
 /// Configuration for the date picker content component
@@ -68,6 +72,8 @@ class DatePickerContentConfig {
   final double? actionButtonRadius;
   final void Function(DatePickerContentResult)? onSelectionChanged;
   final bool validationErrorAtTop;
+  final List<DatePickerContentFooterAction>? footerActions;
+  final VoidCallback? onRebuildRequest;
 
   const DatePickerContentConfig({
     required this.selectionMode,
@@ -95,6 +101,8 @@ class DatePickerContentConfig {
     this.actionButtonRadius,
     this.onSelectionChanged,
     this.validationErrorAtTop = false,
+    this.footerActions,
+    this.onRebuildRequest,
   });
 }
 
@@ -327,6 +335,11 @@ class _DatePickerContentState extends State<DatePickerContent> {
             // Single date selection buttons
             if (widget.config.quickRanges != null && widget.config.quickRanges!.isNotEmpty)
               ...widget.config.quickRanges!.where((range) {
+                // Always include "No Date" option
+                if (range.key == 'no_date') {
+                  return true;
+                }
+
                 // Filter out ranges before minDate
                 if (widget.config.minDate != null) {
                   final startDate = range.startDateCalculator();
@@ -619,6 +632,27 @@ class _DatePickerContentState extends State<DatePickerContent> {
     return _isSameDay(_selectedDate!, now);
   }
 
+  /// Safely executes footer action callbacks with error handling
+  Future<void> _executeFooterAction(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (e) {
+      // Log the error but don't crash the UI
+      debugPrint('Error executing footer action: $e');
+      // Optionally show a subtle error message or snackbar
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Action failed: ${e.toString()}'),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   bool _isTomorrowSelected() {
     if (_selectedDate == null) return false;
     final tomorrow = DateTime.now().add(const Duration(days: 1));
@@ -691,6 +725,11 @@ class _DatePickerContentState extends State<DatePickerContent> {
   }
 
   bool _isQuickRangeSelected(quick.QuickDateRange range) {
+    // Handle special case for "No Date" option
+    if (range.key == 'no_date') {
+      return _selectedStartDate == null && _selectedEndDate == null;
+    }
+
     if (_selectedStartDate == null || _selectedEndDate == null) return false;
 
     final calculatedStart = range.startDateCalculator();
@@ -700,12 +739,28 @@ class _DatePickerContentState extends State<DatePickerContent> {
   }
 
   bool _isQuickSingleSelected(quick.QuickDateRange range) {
+    // Handle special case for "No Date" option
+    if (range.key == 'no_date') {
+      return _selectedDate == null;
+    }
+
     if (_selectedDate == null) return false;
     final date = range.startDateCalculator();
     return _isSameDay(_selectedDate!, date);
   }
 
   void _selectQuickRange(quick.QuickDateRange range) {
+    // Handle special case for "No Date" option
+    if (range.key == 'no_date') {
+      setState(() {
+        _selectedDate = null;
+        _selectedStartDate = null;
+        _selectedEndDate = null;
+      });
+      _triggerHapticFeedback();
+      return;
+    }
+
     final date = range.startDateCalculator();
     setState(() {
       _selectedDate = DateTime(
@@ -729,6 +784,8 @@ class _DatePickerContentState extends State<DatePickerContent> {
         return _getNextWeekDayOfWeek();
       case 'weekend':
         return _getWeekendDayOfWeek();
+      case 'no_date':
+        return _DatePickerConstants.noDateSymbol; // Clear/close symbol to represent "No Date"
       default:
         return range.label.isNotEmpty ? range.label.substring(0, 1).toUpperCase() : '';
     }
@@ -820,18 +877,22 @@ class _DatePickerContentState extends State<DatePickerContent> {
           ? _isAllDay
               ? '${_getLocalizedText(DateTimePickerTranslationKey.allDay, 'All Day')}. Tap to change time.'
               : '${_formatTimeForDisplay(_selectedDate!)}. Tap to change time.'
-          : '${_getLocalizedText(DateTimePickerTranslationKey.allDay, 'All Day')}. Tap to choose a time.',
-      hint: 'Opens time picker dialog',
+          : '${_getLocalizedText(DateTimePickerTranslationKey.allDay, 'All Day')}. No date selected.',
+      hint: _selectedDate == null ? 'Time selection disabled. Select a date first.' : 'Opens time picker dialog',
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
         child: InkWell(
-          onTap: () {
-            _openTimeSelectionDialog();
-          },
+          onTap: _selectedDate == null
+              ? null
+              : () {
+                  _openTimeSelectionDialog();
+                },
           borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
-          splashColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-          highlightColor: Theme.of(context).primaryColor.withValues(alpha: 0.05),
+          splashColor:
+              _selectedDate == null ? Colors.transparent : Theme.of(context).primaryColor.withValues(alpha: 0.1),
+          highlightColor:
+              _selectedDate == null ? Colors.transparent : Theme.of(context).primaryColor.withValues(alpha: 0.05),
           child: Container(
             height: 40,
             padding: const EdgeInsets.symmetric(
@@ -840,17 +901,22 @@ class _DatePickerContentState extends State<DatePickerContent> {
             ),
             decoration: BoxDecoration(
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                color: _selectedDate == null
+                    ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.1)
+                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
                 width: _DatePickerDesign.borderWidth,
               ),
               borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
+              color: _selectedDate == null ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.5) : null,
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.access_time,
                   size: 16,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: _selectedDate == null
+                      ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: _DatePickerDesign.spacingXSmall),
                 Expanded(
@@ -865,7 +931,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
                       fontWeight: FontWeight.w600,
                       color: _selectedDate != null
                           ? Theme.of(context).primaryColor
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                     ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
@@ -875,7 +941,87 @@ class _DatePickerContentState extends State<DatePickerContent> {
                 Icon(
                   Icons.chevron_right,
                   size: 14,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: _selectedDate == null
+                      ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)
+                      : Theme.of(context).colorScheme.onSurface,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFooterActionButton({
+    required IconData icon,
+    required String label,
+    required Future<void> Function() onPressed,
+    Color? color,
+    String? hint,
+    bool isPrimary = false,
+  }) {
+    return Semantics(
+      button: true,
+      label: label,
+      hint: hint ?? 'Tap to perform action',
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
+        child: InkWell(
+          onTap: () async {
+            await _executeFooterAction(onPressed);
+            // Request a rebuild from the parent if callback is available
+            widget.config.onRebuildRequest?.call();
+          },
+          borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
+          splashColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+          highlightColor: Theme.of(context).primaryColor.withValues(alpha: 0.05),
+          child: Container(
+            height: 40,
+            padding: const EdgeInsets.symmetric(
+              horizontal: _DatePickerDesign.spacingSmall,
+              vertical: _DatePickerDesign.spacingXSmall,
+            ),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: isPrimary && color == null
+                    ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
+                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                width: isPrimary && color == null ? _DatePickerDesign.borderWidth * 1.5 : _DatePickerDesign.borderWidth,
+              ),
+              borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
+              color: isPrimary && color == null ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : null,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 16,
+                  color: color ??
+                      (isPrimary ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+                const SizedBox(width: _DatePickerDesign.spacingXSmall),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: _DatePickerDesign.fontSizeMedium,
+                      fontWeight: isPrimary ? FontWeight.w700 : FontWeight.w600,
+                      color: color ??
+                          (isPrimary ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+                const SizedBox(width: _DatePickerDesign.spacingXSmall),
+                Icon(
+                  Icons.chevron_right,
+                  size: 14,
+                  color: _selectedDate == null
+                      ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
               ],
             ),
@@ -989,6 +1135,46 @@ class _DatePickerContentState extends State<DatePickerContent> {
                 ),
               ),
               child: _buildCompactTimeField(),
+            ),
+          // Footer actions below (always shown when provided, not just when showTime)
+          if (widget.config.footerActions != null && widget.config.footerActions!.isNotEmpty)
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: _DatePickerDesign.spacingMedium,
+                vertical: _DatePickerDesign.spacingSmall,
+              ),
+              child: Row(
+                children: widget.config.footerActions!.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final action = entry.value;
+                  return Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        right: index < widget.config.footerActions!.length - 1 ? 8.0 : 0.0,
+                      ),
+                      child: Builder(
+                        builder: (context) {
+                          // Get current values from callbacks
+                          final icon = action.icon?.call() ?? Icons.notifications_outlined;
+                          final label = action.label?.call() ?? 'Reminder';
+                          final color = action.color?.call();
+
+                          return _buildFooterActionButton(
+                            icon: icon,
+                            label: label,
+                            onPressed: () async {
+                              await _executeFooterAction(action.onPressed);
+                            },
+                            color: color,
+                            hint: action.hint?.call(),
+                            isPrimary: action.isPrimary,
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
         ],
       ),

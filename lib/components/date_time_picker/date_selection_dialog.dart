@@ -4,6 +4,7 @@ import 'date_picker_types.dart';
 import 'calendar_date_picker.dart' as custom;
 import '../mobile_action_button.dart';
 import '../../utils/haptic_feedback_util.dart';
+import 'footer_action_base.dart';
 
 class _DateSelectionDialogDesign {
   static const double spacingSmall = 8.0;
@@ -38,6 +39,7 @@ class DateSelectionDialogConfig {
   final ThemeData? theme;
   final Locale? locale;
   final double? actionButtonRadius;
+  final List<DateSelectionDialogFooterAction>? footerActions;
 
   const DateSelectionDialogConfig({
     required this.selectionMode,
@@ -50,6 +52,7 @@ class DateSelectionDialogConfig {
     this.theme,
     this.locale,
     this.actionButtonRadius,
+    this.footerActions,
   });
 }
 
@@ -301,6 +304,61 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
     }
   }
 
+  List<Widget> _buildActions() {
+    final List<Widget> actions = [];
+
+    // Add footer actions if provided
+    if (widget.config.footerActions != null && widget.config.footerActions!.isNotEmpty) {
+      for (final action in widget.config.footerActions!) {
+        actions.add(
+          Expanded(
+            child: MobileActionButton(
+              context: context,
+              onPressed: () => action.execute(),
+              text: action.getCurrentLabel() ?? 'Action',
+              icon: action.getCurrentIcon() ?? Icons.help,
+              isPrimary: action.isPrimary,
+              borderRadius: widget.config.actionButtonRadius,
+              customColor: action.getCurrentColor(),
+            ),
+          ),
+        );
+        if (action != widget.config.footerActions!.last) {
+          actions.add(const SizedBox(width: _DateSelectionDialogDesign.spacingMedium));
+        }
+      }
+    } else {
+      // Default actions if no footer actions provided
+      actions.add(
+        Expanded(
+          child: MobileActionButton(
+            context: context,
+            onPressed: _onCancel,
+            text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
+            icon: Icons.close,
+            isPrimary: false,
+            borderRadius: widget.config.actionButtonRadius,
+          ),
+        ),
+      );
+      actions.add(const SizedBox(width: _DateSelectionDialogDesign.spacingMedium));
+      actions.add(
+        Expanded(
+          child: MobileActionButton(
+            context: context,
+            onPressed: _isSelectionValid() ? _onConfirm : null,
+            text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
+            icon: Icons.check,
+            isPrimary: true,
+            borderRadius: widget.config.actionButtonRadius,
+          ),
+        ),
+      );
+    }
+
+    return actions;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = widget.config.theme ?? Theme.of(context);
@@ -379,25 +437,7 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
             ],
           ),
         ),
-        actions: [
-          MobileActionButton(
-            context: context,
-            onPressed: _onCancel,
-            text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
-            icon: Icons.close,
-            isPrimary: false,
-            borderRadius: widget.config.actionButtonRadius,
-          ),
-          const SizedBox(height: _DateSelectionDialogDesign.spacingMedium),
-          MobileActionButton(
-            context: context,
-            onPressed: _isSelectionValid() ? _onConfirm : null,
-            text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
-            icon: Icons.check,
-            isPrimary: true,
-            borderRadius: widget.config.actionButtonRadius,
-          ),
-        ],
+        actions: _buildActions(),
       ),
     );
   }
