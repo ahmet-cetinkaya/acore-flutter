@@ -62,6 +62,27 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
     return fallback;
   }
 
+  /// Handle time change and update controllers
+  void _onTimeChanged(int hour, int minute) {
+    setState(() {
+      _selectedTime = TimeOfDay(hour: hour, minute: minute);
+    });
+
+    // Update scroll controllers to sync with new time
+    _hourScrollController.animateToItem(
+      hour,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+    );
+    _minuteScrollController.animateToItem(
+      minute,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+    );
+
+    widget.onTimeChanged?.call(_selectedTime);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -90,15 +111,6 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
   void _triggerHapticFeedback() {
     widget.onHapticFeedback?.call();
     HapticFeedbackUtil.triggerHapticFeedback(context);
-  }
-
-  /// Handle time selection from picker wheels
-  void _onTimeChanged(int hour, int minute) {
-    final newTime = TimeOfDay(hour: hour, minute: minute);
-    setState(() {
-      _selectedTime = newTime;
-    });
-    widget.onTimeChanged?.call(newTime);
   }
 
   /// Build the wheel-style time picker
@@ -140,7 +152,10 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
                       onSelectedItemChanged: (index) {
                         final hour = index % 24;
                         final minute = _minuteScrollController.selectedItem;
-                        _onTimeChanged(hour, minute);
+                        setState(() {
+                          _selectedTime = TimeOfDay(hour: hour, minute: minute);
+                        });
+                        widget.onTimeChanged?.call(_selectedTime);
                       },
                       childDelegate: ListWheelChildBuilderDelegate(
                         childCount: 24 * 3, // Allow infinite scrolling
@@ -222,7 +237,10 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
                       onSelectedItemChanged: (index) {
                         final minute = index % 60;
                         final hour = _hourScrollController.selectedItem;
-                        _onTimeChanged(hour, minute);
+                        setState(() {
+                          _selectedTime = TimeOfDay(hour: hour, minute: minute);
+                        });
+                        widget.onTimeChanged?.call(_selectedTime);
                       },
                       childDelegate: ListWheelChildBuilderDelegate(
                         childCount: 60 * 3, // Allow infinite scrolling

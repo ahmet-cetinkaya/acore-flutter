@@ -269,8 +269,48 @@ class _DatePickerContentState extends State<DatePickerContent> {
     return _getLocalizedText(_DatePickerConstants.weekdayKeys[saturday.weekday - 1], 'Sat');
   }
 
-  /// Build compact Todoist-style quick selection with vertical layout
-  Widget _buildTodoistQuickSelection() {
+  /// Check if current day is weekend (Saturday or Sunday)
+  bool _isCurrentlyWeekend() {
+    final now = DateTime.now();
+    return now.weekday == DateTime.saturday || now.weekday == DateTime.sunday;
+  }
+
+  /// Check if tomorrow is the start of the week (Monday)
+  bool _isTomorrowStartOfWeek() {
+    final tomorrow = DateTime.now().add(const Duration(days: 1));
+    return tomorrow.weekday == DateTime.monday;
+  }
+
+  /// Get the appropriate weekend/weekday button text based on current day
+  String _getWeekendButtonText() {
+    return _isCurrentlyWeekend()
+        ? _getLocalizedText(DateTimePickerTranslationKey.quickSelectionNextWeekday, 'Next Weekday')
+        : _getLocalizedText(DateTimePickerTranslationKey.quickSelectionWeekend, 'Weekend');
+  }
+
+  /// Get the appropriate weekend/weekday display text based on current day
+  String _getWeekendDisplayText() {
+    if (_isCurrentlyWeekend()) {
+      // For weekend users, show Monday
+      final now = DateTime.now();
+      DateTime monday = now;
+      while (monday.weekday != DateTime.monday) {
+        monday = monday.add(const Duration(days: 1));
+      }
+      return _getLocalizedText(_DatePickerConstants.weekdayKeys[monday.weekday - 1], 'Mon');
+    } else {
+      // For weekday users, show Saturday
+      return _getWeekendDayOfWeek();
+    }
+  }
+
+  /// Get the appropriate weekend/weekday icon based on current day
+  IconData _getWeekendIcon() {
+    return _isCurrentlyWeekend() ? Icons.arrow_forward : Icons.weekend;
+  }
+
+  /// Build compact quick selection with vertical layout
+  Widget _buildQuickSelection() {
     // Show different buttons based on selection mode
     final isRangeMode = widget.config.selectionMode == DateSelectionMode.range;
 
@@ -371,29 +411,34 @@ class _DatePickerContentState extends State<DatePickerContent> {
                 isSelected: _isTodaySelected(),
                 label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionToday, 'Today'),
               ),
+              // Only show "Tomorrow" button when tomorrow is NOT the start of week
+              // to avoid duplication with "Next Weekday" which selects Monday
+              if (!_isTomorrowStartOfWeek())
+                _buildCompactQuickSelectionButton(
+                  text: _getTomorrowDayOfWeek(),
+                  onTap: () => _selectTomorrow(),
+                  type: 'tomorrow',
+                  isSelected: _isTomorrowSelected(),
+                  label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionTomorrow, 'Tomorrow'),
+                ),
               _buildCompactQuickSelectionButton(
-                text: _getTomorrowDayOfWeek(),
-                onTap: () => _selectTomorrow(),
-                type: 'tomorrow',
-                isSelected: _isTomorrowSelected(),
-                label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionTomorrow, 'Tomorrow'),
-              ),
-              _buildCompactQuickSelectionButton(
-                text: _getWeekendDayOfWeek(),
-                icon: Icons.weekend,
+                text: _getWeekendDisplayText(),
+                icon: _getWeekendIcon(),
                 onTap: () => _selectThisWeekend(),
                 type: 'weekend',
                 isSelected: _isThisWeekendSelected(),
-                label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionWeekend, 'Weekend'),
+                label: _getWeekendButtonText(),
               ),
-              _buildCompactQuickSelectionButton(
-                text: _getNextWeekDayOfWeek(),
-                icon: Icons.arrow_forward,
-                onTap: () => _selectNextWeek(),
-                type: 'nextWeek',
-                isSelected: _isNextWeekSelected(),
-                label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionNextWeek, 'Next Week'),
-              ),
+              // Only show "Next Week" button on weekdays to avoid duplicate with "Next Weekday"
+              if (!_isCurrentlyWeekend())
+                _buildCompactQuickSelectionButton(
+                  text: _getNextWeekDayOfWeek(),
+                  icon: Icons.arrow_forward,
+                  onTap: () => _selectNextWeek(),
+                  type: 'nextWeek',
+                  isSelected: _isNextWeekSelected(),
+                  label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionNextWeek, 'Next Week'),
+                ),
               _buildCompactQuickSelectionButton(
                 text: 'x',
                 icon: Icons.close,
@@ -526,17 +571,28 @@ class _DatePickerContentState extends State<DatePickerContent> {
 
   void _selectThisWeekend() {
     final now = DateTime.now();
-    // Find the Saturday of the current week. If today is Sunday, it should find the *next* Saturday.
-    int daysUntilSaturday = DateTime.saturday - now.weekday;
-    if (daysUntilSaturday < 0) {
-      daysUntilSaturday += 7;
+    DateTime targetDate;
+
+    if (_isCurrentlyWeekend()) {
+      // If current day is weekend, select next Monday
+      targetDate = now;
+      while (targetDate.weekday != DateTime.monday) {
+        targetDate = targetDate.add(const Duration(days: 1));
+      }
+    } else {
+      // If current day is weekday, select next Saturday
+      int daysUntilSaturday = DateTime.saturday - now.weekday;
+      if (daysUntilSaturday < 0) {
+        daysUntilSaturday += 7;
+      }
+      targetDate = now.add(Duration(days: daysUntilSaturday));
     }
-    var saturday = now.add(Duration(days: daysUntilSaturday));
+
     setState(() {
       _selectedDate = DateTime(
-        saturday.year,
-        saturday.month,
-        saturday.day,
+        targetDate.year,
+        targetDate.month,
+        targetDate.day,
         _selectedDate?.hour ?? 0,
         _selectedDate?.minute ?? 0,
       );
@@ -662,11 +718,23 @@ class _DatePickerContentState extends State<DatePickerContent> {
   bool _isThisWeekendSelected() {
     if (_selectedDate == null) return false;
     final now = DateTime.now();
-    DateTime saturday = now;
-    while (saturday.weekday != DateTime.saturday) {
-      saturday = saturday.add(const Duration(days: 1));
+    DateTime targetDate;
+
+    if (_isCurrentlyWeekend()) {
+      // If current day is weekend, check if Monday is selected
+      targetDate = now;
+      while (targetDate.weekday != DateTime.monday) {
+        targetDate = targetDate.add(const Duration(days: 1));
+      }
+    } else {
+      // If current day is weekday, check if Saturday is selected
+      targetDate = now;
+      while (targetDate.weekday != DateTime.saturday) {
+        targetDate = targetDate.add(const Duration(days: 1));
+      }
     }
-    return _isSameDay(_selectedDate!, saturday);
+
+    return _isSameDay(_selectedDate!, targetDate);
   }
 
   bool _isNoDateSelected() {
@@ -1105,8 +1173,8 @@ class _DatePickerContentState extends State<DatePickerContent> {
                   _buildDateValidationDisplay(),
                   SizedBox(height: _DatePickerDesign.spacingMedium),
 
-                  // Todoist-style quick selection buttons
-                  _buildTodoistQuickSelection(),
+                  // Quick selection buttons
+                  _buildQuickSelection(),
 
                   // Calendar section (always visible)
                   _buildCalendarSection(),

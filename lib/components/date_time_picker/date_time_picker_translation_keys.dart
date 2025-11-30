@@ -59,7 +59,7 @@ enum DateTimePickerTranslationKey {
   selectDateTimeTitle,
   selectDateRangeTitle,
 
-  /// Quick selection dialog
+  /// Quick selection
   quickSelection,
   quickSelectionTitle,
   refreshSettings,
@@ -75,10 +75,11 @@ enum DateTimePickerTranslationKey {
   editButtonLabel,
   editButtonHint,
 
-  /// Todoist-style quick selection
+  /// Quick selection
   quickSelectionToday,
   quickSelectionTomorrow,
   quickSelectionWeekend,
+  quickSelectionNextWeekday,
   quickSelectionNoDate,
   quickSelectionLastWeek,
   quickSelectionLastMonth,

@@ -133,7 +133,7 @@ class DatePickerDialog extends StatefulWidget {
       child: desktopContent,
       mobileChild: mobileContent,
       size: config.dialogSize ?? DialogSize.medium,
-      isScrollable: true,
+      isScrollable: false, // Disable scrolling since content handles it
       isDismissible: true,
       enableDrag: true,
     );
@@ -348,6 +348,10 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     final dialogWidth = isCompactScreen ? _DatePickerDesign.compactDialogWidth : _DatePickerDesign.maxDialogWidth;
     final appBarTitle = _getDialogTitle();
 
+    // Use dynamic height based on whether time picker is shown
+    final screenHeight = MediaQuery.of(context).size.height;
+    final maxHeight = widget.config.showTime ? screenHeight * 0.95 : screenHeight * 0.85;
+
     return AlertDialog(
       insetPadding: const EdgeInsets.all(16.0),
       contentPadding: EdgeInsets.zero,
@@ -361,7 +365,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       content: Container(
         width: dialogWidth,
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.85,
+          maxHeight: maxHeight,
         ),
         child: Scaffold(
           resizeToAvoidBottomInset: false,
@@ -526,6 +530,10 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
     final theme = widget.config.theme ?? Theme.of(context);
     final appBarTitle = _getDialogTitle();
 
+    // Calculate height based on whether time picker is shown
+    final screenHeight = MediaQuery.of(context).size.height;
+    final maxHeight = widget.config.showTime ? screenHeight * 0.95 : screenHeight * 0.9;
+
     // Create content config for DatePickerContent
     final contentConfig = DatePickerContentConfig(
       selectionMode: widget.config.selectionMode,
@@ -574,7 +582,7 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Container(
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.9,
+          maxHeight: maxHeight,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

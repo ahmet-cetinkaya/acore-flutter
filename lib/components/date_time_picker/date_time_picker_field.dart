@@ -98,6 +98,10 @@ class DateTimePickerField extends StatelessWidget {
         DateTimePickerTranslationKey.confirm: _getTranslation(DateTimePickerTranslationKey.confirm, 'Confirm'),
         DateTimePickerTranslationKey.cancel: _getTranslation(DateTimePickerTranslationKey.cancel, 'Cancel'),
         DateTimePickerTranslationKey.setTime: _getTranslation(DateTimePickerTranslationKey.setTime, 'Set Time'),
+        DateTimePickerTranslationKey.selectTimeTitle:
+            _getTranslation(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
+        DateTimePickerTranslationKey.selectedTime:
+            _getTranslation(DateTimePickerTranslationKey.selectedTime, 'Selected time'),
         DateTimePickerTranslationKey.noDateSelected:
             _getTranslation(DateTimePickerTranslationKey.noDateSelected, 'No date selected'),
         DateTimePickerTranslationKey.clear: _getTranslation(DateTimePickerTranslationKey.clear, 'Clear'),
