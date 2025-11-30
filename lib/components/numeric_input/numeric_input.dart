@@ -43,16 +43,12 @@ class NumericInput extends StatefulWidget {
 
 class _NumericInputState extends State<NumericInput> {
   late TextEditingController _controller;
-  late FocusNode _containerFocusNode;
-  late FocusNode _textFieldFocusNode;
 
   @override
   void initState() {
     super.initState();
     final startValue = widget.value ?? widget.initialValue;
     _controller = TextEditingController(text: startValue.toString());
-    _containerFocusNode = FocusNode();
-    _textFieldFocusNode = FocusNode();
   }
 
   @override
@@ -73,8 +69,6 @@ class _NumericInputState extends State<NumericInput> {
   @override
   void dispose() {
     _controller.dispose();
-    _containerFocusNode.dispose();
-    _textFieldFocusNode.dispose();
     super.dispose();
   }
 
@@ -203,63 +197,48 @@ class _NumericInputState extends State<NumericInput> {
         ),
         if (widget.style == NumericInputStyle.contained)
           Expanded(
-            child: Text(
-              widget.valueSuffix != null ? '${_controller.text} ${widget.valueSuffix}' : _controller.text,
+            child: TextField(
+              controller: _controller,
               textAlign: TextAlign.center,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')),
+              ],
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+                isDense: true,
+                hintText: widget.valueSuffix != null ? '0 ${widget.valueSuffix}' : '0',
+                hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                suffixText: widget.valueSuffix,
+                suffixStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+              ),
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+              onChanged: _onValueChanged,
             ),
           )
         else ...[
-          Semantics(
-            textField: true,
-            label: _getTranslation(NumericInputTranslationKey.textFieldLabel, 'Numeric input'),
-            hint: widget.valueSuffix != null
-                ? _getTranslation(
-                    NumericInputTranslationKey.textFieldHint,
-                    'Enter a number between $minValue and ${maxValue ?? 'unlimited'} ${widget.valueSuffix}',
-                  )
-                : _getTranslation(
-                    NumericInputTranslationKey.textFieldHint,
-                    'Enter a number between $minValue and ${maxValue ?? 'unlimited'}',
-                  ),
-            value: _controller.text,
-            child: SizedBox(
-              width: (_controller.text.length * 12.0).clamp(50.0, 100.0),
-              child: Focus(
-                focusNode: _containerFocusNode,
-                onKeyEvent: (node, event) {
-                  if (event is KeyDownEvent) {
-                    if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-                      if (currentValue < (maxValue ?? double.infinity)) {
-                        _increment();
-                        return KeyEventResult.handled;
-                      }
-                    } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-                      if (currentValue > minValue) {
-                        _decrement();
-                        return KeyEventResult.handled;
-                      }
-                    }
-                  }
-                  return KeyEventResult.ignored;
-                },
-                child: TextField(
-                  controller: _controller,
-                  focusNode: _textFieldFocusNode,
-                  textAlign: TextAlign.center,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')),
-                  ],
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    isDense: true,
-                  ),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  onChanged: _onValueChanged,
-                ),
+          SizedBox(
+            width: (_controller.text.length * 12.0).clamp(50.0, 100.0),
+            child: TextField(
+              controller: _controller,
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')),
+              ],
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                isDense: true,
               ),
+              style: Theme.of(context).textTheme.bodyMedium,
+              onChanged: _onValueChanged,
             ),
           ),
           if (widget.valueSuffix != null)
