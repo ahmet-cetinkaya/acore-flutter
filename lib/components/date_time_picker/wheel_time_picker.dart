@@ -62,27 +62,6 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
     return fallback;
   }
 
-  /// Handle time change and update controllers
-  void _onTimeChanged(int hour, int minute) {
-    setState(() {
-      _selectedTime = TimeOfDay(hour: hour, minute: minute);
-    });
-
-    // Update scroll controllers to sync with new time
-    _hourScrollController.animateToItem(
-      hour,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
-    );
-    _minuteScrollController.animateToItem(
-      minute,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
-    );
-
-    widget.onTimeChanged?.call(_selectedTime);
-  }
-
   @override
   void initState() {
     super.initState();
