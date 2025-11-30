@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import '../../utils/haptic_feedback_util.dart';
 import 'date_time_picker_translation_keys.dart';
 
@@ -122,45 +123,48 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
                       }
                       return false;
                     },
-                    child: ListWheelScrollView.useDelegate(
-                      controller: _hourScrollController,
-                      itemExtent: _WheelTimePickerDesign.itemExtent,
-                      squeeze: _WheelTimePickerDesign.squeeze,
-                      diameterRatio: _WheelTimePickerDesign.diameterRatio,
-                      physics: const FixedExtentScrollPhysics(),
-                      onSelectedItemChanged: (index) {
-                        final hour = index % 24;
-                        final minute = _minuteScrollController.selectedItem;
-                        setState(() {
-                          _selectedTime = TimeOfDay(hour: hour, minute: minute);
-                        });
-                        widget.onTimeChanged?.call(_selectedTime);
-                      },
-                      childDelegate: ListWheelChildBuilderDelegate(
-                        childCount: 24 * 3, // Allow infinite scrolling
-                        builder: (context, index) {
+                    child: ScrollConfiguration(
+                      behavior: _MouseEnabledScrollBehavior(),
+                      child: ListWheelScrollView.useDelegate(
+                        controller: _hourScrollController,
+                        itemExtent: _WheelTimePickerDesign.itemExtent,
+                        squeeze: _WheelTimePickerDesign.squeeze,
+                        diameterRatio: _WheelTimePickerDesign.diameterRatio,
+                        physics: const FixedExtentScrollPhysics(),
+                        onSelectedItemChanged: (index) {
                           final hour = index % 24;
-                          final isSelected = hour == _selectedTime.hour;
-                          final distance = ((hour - _selectedTime.hour).abs() % 24);
-                          final isNear = distance == 1 || distance == 23;
-
-                          return Container(
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.symmetric(horizontal: _WheelTimePickerDesign.spacingSmall),
-                            child: Text(
-                              hour.toString().padLeft(2, '0'),
-                              style: TextStyle(
-                                fontSize: isCompactScreen ? 20 : 24,
-                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                                color: isSelected
-                                    ? Theme.of(context).colorScheme.primary
-                                    : isNear
-                                        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
-                                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-                              ),
-                            ),
-                          );
+                          final minute = _minuteScrollController.selectedItem % 60;
+                          setState(() {
+                            _selectedTime = TimeOfDay(hour: hour, minute: minute);
+                          });
+                          widget.onTimeChanged?.call(_selectedTime);
                         },
+                        childDelegate: ListWheelChildBuilderDelegate(
+                          childCount: 24 * 3, // Allow infinite scrolling
+                          builder: (context, index) {
+                            final hour = index % 24;
+                            final isSelected = hour == _selectedTime.hour;
+                            final distance = ((hour - _selectedTime.hour).abs() % 24);
+                            final isNear = distance == 1 || distance == 23;
+
+                            return Container(
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.symmetric(horizontal: _WheelTimePickerDesign.spacingSmall),
+                              child: Text(
+                                hour.toString().padLeft(2, '0'),
+                                style: TextStyle(
+                                  fontSize: isCompactScreen ? 20 : 24,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.primary
+                                      : isNear
+                                          ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
+                                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -207,45 +211,48 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
                       }
                       return false;
                     },
-                    child: ListWheelScrollView.useDelegate(
-                      controller: _minuteScrollController,
-                      itemExtent: _WheelTimePickerDesign.itemExtent,
-                      squeeze: _WheelTimePickerDesign.squeeze,
-                      diameterRatio: _WheelTimePickerDesign.diameterRatio,
-                      physics: const FixedExtentScrollPhysics(),
-                      onSelectedItemChanged: (index) {
-                        final minute = index % 60;
-                        final hour = _hourScrollController.selectedItem;
-                        setState(() {
-                          _selectedTime = TimeOfDay(hour: hour, minute: minute);
-                        });
-                        widget.onTimeChanged?.call(_selectedTime);
-                      },
-                      childDelegate: ListWheelChildBuilderDelegate(
-                        childCount: 60 * 3, // Allow infinite scrolling
-                        builder: (context, index) {
+                    child: ScrollConfiguration(
+                      behavior: _MouseEnabledScrollBehavior(),
+                      child: ListWheelScrollView.useDelegate(
+                        controller: _minuteScrollController,
+                        itemExtent: _WheelTimePickerDesign.itemExtent,
+                        squeeze: _WheelTimePickerDesign.squeeze,
+                        diameterRatio: _WheelTimePickerDesign.diameterRatio,
+                        physics: const FixedExtentScrollPhysics(),
+                        onSelectedItemChanged: (index) {
                           final minute = index % 60;
-                          final isSelected = minute == _selectedTime.minute;
-                          final distance = ((minute - _selectedTime.minute).abs() % 60);
-                          final isNear = distance == 1 || distance == 59;
-
-                          return Container(
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.symmetric(horizontal: _WheelTimePickerDesign.spacingSmall),
-                            child: Text(
-                              minute.toString().padLeft(2, '0'),
-                              style: TextStyle(
-                                fontSize: isCompactScreen ? 20 : 24,
-                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                                color: isSelected
-                                    ? Theme.of(context).colorScheme.primary
-                                    : isNear
-                                        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
-                                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-                              ),
-                            ),
-                          );
+                          final hour = _hourScrollController.selectedItem % 24;
+                          setState(() {
+                            _selectedTime = TimeOfDay(hour: hour, minute: minute);
+                          });
+                          widget.onTimeChanged?.call(_selectedTime);
                         },
+                        childDelegate: ListWheelChildBuilderDelegate(
+                          childCount: 60 * 3, // Allow infinite scrolling
+                          builder: (context, index) {
+                            final minute = index % 60;
+                            final isSelected = minute == _selectedTime.minute;
+                            final distance = ((minute - _selectedTime.minute).abs() % 60);
+                            final isNear = distance == 1 || distance == 59;
+
+                            return Container(
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.symmetric(horizontal: _WheelTimePickerDesign.spacingSmall),
+                              child: Text(
+                                minute.toString().padLeft(2, '0'),
+                                style: TextStyle(
+                                  fontSize: isCompactScreen ? 20 : 24,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.primary
+                                      : isNear
+                                          ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
+                                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -269,4 +276,15 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
       ),
     );
   }
+}
+
+class _MouseEnabledScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.invertedStylus,
+        PointerDeviceKind.unknown,
+        PointerDeviceKind.mouse,
+      };
 }
