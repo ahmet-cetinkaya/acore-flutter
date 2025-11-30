@@ -4,15 +4,13 @@ import 'package:acore/components/date_time_picker/wheel_time_picker.dart';
 
 void main() {
   testWidgets('WheelTimePicker handles scrolling past 24 hours correctly', (WidgetTester tester) async {
-    TimeOfDay? selectedTime;
-
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: WheelTimePicker(
             initialTime: const TimeOfDay(hour: 10, minute: 30),
             onTimeChanged: (time) {
-              selectedTime = time;
+              // Time change callback - just verify it doesn't crash
             },
           ),
         ),
@@ -44,15 +42,13 @@ void main() {
   });
 
   testWidgets('WheelTimePicker handles scrolling past 60 minutes correctly', (WidgetTester tester) async {
-    TimeOfDay? selectedTime;
-
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: WheelTimePicker(
             initialTime: const TimeOfDay(hour: 10, minute: 30),
             onTimeChanged: (time) {
-              selectedTime = time;
+              // Time change callback - just verify it doesn't crash
             },
           ),
         ),
