@@ -14,3 +14,4 @@ export 'date_time_picker/time_selector.dart';
 export 'date_time_picker/time_selection_dialog.dart';
 export 'numeric_input/numeric_input.dart';
 export 'numeric_input/numeric_input_translation_keys.dart';
+export 'swipe_to_confirm.dart';
