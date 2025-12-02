@@ -64,6 +64,9 @@ class FileLogger implements ILogger {
     _flushTimer = Timer.periodic(const Duration(seconds: 5), (_) => _flushBuffer());
   }
 
+  /// Gets the log file path
+  String get filePath => _filePath;
+
   @override
   void debug(String message, [Object? error, StackTrace? stackTrace]) {
     _log(LogLevel.debug, message, error, stackTrace);
@@ -139,8 +142,8 @@ class FileLogger implements ILogger {
       _buffer.write('[$timestamp] ');
     }
 
-    // Add log level
-    _buffer.write('[${level.name}] ');
+    // Add log level with standardized format
+    _buffer.write('[${level.name.toUpperCase()}] ');
 
     // Add main message
     _buffer.write(message);
