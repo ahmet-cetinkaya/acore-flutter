@@ -12,5 +12,6 @@ export 'date_time_picker/footer_action_base.dart';
 export 'date_time_picker/quick_range_selector.dart';
 export 'date_time_picker/time_selector.dart';
 export 'date_time_picker/time_selection_dialog.dart';
+export 'markdown_editor/markdown_editor.dart';
 export 'numeric_input/numeric_input.dart';
 export 'numeric_input/numeric_input_translation_keys.dart';
