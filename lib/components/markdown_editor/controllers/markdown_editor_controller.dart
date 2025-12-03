@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/markdown_editor_interfaces.dart';
 
@@ -10,9 +11,11 @@ class MarkdownEditorController {
   final IMarkdownLinkHandler linkHandler;
   final IMarkdownStyleProvider styleProvider;
   final IMarkdownToolbarConfiguration toolbarConfiguration;
+  final bool _ownsController;
 
   final MarkdownEditorState _state = MarkdownEditorState();
   VoidCallback? _onStateChanged;
+  Timer? _debounceTimer;
 
   MarkdownEditorController({
     required this.textController,
@@ -22,7 +25,9 @@ class MarkdownEditorController {
     required this.styleProvider,
     required this.toolbarConfiguration,
     VoidCallback? onStateChanged,
-  }) : focusNode = FocusNode() {
+    bool ownsController = false,
+  })  : focusNode = FocusNode(),
+        _ownsController = ownsController {
     _onStateChanged = onStateChanged;
     _initialize();
   }
@@ -50,22 +55,31 @@ class MarkdownEditorController {
   void _removeTextChangeListener() {
     try {
       textController.removeListener(_onTextChanged);
+    } on StateError catch (e) {
+      // Expected when controller already disposed
+      debugPrint('Text controller disposed: $e');
     } catch (e) {
-      // Log errors for debugging - removeListener should not typically throw
-      debugPrint('Error removing text change listener: $e');
+      // Log unexpected errors for debugging
+      debugPrint('Unexpected error removing text change listener: $e');
     }
   }
 
   void _onTextChanged() {
     if (_state.isInitializing) return;
 
-    try {
-      callbacks.onChanged?.call(textController.text);
-    } catch (e) {
-      // Propagate user callback errors for better debugging
-      debugPrint('Error in onChanged callback: $e');
-      rethrow;
-    }
+    // Cancel previous debounce timer
+    _debounceTimer?.cancel();
+
+    // Schedule new callback with debounce
+    _debounceTimer = Timer(config.textChangeDebounce, () {
+      try {
+        callbacks.onChanged?.call(textController.text);
+      } catch (e) {
+        // Log user callback errors but don't crash the editor
+        debugPrint('Error in onChanged callback: $e');
+        rethrow;
+      }
+    });
   }
 
   void togglePreviewMode() {
@@ -105,7 +119,18 @@ class MarkdownEditorController {
 
   /// Dispose resources
   void dispose() {
+    // Cancel debounce timer to prevent memory leaks
+    _debounceTimer?.cancel();
+
+    // Remove text change listener
     _removeTextChangeListener();
+
+    // Dispose TextEditingController if we own it
+    if (_ownsController) {
+      textController.dispose();
+    }
+
+    // Dispose FocusNode
     focusNode.dispose();
   }
 }

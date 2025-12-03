@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
@@ -10,6 +11,7 @@ class MarkdownEditorConfig {
   final bool showToolbar;
   final bool enablePreviewMode;
   final Map<String, String>? translations;
+  final Duration textChangeDebounce;
 
   const MarkdownEditorConfig({
     this.hintText,
@@ -20,6 +22,7 @@ class MarkdownEditorConfig {
     this.showToolbar = true,
     this.enablePreviewMode = true,
     this.translations,
+    this.textChangeDebounce = const Duration(milliseconds: 300),
   });
 
   MarkdownEditorConfig copyWith({
@@ -31,6 +34,7 @@ class MarkdownEditorConfig {
     bool? showToolbar,
     bool? enablePreviewMode,
     Map<String, String>? translations,
+    Duration? textChangeDebounce,
   }) {
     return MarkdownEditorConfig(
       hintText: hintText ?? this.hintText,
@@ -41,6 +45,7 @@ class MarkdownEditorConfig {
       showToolbar: showToolbar ?? this.showToolbar,
       enablePreviewMode: enablePreviewMode ?? this.enablePreviewMode,
       translations: translations ?? this.translations,
+      textChangeDebounce: textChangeDebounce ?? this.textChangeDebounce,
     );
   }
 }

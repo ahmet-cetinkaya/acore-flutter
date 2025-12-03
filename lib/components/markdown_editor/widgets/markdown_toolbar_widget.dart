@@ -82,41 +82,56 @@ class MarkdownToolbarWidget extends StatelessWidget {
       horizontalRuleTooltip: tooltips['horizontalRule'] ?? '',
     );
 
+    // Wrap with semantic container for accessibility
+    final semanticToolbar = Semantics(
+      label: 'Markdown formatting toolbar',
+      hint: 'Use toolbar buttons to format text',
+      child: toolbar,
+    );
+
     if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: toolbar,
+        child: semanticToolbar,
       );
     }
 
-    return toolbar;
+    return semanticToolbar;
   }
 
   Widget _buildPreviewToggle(ThemeData theme) {
+    final buttonLabel = isPreviewMode ? 'Switch to edit mode' : 'Switch to preview mode';
+    final buttonHint = isPreviewMode ? 'Return to markdown editing mode' : 'View formatted markdown output';
+
     return Container(
       margin: const EdgeInsets.all(8),
-      child: IconButton(
-        icon: Icon(
-          isPreviewMode ? Icons.edit : Icons.visibility,
-          size: 20,
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-        ),
-        onPressed: onPreviewToggle,
-        tooltip: isPreviewMode
-            ? (translations?[MarkdownEditorTranslationKeys.editTooltip] ?? 'Edit')
-            : (translations?[MarkdownEditorTranslationKeys.previewTooltip] ?? 'Preview'),
-        padding: const EdgeInsets.all(4),
-        constraints: const BoxConstraints(
-          minWidth: 32,
-          minHeight: 32,
-        ),
-        style: IconButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-          hoverColor: theme.colorScheme.onSurface.withValues(alpha: 0.1),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+      child: Semantics(
+        button: true,
+        label: buttonLabel,
+        hint: buttonHint,
+        child: IconButton(
+          icon: Icon(
+            isPreviewMode ? Icons.edit : Icons.visibility,
+            size: 20,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+          ),
+          onPressed: onPreviewToggle,
+          tooltip: isPreviewMode
+              ? (translations?[MarkdownEditorTranslationKeys.editTooltip] ?? 'Edit')
+              : (translations?[MarkdownEditorTranslationKeys.previewTooltip] ?? 'Preview'),
+          padding: const EdgeInsets.all(4),
+          constraints: const BoxConstraints(
+            minWidth: 32,
+            minHeight: 32,
+          ),
+          style: IconButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+            hoverColor: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         ),
       ),

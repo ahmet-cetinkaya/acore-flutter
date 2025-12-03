@@ -24,15 +24,21 @@ class MarkdownToolbarConfiguration implements IMarkdownToolbarConfiguration {
 
   @override
   MarkdownToolbarStyle configureToolbarStyle(ThemeData theme, Color? backgroundColor) {
+    // Calculate theme-aware dimensions
+    final baseIconSize = theme.iconTheme.size ?? 20.0;
+    final scaleFactor = baseIconSize / 20.0; // Scale based on standard 20px
+    final scaledPadding = 16.0 * scaleFactor;
+    final scaledSpacing = 4.0 * scaleFactor;
+
     return MarkdownToolbarStyle(
       iconColor: theme.colorScheme.primary,
       dropdownTextColor: theme.colorScheme.primary,
-      iconSize: 20.0,
-      width: 36.0,
-      height: 36.0,
-      spacing: 4.0,
-      runSpacing: 4.0,
-      borderRadius: BorderRadius.circular(8),
+      iconSize: baseIconSize,
+      width: baseIconSize + scaledPadding,
+      height: baseIconSize + scaledPadding,
+      spacing: scaledSpacing,
+      runSpacing: scaledSpacing,
+      borderRadius: BorderRadius.circular(8 * scaleFactor),
       collapsible: false,
     );
   }
