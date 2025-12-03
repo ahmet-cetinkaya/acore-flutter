@@ -41,7 +41,6 @@ class MarkdownEditorWidget extends StatelessWidget {
         filled: false,
       ),
       onTap: onTap,
-      onChanged: (value) {},
     );
   }
 }
