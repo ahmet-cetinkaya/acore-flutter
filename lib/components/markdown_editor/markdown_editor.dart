@@ -66,6 +66,7 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
   late final IMarkdownToolbarConfiguration _toolbarConfigurator;
   late final IMarkdownLinkHandler _linkHandler;
   late final IMarkdownStyleProvider _styleProvider;
+  late final bool _internalControllerCreated;
 
   @override
   void initState() {
@@ -83,6 +84,7 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
 
   void _createEditorController() {
     final controller = widget.externalController ?? TextEditingController();
+    _internalControllerCreated = widget.externalController == null;
 
     _editorController = MarkdownEditorController(
       textController: controller,
@@ -102,17 +104,17 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
   void _setupInitialization() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        try {
-          _editorController.setInitializing(false);
-        } catch (e) {
-          _editorController.setInitializing(false);
-        }
+        _editorController.setInitializing(false);
       }
     });
   }
 
   @override
   void dispose() {
+    // Dispose the TextEditingController if it was created internally
+    if (_internalControllerCreated) {
+      _editorController.textController.dispose();
+    }
     _editorController.dispose();
     super.dispose();
   }

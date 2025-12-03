@@ -40,17 +40,8 @@ class MarkdownEditorWidget extends StatelessWidget {
         contentPadding: const EdgeInsets.all(16.0),
         filled: false,
       ),
-      onTap: () {
-        try {
-          if (focusNode.canRequestFocus && !focusNode.hasFocus) {
-            focusNode.requestFocus();
-          }
-          onTap?.call();
-        } catch (e) {}
-      },
-      onChanged: (value) {
-        try {} catch (e) {}
-      },
+      onTap: onTap,
+      onChanged: (value) {},
     );
   }
 }

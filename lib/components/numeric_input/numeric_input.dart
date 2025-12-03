@@ -20,6 +20,7 @@ class NumericInput extends StatefulWidget {
   final Color? iconColor;
   final Map<NumericInputTranslationKey, String>? translations;
   final NumericInputStyle style;
+  final double? textFieldWidth;
 
   const NumericInput({
     super.key,
@@ -35,6 +36,7 @@ class NumericInput extends StatefulWidget {
     this.iconColor,
     this.translations,
     this.style = NumericInputStyle.minimal,
+    this.textFieldWidth,
   });
 
   @override
@@ -49,6 +51,27 @@ class _NumericInputState extends State<NumericInput> {
     super.initState();
     final startValue = widget.value ?? widget.initialValue;
     _controller = TextEditingController(text: startValue.toString());
+  }
+
+  /// Calculate optimal text field width based on text metrics
+  double _measureTextFieldWidth(BuildContext context) {
+    final theme = Theme.of(context);
+    final textStyle = theme.textTheme.bodyMedium ?? const TextStyle();
+    final suffix = widget.valueSuffix ?? '';
+
+    // Use a representative maximum-length numeric string (e.g., for 3-4 digit input)
+    const sample = '0000';
+
+    final painter = TextPainter(
+      text: TextSpan(text: '$sample$suffix', style: textStyle),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout();
+
+    // Add some horizontal padding so the text doesn't touch edges
+    const horizontalPadding = 16.0;
+
+    return painter.width + horizontalPadding;
   }
 
   @override
@@ -199,7 +222,7 @@ class _NumericInputState extends State<NumericInput> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: SizedBox(
-              width: 60,
+              width: widget.textFieldWidth ?? _measureTextFieldWidth(context),
               child: TextField(
                 controller: _controller,
                 textAlign: TextAlign.center,

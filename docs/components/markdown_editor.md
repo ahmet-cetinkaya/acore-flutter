@@ -127,7 +127,7 @@ MarkdownEditor.simple(
 
 #### Constructors
 
-##### `MarkdownEditor.full()`
+##### `MarkdownEditor()`
 
 Full constructor with complete configuration options.
 
@@ -231,11 +231,11 @@ Implement `IMarkdownToolbarConfiguration` to customize toolbar behavior:
 ```dart
 class CustomToolbarConfiguration implements IMarkdownToolbarConfiguration {
   @override
-  Map<String, String> configureTooltipsUsingKeys() {
+  Map<String, String> configureTooltipsUsingKeys({Map<String, String>? translations}) {
     return {
-      'bold': 'Make text bold',
-      'italic': 'Make text italic',
-      // Custom tooltips
+      'bold': translations?['bold'] ?? 'Make text bold',
+      'italic': translations?['italic'] ?? 'Make text italic',
+      // Custom tooltips with optional localization
     };
   }
 

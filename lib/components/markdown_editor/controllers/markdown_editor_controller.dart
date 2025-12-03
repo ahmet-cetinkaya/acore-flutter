@@ -50,7 +50,10 @@ class MarkdownEditorController {
   void _removeTextChangeListener() {
     try {
       textController.removeListener(_onTextChanged);
-    } catch (e) {}
+    } catch (e) {
+      // Log errors for debugging - removeListener should not typically throw
+      debugPrint('Error removing text change listener: $e');
+    }
   }
 
   void _onTextChanged() {
@@ -58,7 +61,11 @@ class MarkdownEditorController {
 
     try {
       callbacks.onChanged?.call(textController.text);
-    } catch (e) {}
+    } catch (e) {
+      // Propagate user callback errors for better debugging
+      debugPrint('Error in onChanged callback: $e');
+      rethrow;
+    }
   }
 
   void togglePreviewMode() {
