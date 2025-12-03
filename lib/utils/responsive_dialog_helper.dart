@@ -94,11 +94,7 @@ class ResponsiveDialogHelper {
           context: context,
           barrierDismissible: isDismissible,
           builder: (BuildContext context) {
-            return Center(
-              child: SingleChildScrollView(
-                child: effectiveMobileChild,
-              ),
-            );
+            return effectiveMobileChild;
           },
         );
       }

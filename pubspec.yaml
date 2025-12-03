@@ -26,6 +26,11 @@ dependencies:
   # UI components and utilities
   modal_bottom_sheet: ^3.0.0
 
+  # Markdown editor dependencies
+  flutter_markdown: ^0.7.6+3
+  markdown_toolbar: ^0.5.0
+  url_launcher: ^6.3.0+3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

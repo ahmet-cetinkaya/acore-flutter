@@ -20,6 +20,7 @@ class NumericInput extends StatefulWidget {
   final Color? iconColor;
   final Map<NumericInputTranslationKey, String>? translations;
   final NumericInputStyle style;
+  final double? textFieldWidth;
 
   const NumericInput({
     super.key,
@@ -35,6 +36,7 @@ class NumericInput extends StatefulWidget {
     this.iconColor,
     this.translations,
     this.style = NumericInputStyle.minimal,
+    this.textFieldWidth,
   });
 
   @override
@@ -49,6 +51,27 @@ class _NumericInputState extends State<NumericInput> {
     super.initState();
     final startValue = widget.value ?? widget.initialValue;
     _controller = TextEditingController(text: startValue.toString());
+  }
+
+  /// Calculate optimal text field width based on text metrics
+  double _measureTextFieldWidth(BuildContext context) {
+    final theme = Theme.of(context);
+    final textStyle = theme.textTheme.bodyMedium ?? const TextStyle();
+    final suffix = widget.valueSuffix ?? '';
+
+    // Use a representative maximum-length numeric string (e.g., for 3-4 digit input)
+    const sample = '0000';
+
+    final painter = TextPainter(
+      text: TextSpan(text: '$sample$suffix', style: textStyle),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout();
+
+    // Add some horizontal padding so the text doesn't touch edges
+    const horizontalPadding = 16.0;
+
+    return painter.width + horizontalPadding;
   }
 
   @override
@@ -196,30 +219,34 @@ class _NumericInputState extends State<NumericInput> {
                 ),
         ),
         if (widget.style == NumericInputStyle.contained)
-          Expanded(
-            child: TextField(
-              controller: _controller,
-              textAlign: TextAlign.center,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')),
-              ],
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-                isDense: true,
-                hintText: widget.valueSuffix != null ? '0 ${widget.valueSuffix}' : '0',
-                hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                suffixText: widget.valueSuffix,
-                suffixStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: SizedBox(
+              width: widget.textFieldWidth ?? _measureTextFieldWidth(context),
+              child: TextField(
+                controller: _controller,
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')),
+                ],
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                  isDense: true,
+                  hintText: widget.valueSuffix != null ? '0 ${widget.valueSuffix}' : '0',
+                  hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                  suffixText: widget.valueSuffix,
+                  suffixStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                onChanged: _onValueChanged,
               ),
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-              onChanged: _onValueChanged,
             ),
           )
         else ...[
