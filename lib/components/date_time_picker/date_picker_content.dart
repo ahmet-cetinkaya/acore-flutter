@@ -26,6 +26,9 @@ class _DatePickerDesign {
 
   // Border width
   static const double borderWidth = 1.0;
+
+  // Quick selection
+  static const double quickSelectionIconSize = 32.0;
 }
 
 /// Common constants shared across date picker components
@@ -491,8 +494,8 @@ class _DatePickerContentState extends State<DatePickerContent> {
                 children: [
                   // Left icon or number with container styling
                   Container(
-                    width: 28,
-                    height: 28,
+                    width: _DatePickerDesign.quickSelectionIconSize,
+                    height: _DatePickerDesign.quickSelectionIconSize,
                     decoration: BoxDecoration(
                       color: isSelected
                           ? Theme.of(context).primaryColor.withValues(alpha: 0.3)
@@ -517,6 +520,8 @@ class _DatePickerContentState extends State<DatePickerContent> {
                                         : Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                               overflow: TextOverflow.clip,
+                              maxLines: 1,
+                              softWrap: false,
                             ),
                     ),
                   ),
