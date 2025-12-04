@@ -31,9 +31,14 @@ class DatePickerDialog extends StatefulWidget {
     required BuildContext context,
     required DatePickerConfig config,
   }) async {
-    return await showDialog<DatePickerResult>(
+    // Use ResponsiveDialogHelper to show the dialog
+    return await ResponsiveDialogHelper.showResponsiveDialog<DatePickerResult>(
       context: context,
-      builder: (context) => DatePickerDialog(config: config),
+      child: DatePickerDialog(config: config),
+      size: config.dialogSize ?? DialogSize.medium,
+      isScrollable: false, // Content handles scrolling
+      isDismissible: true,
+      enableDrag: true,
     );
   }
 
@@ -120,6 +125,16 @@ class DatePickerDialog extends StatefulWidget {
         dateTimeValidator: config.dateTimeValidator,
         validationErrorMessage: config.validationErrorMessage,
         actionButtonRadius: config.actionButtonRadius,
+        footerActions: config.footerActions
+            ?.map((action) => DatePickerContentFooterAction(
+                  icon: action.icon,
+                  label: action.label,
+                  onPressed: action.onPressed,
+                  color: action.color,
+                  isPrimary: action.isPrimary,
+                  listenable: action.listenable,
+                ))
+            .toList(),
       ),
       onConfirm: null,
       onCancel: () {
@@ -284,6 +299,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                 onPressed: action.onPressed,
                 color: action.color,
                 isPrimary: action.isPrimary,
+                listenable: action.listenable,
               ))
           .toList(),
       // Add rebuild callback
@@ -294,57 +310,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       },
     );
 
-    // If using mobile scaffold layout, use proper Scaffold structure
-    if (widget.config.useMobileScaffoldLayout) {
-      return Theme(
-        data: theme,
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            centerTitle: false,
-            title: Text(
-              _getDialogTitle(),
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            automaticallyImplyLeading: false,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop(),
-              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            ),
-            actions: [
-              TextButton(
-                key: const Key('date_picker_done_button'),
-                onPressed: _handleConfirm,
-                child: Text(
-                  _getDoneButtonText(),
-                  style: TextStyle(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(width: DateTimePickerConstants.sizeSmall),
-            ],
-          ),
-          body: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: DatePickerContent(
-                config: contentConfig,
-                onCancel: _onCancel,
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Desktop: Use AlertDialog wrapper with Scaffold layout for proper structure
+    // Use Scaffold structure for both mobile (if requested) and desktop (inside Dialog)
     final dialogWidth = isCompactScreen ? _DatePickerDesign.compactDialogWidth : _DatePickerDesign.maxDialogWidth;
     final appBarTitle = _getDialogTitle();
 
@@ -352,64 +318,53 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     final screenHeight = MediaQuery.of(context).size.height;
     final maxHeight = widget.config.showTime ? screenHeight * 0.95 : screenHeight * 0.85;
 
-    return AlertDialog(
-      insetPadding: const EdgeInsets.all(16.0),
-      contentPadding: EdgeInsets.zero,
-      backgroundColor: theme.colorScheme.surface,
-      surfaceTintColor: theme.colorScheme.surfaceTint,
-      shadowColor: theme.shadowColor,
-      elevation: 6.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
+    return Container(
+      width: dialogWidth,
+      constraints: BoxConstraints(
+        maxHeight: maxHeight,
       ),
-      content: Container(
-        width: dialogWidth,
-        constraints: BoxConstraints(
-          maxHeight: maxHeight,
-        ),
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            centerTitle: false,
-            title: Text(
-              appBarTitle,
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          centerTitle: false,
+          title: Text(
+            appBarTitle,
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w600,
             ),
-            automaticallyImplyLeading: false,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop(),
-              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            ),
-            actions: [
-              TextButton(
-                key: const Key('date_picker_done_button'),
-                onPressed: _handleConfirm,
-                child: Text(
-                  _getDoneButtonText(),
-                  style: TextStyle(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(width: DateTimePickerConstants.sizeSmall),
-            ],
           ),
-          body: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Theme(
-                data: theme,
-                child: DatePickerContent(
-                  config: contentConfig,
-                  onCancel: _onCancel,
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          ),
+          actions: [
+            TextButton(
+              key: const Key('date_picker_done_button'),
+              onPressed: _handleConfirm,
+              child: Text(
+                _getDoneButtonText(),
+                style: TextStyle(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w600,
                 ),
+              ),
+            ),
+            const SizedBox(width: DateTimePickerConstants.sizeSmall),
+          ],
+        ),
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Theme(
+              data: theme,
+              child: DatePickerContent(
+                config: contentConfig,
+                onCancel: _onCancel,
               ),
             ),
           ),
@@ -567,6 +522,7 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
                 onPressed: action.onPressed,
                 color: action.color,
                 isPrimary: action.isPrimary,
+                listenable: action.listenable,
               ))
           .toList(),
       // Add rebuild callback
@@ -577,75 +533,57 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
       },
     );
 
-    // Use basic layout structure for dialog (no Scaffold nesting)
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Container(
-        constraints: BoxConstraints(
-          maxHeight: maxHeight,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Custom header
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 12.0,
-              ),
-              decoration: BoxDecoration(
-                color: theme.cardColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(12.0),
-                  topRight: Radius.circular(12.0),
-                ),
-              ),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => Navigator.of(context).pop(),
-                    tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                  ),
-                  Expanded(
-                    child: Text(
-                      appBarTitle,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: theme.colorScheme.onSurface,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                  ),
-                  TextButton(
-                    key: const Key('date_picker_done_button'),
-                    onPressed: _handleConfirm,
-                    child: Text(
-                      _getDoneButtonText(),
-                      style: TextStyle(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+    // Use Scaffold with AppBar for consistent desktop layout
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: maxHeight,
+      ),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          centerTitle: false,
+          title: Text(
+            appBarTitle,
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w600,
             ),
-            // Content
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Theme(
-                  data: theme,
-                  child: DatePickerContent(
-                    config: contentConfig,
-                    onComplete: widget.onComplete,
-                    onCancel: widget.onCancel,
-                  ),
+          ),
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          ),
+          actions: [
+            TextButton(
+              key: const Key('date_picker_done_button'),
+              onPressed: _handleConfirm,
+              child: Text(
+                _getDoneButtonText(),
+                style: TextStyle(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
+            const SizedBox(width: DateTimePickerConstants.sizeSmall),
           ],
+        ),
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Theme(
+              data: theme,
+              child: DatePickerContent(
+                config: contentConfig,
+                onComplete: widget.onComplete,
+                onCancel: widget.onCancel,
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -655,7 +593,6 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
 /// Mobile-optimized design constants for date picker
 class _DatePickerDesign {
   // Border radius
-  static const double radiusSmall = 8.0;
 
   // Dialog sizing
   static const double maxDialogWidth = 600.0;

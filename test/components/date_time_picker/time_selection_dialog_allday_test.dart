@@ -52,8 +52,8 @@ void main() {
     // Verify dialog is open
     expect(find.byType(TimePickerMobileContent), findsOneWidget);
 
-    // Find All Day checkbox and toggle it
-    await tester.tap(find.byType(Checkbox));
+    // Find All Day switch and toggle it
+    await tester.tap(find.byType(Switch));
     await tester.pumpAndSettle();
 
     // Find "Done" button in AppBar

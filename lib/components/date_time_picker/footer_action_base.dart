@@ -25,6 +25,9 @@ abstract class FooterActionBase {
   /// Whether this action should be styled as a primary action
   final bool isPrimary;
 
+  /// Listenable that triggers a rebuild of the action button when notified
+  final Listenable? listenable;
+
   const FooterActionBase({
     this.icon,
     this.label,
@@ -32,6 +35,7 @@ abstract class FooterActionBase {
     this.hint,
     required this.onPressed,
     this.isPrimary = false,
+    this.listenable,
   });
 
   /// Gets the current icon for the action
@@ -74,6 +78,7 @@ class DatePickerContentFooterAction extends FooterActionBase {
     super.color,
     required super.onPressed,
     super.isPrimary,
+    super.listenable,
   });
 }
 
@@ -85,6 +90,7 @@ class DatePickerFooterAction extends FooterActionBase {
     super.color,
     required super.onPressed,
     super.isPrimary,
+    super.listenable,
   });
 }
 

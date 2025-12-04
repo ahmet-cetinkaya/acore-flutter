@@ -5,23 +5,9 @@ import 'calendar_date_picker.dart' as custom;
 import '../mobile_action_button.dart';
 import '../../utils/haptic_feedback_util.dart';
 import 'footer_action_base.dart';
+import 'shared_components.dart';
 
 class _DateSelectionDialogDesign {
-  static const double spacingSmall = 8.0;
-  static const double spacingMedium = 12.0;
-  static const double spacingLarge = 16.0;
-  static const double spacingXLarge = 24.0;
-
-  static const double radiusLarge = 16.0;
-
-  static const double borderWidth = 1.0;
-
-  static const double fontSizeSmall = 12.0;
-  static const double fontSizeLarge = 18.0;
-  static const double fontSizeXLarge = 20.0;
-
-  static const double iconSizeLarge = 24.0;
-
   static const double maxDialogWidth = 500.0;
   static const double minDialogWidth = 320.0;
   static const double maxDialogHeight = 700.0;
@@ -202,10 +188,10 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(_DateSelectionDialogDesign.radiusLarge),
+        borderRadius: BorderRadius.circular(DateTimePickerDesign.radiusLarge),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: _DateSelectionDialogDesign.borderWidth,
+          width: DateTimePickerDesign.borderWidth,
         ),
       ),
       child: custom.CalendarDatePicker(
@@ -244,46 +230,48 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
       icon = Icons.date_range;
     }
 
+    // AppTheme.surface1 approximation (very light gray / dark surface)
+    // Using surfaceContainer (Material 3) or surface
+    final surface1 = Theme.of(context).colorScheme.surface;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(_DateSelectionDialogDesign.spacingLarge),
+      padding: const EdgeInsets.all(DateTimePickerDesign.spacingLarge),
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(_DateSelectionDialogDesign.radiusLarge),
+        color: surface1,
+        borderRadius: BorderRadius.circular(DateTimePickerDesign.radiusLarge),
         border: Border.all(
-          color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-          width: _DateSelectionDialogDesign.borderWidth,
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+          width: DateTimePickerDesign.borderWidth,
         ),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             widget.config.selectionMode == DateSelectionMode.single
                 ? _getLocalizedText(DateTimePickerTranslationKey.selectedTime, 'Selected Date')
                 : _getLocalizedText(DateTimePickerTranslationKey.dateRanges, 'Date Range'),
             style: TextStyle(
-              fontSize: _DateSelectionDialogDesign.fontSizeSmall,
+              fontSize: DateTimePickerDesign.fontSizeSmall,
               fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: _DateSelectionDialogDesign.spacingSmall),
+          const SizedBox(height: DateTimePickerDesign.spacingMedium),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Icon(
-                icon,
-                color: Theme.of(context).primaryColor.withValues(alpha: 0.8),
-                size: _DateSelectionDialogDesign.iconSizeLarge,
-              ),
-              const SizedBox(width: _DateSelectionDialogDesign.spacingSmall),
+              StyledIcon(icon, isActive: true),
+              const SizedBox(width: DateTimePickerDesign.spacingLarge),
               Flexible(
                 child: Text(
                   displayText,
                   style: TextStyle(
-                    fontSize: _DateSelectionDialogDesign.fontSizeLarge,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).primaryColor,
+                    fontSize: 24, // Larger text for better visibility
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   textAlign: TextAlign.start,
                   overflow: TextOverflow.ellipsis,
@@ -304,13 +292,10 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
     }
   }
 
-  List<Widget> _buildActions() {
-    final List<Widget> actions = [];
-
-    // Add footer actions if provided
-    if (widget.config.footerActions != null && widget.config.footerActions!.isNotEmpty) {
-      for (final action in widget.config.footerActions!) {
-        actions.add(
+  Widget _buildFooterSection() {
+    return Row(
+      children: [
+        for (final action in widget.config.footerActions!) ...[
           Expanded(
             child: MobileActionButton(
               context: context,
@@ -322,39 +307,41 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
               customColor: action.getCurrentColor(),
             ),
           ),
-        );
-        if (action != widget.config.footerActions!.last) {
-          actions.add(const SizedBox(width: _DateSelectionDialogDesign.spacingMedium));
-        }
-      }
-    } else {
-      // Default actions if no footer actions provided
-      actions.add(
-        Expanded(
-          child: MobileActionButton(
-            context: context,
-            onPressed: _onCancel,
-            text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
-            icon: Icons.close,
-            isPrimary: false,
-            borderRadius: widget.config.actionButtonRadius,
-          ),
+          if (action != widget.config.footerActions!.last) const SizedBox(width: DateTimePickerDesign.spacingMedium),
+        ],
+      ],
+    );
+  }
+
+  List<Widget> _buildActions() {
+    final List<Widget> actions = [];
+
+    // Always show default actions
+    actions.add(
+      Expanded(
+        child: MobileActionButton(
+          context: context,
+          onPressed: _onCancel,
+          text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
+          icon: Icons.close,
+          isPrimary: false,
+          borderRadius: widget.config.actionButtonRadius,
         ),
-      );
-      actions.add(const SizedBox(width: _DateSelectionDialogDesign.spacingMedium));
-      actions.add(
-        Expanded(
-          child: MobileActionButton(
-            context: context,
-            onPressed: _isSelectionValid() ? _onConfirm : null,
-            text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
-            icon: Icons.check,
-            isPrimary: true,
-            borderRadius: widget.config.actionButtonRadius,
-          ),
+      ),
+    );
+    actions.add(const SizedBox(width: DateTimePickerDesign.spacingMedium));
+    actions.add(
+      Expanded(
+        child: MobileActionButton(
+          context: context,
+          onPressed: _isSelectionValid() ? _onConfirm : null,
+          text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
+          icon: Icons.check,
+          isPrimary: true,
+          borderRadius: widget.config.actionButtonRadius,
         ),
-      );
-    }
+      ),
+    );
 
     return actions;
   }
@@ -374,16 +361,16 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
       child: AlertDialog(
         insetPadding: const EdgeInsets.all(16.0),
         contentPadding: EdgeInsets.fromLTRB(
-          _DateSelectionDialogDesign.spacingXLarge,
-          _DateSelectionDialogDesign.spacingXLarge,
-          _DateSelectionDialogDesign.spacingXLarge,
-          _DateSelectionDialogDesign.spacingLarge,
+          DateTimePickerDesign.spacingXLarge,
+          DateTimePickerDesign.spacingXLarge,
+          DateTimePickerDesign.spacingXLarge,
+          DateTimePickerDesign.spacingLarge,
         ),
         actionsPadding: EdgeInsets.fromLTRB(
-          _DateSelectionDialogDesign.spacingMedium,
+          DateTimePickerDesign.spacingMedium,
           0.0,
-          _DateSelectionDialogDesign.spacingMedium,
-          _DateSelectionDialogDesign.spacingLarge,
+          DateTimePickerDesign.spacingMedium,
+          DateTimePickerDesign.spacingLarge,
         ),
         title: Semantics(
           label: widget.config.selectionMode == DateSelectionMode.single
@@ -392,20 +379,14 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Icon(
-                widget.config.selectionMode == DateSelectionMode.single ? Icons.event : Icons.date_range,
-                color: Theme.of(context).primaryColor,
-                size: _DateSelectionDialogDesign.iconSizeLarge,
-              ),
-              const SizedBox(width: _DateSelectionDialogDesign.spacingSmall),
               Text(
                 widget.config.selectionMode == DateSelectionMode.single
                     ? _getLocalizedText(DateTimePickerTranslationKey.selectDateTitle, 'Select Date')
                     : _getLocalizedText(DateTimePickerTranslationKey.selectDateRangeTitle, 'Select Date Range'),
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontSize: _DateSelectionDialogDesign.fontSizeXLarge,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).primaryColor,
+                      fontSize: DateTimePickerDesign.fontSizeXLarge,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
               ),
             ],
@@ -419,7 +400,7 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
               // Current selection display
               _buildSelectionDisplay(),
 
-              const SizedBox(height: _DateSelectionDialogDesign.spacingXLarge),
+              const SizedBox(height: DateTimePickerDesign.spacingXLarge),
 
               // Calendar picker
               Flexible(
@@ -433,7 +414,12 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
                 ),
               ),
 
-              const SizedBox(height: _DateSelectionDialogDesign.spacingXLarge),
+              if (widget.config.footerActions != null && widget.config.footerActions!.isNotEmpty) ...[
+                const SizedBox(height: DateTimePickerDesign.spacingLarge),
+                _buildFooterSection(),
+              ],
+
+              const SizedBox(height: DateTimePickerDesign.spacingXLarge),
             ],
           ),
         ),

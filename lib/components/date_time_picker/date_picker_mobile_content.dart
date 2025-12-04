@@ -116,6 +116,7 @@ class _DatePickerMobileContentState extends State<DatePickerMobileContent> {
       actionButtonRadius: widget.config.actionButtonRadius,
       validationErrorAtTop: widget.config.validationErrorAtTop,
       onSelectionChanged: _handleSelectionChanged,
+      footerActions: widget.config.footerActions,
     );
 
     // Use Scaffold with AppBar styling to match other dialog content (e.g., PrioritySelectionDialogContent)

@@ -2,21 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import '../../utils/haptic_feedback_util.dart';
 import 'date_time_picker_translation_keys.dart';
+import 'shared_components.dart';
 
 /// Design constants for wheel time picker
 class _WheelTimePickerDesign {
-  // Spacing
-  static const double spacingSmall = 8.0;
-
-  // Border radius
-  static const double radiusLarge = 16.0;
-
-  // Border width
-  static const double borderWidth = 1.0;
-
-  // Font sizes
-  static const double fontSizeSmall = 12.0;
-
   // Picker dimensions
   static const double pickerHeight = 200.0;
   static const double itemExtent = 40.0;
@@ -101,10 +90,10 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
     return Container(
       height: _WheelTimePickerDesign.pickerHeight,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(_WheelTimePickerDesign.radiusLarge),
+        borderRadius: BorderRadius.circular(DateTimePickerDesign.radiusLarge),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: _WheelTimePickerDesign.borderWidth,
+          width: DateTimePickerDesign.borderWidth,
         ),
       ),
       child: Row(
@@ -149,7 +138,7 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
 
                             return Container(
                               alignment: Alignment.center,
-                              padding: const EdgeInsets.symmetric(horizontal: _WheelTimePickerDesign.spacingSmall),
+                              padding: const EdgeInsets.symmetric(horizontal: DateTimePickerDesign.spacingSmall),
                               child: Text(
                                 hour.toString().padLeft(2, '0'),
                                 style: TextStyle(
@@ -170,11 +159,11 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: _WheelTimePickerDesign.spacingSmall),
+                  padding: const EdgeInsets.only(bottom: DateTimePickerDesign.spacingSmall),
                   child: Text(
                     widget.hourLabel ?? _getLocalizedText(DateTimePickerTranslationKey.timePickerHourLabel, 'Hour'),
                     style: TextStyle(
-                      fontSize: _WheelTimePickerDesign.fontSizeSmall,
+                      fontSize: DateTimePickerDesign.fontSizeSmall,
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
@@ -186,7 +175,7 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
 
           // Separator
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: _WheelTimePickerDesign.spacingSmall),
+            padding: const EdgeInsets.symmetric(horizontal: DateTimePickerDesign.spacingSmall),
             child: Text(
               ':',
               style: TextStyle(
@@ -237,7 +226,7 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
 
                             return Container(
                               alignment: Alignment.center,
-                              padding: const EdgeInsets.symmetric(horizontal: _WheelTimePickerDesign.spacingSmall),
+                              padding: const EdgeInsets.symmetric(horizontal: DateTimePickerDesign.spacingSmall),
                               child: Text(
                                 minute.toString().padLeft(2, '0'),
                                 style: TextStyle(
@@ -258,12 +247,12 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: _WheelTimePickerDesign.spacingSmall),
+                  padding: const EdgeInsets.only(bottom: DateTimePickerDesign.spacingSmall),
                   child: Text(
                     widget.minuteLabel ??
                         _getLocalizedText(DateTimePickerTranslationKey.timePickerMinuteLabel, 'Minute'),
                     style: TextStyle(
-                      fontSize: _WheelTimePickerDesign.fontSizeSmall,
+                      fontSize: DateTimePickerDesign.fontSizeSmall,
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),

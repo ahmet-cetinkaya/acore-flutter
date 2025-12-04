@@ -6,14 +6,7 @@ import '../../utils/responsive_dialog_helper.dart';
 import '../../utils/dialog_size.dart';
 import 'time_picker_mobile_content.dart';
 import '../mobile_action_button.dart';
-
-class _TimeSelectionDialogDesign {
-  static const double spacingSmall = 8.0;
-  static const double spacingMedium = 12.0;
-
-  static const double fontSizeMedium = 16.0;
-  static const double fontSizeXLarge = 20.0;
-}
+import 'shared_components.dart';
 
 /// Configuration for the time selection dialog
 class TimeSelectionDialogConfig {
@@ -222,7 +215,7 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(_TimeSelectionDialogDesign.spacingMedium),
+      padding: const EdgeInsets.all(DateTimePickerDesign.spacingMedium),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -231,18 +224,18 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
             Text(
               _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
               style: TextStyle(
-                fontSize: _TimeSelectionDialogDesign.fontSizeXLarge,
+                fontSize: DateTimePickerDesign.fontSizeXLarge,
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
+            const SizedBox(height: DateTimePickerDesign.spacingMedium),
           ],
           // All day toggle
           _buildAllDayToggle(),
           // Time picker content
           if (!_isAllDay) ...[
-            const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
+            const SizedBox(height: DateTimePickerDesign.spacingMedium),
             SizedBox(
               height: 180,
               child: _buildWheelTimePicker(),
@@ -250,7 +243,7 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
           ],
           // Action buttons
           if (!widget.config.hideActionButtons) ...[
-            const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
+            const SizedBox(height: DateTimePickerDesign.spacingMedium),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -262,7 +255,7 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
                   isPrimary: false,
                   borderRadius: widget.config.actionButtonRadius,
                 ),
-                const SizedBox(width: _TimeSelectionDialogDesign.spacingSmall),
+                const SizedBox(width: DateTimePickerDesign.spacingSmall),
                 MobileActionButton(
                   context: context,
                   onPressed: _onConfirm,
@@ -280,31 +273,36 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
   }
 
   Widget _buildAllDayToggle() {
-    // Always show All Day toggle in a Card style
+    // Using surfaceContainer (Material 3) or surface
+    final surface1 = Theme.of(context).colorScheme.surface;
+
     return Card(
+      elevation: 0,
+      color: surface1,
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(DateTimePickerDesign.radiusLarge),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          children: [
-            Checkbox(
-              value: _isAllDay,
-              onChanged: (value) {
-                setState(() {
-                  _isAllDay = value ?? false;
-                });
-                _triggerHapticFeedback();
-              },
-            ),
-            Text(
-              _getLocalizedText(DateTimePickerTranslationKey.allDay, 'All day'),
-              style: TextStyle(fontSize: _TimeSelectionDialogDesign.fontSizeMedium),
-            ),
-          ],
+      child: SwitchListTile.adaptive(
+        value: _isAllDay,
+        onChanged: (value) {
+          setState(() {
+            _isAllDay = value;
+          });
+          _triggerHapticFeedback();
+        },
+        title: Text(
+          _getLocalizedText(DateTimePickerTranslationKey.allDay, 'All day'),
+          style: TextStyle(
+            fontSize: DateTimePickerDesign.fontSizeMedium,
+            fontWeight: FontWeight.w500,
+          ),
         ),
+        secondary: StyledIcon(
+          Icons.access_time,
+          isActive: !_isAllDay, // Active when NOT all day (meaning time is relevant)
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       ),
     );
   }
@@ -375,32 +373,37 @@ class _TimeSelectionDialogWithCallbackState extends State<_TimeSelectionDialogWi
   }
 
   Widget _buildAllDayToggle() {
-    // Always show All Day toggle in a Card style
+    // Using surfaceContainer (Material 3) or surface
+    final surface1 = Theme.of(context).colorScheme.surface;
+
     return Card(
+      elevation: 0,
+      color: surface1,
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(DateTimePickerDesign.radiusLarge),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          children: [
-            Checkbox(
-              value: _isAllDay,
-              onChanged: (value) {
-                setState(() {
-                  _isAllDay = value ?? false;
-                });
-                widget.onAllDayChanged?.call(_isAllDay, _selectedTime);
-                _triggerHapticFeedback();
-              },
-            ),
-            Text(
-              _getLocalizedText(DateTimePickerTranslationKey.allDay, 'All day'),
-              style: TextStyle(fontSize: _TimeSelectionDialogDesign.fontSizeMedium),
-            ),
-          ],
+      child: SwitchListTile.adaptive(
+        value: _isAllDay,
+        onChanged: (value) {
+          setState(() {
+            _isAllDay = value;
+          });
+          widget.onAllDayChanged?.call(_isAllDay, _selectedTime);
+          _triggerHapticFeedback();
+        },
+        title: Text(
+          _getLocalizedText(DateTimePickerTranslationKey.allDay, 'All day'),
+          style: TextStyle(
+            fontSize: DateTimePickerDesign.fontSizeMedium,
+            fontWeight: FontWeight.w500,
+          ),
         ),
+        secondary: StyledIcon(
+          Icons.access_time,
+          isActive: !_isAllDay,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       ),
     );
   }
@@ -408,7 +411,7 @@ class _TimeSelectionDialogWithCallbackState extends State<_TimeSelectionDialogWi
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(_TimeSelectionDialogDesign.spacingMedium),
+      padding: const EdgeInsets.all(DateTimePickerDesign.spacingMedium),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -416,23 +419,23 @@ class _TimeSelectionDialogWithCallbackState extends State<_TimeSelectionDialogWi
             Text(
               _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
               style: TextStyle(
-                fontSize: _TimeSelectionDialogDesign.fontSizeXLarge,
+                fontSize: DateTimePickerDesign.fontSizeXLarge,
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
+            const SizedBox(height: DateTimePickerDesign.spacingMedium),
           ],
           _buildAllDayToggle(),
           if (!_isAllDay) ...[
-            const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
+            const SizedBox(height: DateTimePickerDesign.spacingMedium),
             SizedBox(
               height: 180,
               child: _buildWheelTimePicker(),
             ),
           ],
           if (!widget.config.hideActionButtons) ...[
-            const SizedBox(height: _TimeSelectionDialogDesign.spacingMedium),
+            const SizedBox(height: DateTimePickerDesign.spacingMedium),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -444,7 +447,7 @@ class _TimeSelectionDialogWithCallbackState extends State<_TimeSelectionDialogWi
                   isPrimary: false,
                   borderRadius: widget.config.actionButtonRadius,
                 ),
-                const SizedBox(width: _TimeSelectionDialogDesign.spacingSmall),
+                const SizedBox(width: DateTimePickerDesign.spacingSmall),
                 MobileActionButton(
                   context: context,
                   onPressed: _onConfirm,

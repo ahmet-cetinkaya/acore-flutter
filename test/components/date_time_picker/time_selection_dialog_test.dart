@@ -48,24 +48,24 @@ void main() {
 
     // Verify initial state (All Day unchecked by default in code, time picker visible)
     expect(find.text('All day'), findsOneWidget);
-    expect(find.byType(Checkbox), findsOneWidget);
-    expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isFalse);
+    expect(find.byType(Switch), findsOneWidget);
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
     expect(find.byType(ListWheelScrollView), findsWidgets);
 
     // Check All Day
-    await tester.tap(find.byType(Checkbox));
+    await tester.tap(find.byType(Switch));
     await tester.pumpAndSettle();
 
     // Verify state after checking (All Day checked, time picker hidden)
-    expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isTrue);
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
     expect(find.byType(ListWheelScrollView), findsNothing);
 
     // Uncheck All Day again
-    await tester.tap(find.byType(Checkbox));
+    await tester.tap(find.byType(Switch));
     await tester.pumpAndSettle();
 
     // Verify state after unchecking (All Day unchecked, time picker visible)
-    expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isFalse);
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
     expect(find.byType(ListWheelScrollView), findsWidgets); // Should find hour and minute wheels
   });
 }

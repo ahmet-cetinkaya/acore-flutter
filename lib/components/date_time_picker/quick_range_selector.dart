@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'date_time_picker_translation_keys.dart';
 import '../../utils/responsive_util.dart';
+import 'shared_components.dart';
 
 /// Quick date range option
 class QuickDateRange {
@@ -129,10 +130,9 @@ class _QuickRangeSelectorState extends State<QuickRangeSelector> {
               },
               child: OutlinedButton.icon(
                 onPressed: _showQuickSelectionDialog,
-                icon: Icon(
+                icon: StyledIcon(
                   Icons.speed,
-                  size: ResponsiveUtil.getIconSize(context, mobile: 18.0, tablet: 20.0, desktop: 22.0),
-                  color: hasQuickSelection ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurface,
+                  isActive: hasQuickSelection,
                 ),
                 label: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -168,6 +168,9 @@ class _QuickRangeSelectorState extends State<QuickRangeSelector> {
                     vertical: ResponsiveUtil.getSpacing(context, mobile: 6.0, tablet: 8.0, desktop: 10.0),
                   ),
                   visualDensity: VisualDensity.compact,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(DateTimePickerDesign.radiusLarge),
+                  ),
                   side: BorderSide(
                     color: hasQuickSelection
                         ? Theme.of(context).primaryColor.withValues(alpha: 0.8)
@@ -214,6 +217,9 @@ class _QuickRangeSelectorState extends State<QuickRangeSelector> {
                     vertical: ResponsiveUtil.getSpacing(context, mobile: 6.0, tablet: 8.0, desktop: 10.0),
                   ),
                   visualDensity: VisualDensity.compact,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(DateTimePickerDesign.radiusLarge),
+                  ),
                   side: BorderSide(
                     color: Theme.of(context).colorScheme.outline,
                     width: 1.0,
@@ -345,6 +351,9 @@ class _QuickSelectionDialogState extends State<_QuickSelectionDialog> {
                     ),
                     checkmarkColor: Theme.of(context).primaryColor,
                     selectedColor: Theme.of(context).primaryColor.withValues(alpha: 0.12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(DateTimePickerDesign.radiusLarge),
+                    ),
                   );
                 }).toList(),
               ),
@@ -404,7 +413,7 @@ class _QuickSelectionDialogState extends State<_QuickSelectionDialog> {
             onPressed: () => Navigator.of(context).pop(),
             style: TextButton.styleFrom(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(widget.actionButtonRadius ?? 8.0),
+                borderRadius: BorderRadius.circular(widget.actionButtonRadius ?? DateTimePickerDesign.radiusLarge),
               ),
             ),
             child: Text(

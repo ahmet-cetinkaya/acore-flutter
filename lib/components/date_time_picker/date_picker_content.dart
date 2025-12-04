@@ -26,9 +26,6 @@ class _DatePickerDesign {
 
   // Border width
   static const double borderWidth = 1.0;
-
-  // Quick selection
-  static const double quickSelectionIconSize = 32.0;
 }
 
 /// Common constants shared across date picker components
@@ -466,15 +463,17 @@ class _DatePickerContentState extends State<DatePickerContent> {
     IconData? icon,
     String? label,
   }) {
+    final theme = Theme.of(context);
+    // Approximate AppTheme.surface2
+    final surface2 = theme.colorScheme.surfaceContainerLow;
+
     return Ink(
         decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : Colors.transparent,
+          color: isSelected ? theme.colorScheme.primary.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
           border: Border.all(
-            color: isSelected
-                ? Theme.of(context).primaryColor
-                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-            width: isSelected ? 2.0 : _DatePickerDesign.borderWidth,
+            color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline.withValues(alpha: 0.2),
+            width: isSelected ? 1.0 : _DatePickerDesign.borderWidth,
           ),
         ),
         child: InkWell(
@@ -492,33 +491,31 @@ class _DatePickerContentState extends State<DatePickerContent> {
               ),
               child: Row(
                 children: [
-                  // Left icon or number with container styling
+                  // Left icon or number with StyledIcon style
                   Container(
-                    width: _DatePickerDesign.quickSelectionIconSize,
-                    height: _DatePickerDesign.quickSelectionIconSize,
+                    width: 32,
+                    height: 32,
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? Theme.of(context).primaryColor.withValues(alpha: 0.3)
-                          : Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(_DatePickerDesign.radiusSmall),
+                      color: isSelected ? theme.colorScheme.primary.withValues(alpha: 0.1) : surface2,
+                      shape: BoxShape.circle,
                     ),
                     child: Center(
                       child: icon != null
                           ? Icon(
                               icon,
-                              size: 16,
+                              size: 18,
                               color: isSelected
-                                  ? Theme.of(context).primaryColor
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ? theme.colorScheme.primary
+                                  : theme.colorScheme.onSurface.withValues(alpha: 0.5),
                             )
                           : Text(
                               text,
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: isSelected
-                                        ? Theme.of(context).primaryColor
-                                        : Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: isSelected
+                                    ? theme.colorScheme.primary
+                                    : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                              ),
                               overflow: TextOverflow.clip,
                               maxLines: 1,
                               softWrap: false,
@@ -533,9 +530,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
                       style: TextStyle(
                         fontSize: _DatePickerDesign.fontSizeMedium,
                         fontWeight: FontWeight.w600,
-                        color: isSelected
-                            ? Theme.of(context).primaryColor
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
                       ),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -1003,7 +998,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
                       fontSize: _DatePickerDesign.fontSizeMedium,
                       fontWeight: FontWeight.w600,
                       color: _selectedDate != null
-                          ? Theme.of(context).primaryColor
+                          ? Theme.of(context).colorScheme.onSurfaceVariant
                           : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -1196,16 +1191,6 @@ class _DatePickerContentState extends State<DatePickerContent> {
             Container(
               padding: EdgeInsets.symmetric(
                 horizontal: _DatePickerDesign.spacingMedium,
-                vertical: _DatePickerDesign.spacingSmall,
-              ),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                border: Border(
-                  top: BorderSide(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                    width: 1.0,
-                  ),
-                ),
               ),
               child: _buildCompactTimeField(),
             ),
@@ -1227,20 +1212,25 @@ class _DatePickerContentState extends State<DatePickerContent> {
                       ),
                       child: Builder(
                         builder: (context) {
-                          // Get current values from callbacks
-                          final icon = action.icon?.call() ?? Icons.notifications_outlined;
-                          final label = action.label?.call() ?? 'Reminder';
-                          final color = action.color?.call();
+                          return AnimatedBuilder(
+                            animation: action.listenable ?? const AlwaysStoppedAnimation(null),
+                            builder: (context, _) {
+                              // Get current values from callbacks
+                              final icon = action.icon?.call() ?? Icons.notifications_outlined;
+                              final label = action.label?.call() ?? 'Reminder';
+                              final color = action.color?.call();
 
-                          return _buildFooterActionButton(
-                            icon: icon,
-                            label: label,
-                            onPressed: () async {
-                              await _executeFooterAction(action.onPressed);
+                              return _buildFooterActionButton(
+                                icon: icon,
+                                label: label,
+                                onPressed: () async {
+                                  await _executeFooterAction(action.onPressed);
+                                },
+                                color: color,
+                                hint: action.hint?.call(),
+                                isPrimary: action.isPrimary,
+                              );
                             },
-                            color: color,
-                            hint: action.hint?.call(),
-                            isPrimary: action.isPrimary,
                           );
                         },
                       ),
