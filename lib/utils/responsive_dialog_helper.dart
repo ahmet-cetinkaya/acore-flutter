@@ -58,7 +58,7 @@ class ResponsiveDialogHelper {
         barrierDismissible: isDismissible,
         builder: (BuildContext context) {
           if (size == DialogSize.min) {
-            return Dialog(child: child);
+            return child;
           }
           final dialogHeight = screenSize.height * size.desktopHeightRatio;
           final dialogWidth = screenSize.width * size.desktopWidthRatio;
