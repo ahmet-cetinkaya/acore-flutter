@@ -275,10 +275,11 @@ class _DatePickerContentState extends State<DatePickerContent> {
     return now.weekday == DateTime.saturday || now.weekday == DateTime.sunday;
   }
 
-  /// Check if tomorrow is the start of the week (Monday)
-  bool _isTomorrowStartOfWeek() {
+  /// Check if tomorrow should be hidden to avoid duplication with weekend option
+  bool _shouldHideTomorrow() {
     final tomorrow = DateTime.now().add(const Duration(days: 1));
-    return tomorrow.weekday == DateTime.monday;
+    // Hide tomorrow when it's Monday (existing logic) OR Saturday (new logic)
+    return tomorrow.weekday == DateTime.monday || tomorrow.weekday == DateTime.saturday;
   }
 
   /// Get the appropriate weekend/weekday button text based on current day
@@ -411,9 +412,9 @@ class _DatePickerContentState extends State<DatePickerContent> {
                 isSelected: _isTodaySelected(),
                 label: _getLocalizedText(DateTimePickerTranslationKey.quickSelectionToday, 'Today'),
               ),
-              // Only show "Tomorrow" button when tomorrow is NOT the start of week
-              // to avoid duplication with "Next Weekday" which selects Monday
-              if (!_isTomorrowStartOfWeek())
+              // Only show "Tomorrow" button when it doesn't duplicate other options
+              // Hide when tomorrow is Monday (conflicts with "Next Weekday") or Saturday (conflicts with "This weekend")
+              if (!_shouldHideTomorrow())
                 _buildCompactQuickSelectionButton(
                   text: _getTomorrowDayOfWeek(),
                   onTap: () => _selectTomorrow(),

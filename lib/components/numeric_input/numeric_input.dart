@@ -219,33 +219,35 @@ class _NumericInputState extends State<NumericInput> {
                 ),
         ),
         if (widget.style == NumericInputStyle.contained)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: SizedBox(
-              width: widget.textFieldWidth ?? _measureTextFieldWidth(context),
-              child: TextField(
-                controller: _controller,
-                textAlign: TextAlign.center,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')),
-                ],
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                  isDense: true,
-                  hintText: widget.valueSuffix != null ? '0 ${widget.valueSuffix}' : '0',
-                  hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                  suffixText: widget.valueSuffix,
-                  suffixStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: SizedBox(
+                width: widget.textFieldWidth ?? _measureTextFieldWidth(context),
+                child: TextField(
+                  controller: _controller,
+                  textAlign: TextAlign.center,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*$')),
+                  ],
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                    isDense: true,
+                    hintText: widget.valueSuffix != null ? '0 ${widget.valueSuffix}' : '0',
+                    hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                    suffixText: widget.valueSuffix,
+                    suffixStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                  onChanged: _onValueChanged,
                 ),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-                onChanged: _onValueChanged,
               ),
             ),
           )

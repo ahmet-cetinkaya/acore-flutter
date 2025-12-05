@@ -56,7 +56,7 @@ class TimePickerMobileContent extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: DateTimePickerConstants.sizeSmall),
+          const SizedBox(width: DateTimePickerConstants.sizeLarge),
         ],
       ),
       body: SizedBox(

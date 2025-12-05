@@ -353,7 +353,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                 ),
               ),
             ),
-            const SizedBox(width: DateTimePickerConstants.sizeSmall),
+            const SizedBox(width: DateTimePickerConstants.sizeLarge),
           ],
         ),
         body: GestureDetector(
@@ -568,7 +568,7 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
                 ),
               ),
             ),
-            const SizedBox(width: DateTimePickerConstants.sizeSmall),
+            const SizedBox(width: DateTimePickerConstants.sizeLarge),
           ],
         ),
         body: GestureDetector(
