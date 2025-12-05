@@ -86,7 +86,7 @@ void main() {
         }
 
         expect(targetDate.weekday, equals(DateTime.saturday),
-               reason: 'This weekend should select Saturday when today is Friday');
+            reason: 'This weekend should select Saturday when today is Friday');
       });
 
       test('This weekend should select Monday when today is Saturday', () {
@@ -112,7 +112,7 @@ void main() {
         }
 
         expect(targetDate.weekday, equals(DateTime.monday),
-               reason: 'This weekend should select Monday when today is Saturday');
+            reason: 'This weekend should select Monday when today is Saturday');
       });
     });
   });
