@@ -329,7 +329,6 @@ class _DateSelectionDialogState extends State<DateSelectionDialog> {
         ),
       ),
     );
-    actions.add(const SizedBox(width: DateTimePickerDesign.spacingMedium));
     actions.add(
       Expanded(
         child: MobileActionButton(
