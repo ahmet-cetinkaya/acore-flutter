@@ -47,6 +47,7 @@ class ResponsiveDialogHelper {
     bool isDismissible = true,
     bool enableDrag = true,
     ResponsiveDialogConfig? config,
+    Color? backgroundColor,
   }) async {
     final effectiveConfig = config ?? _config;
     final isDesktop = effectiveConfig.isDesktopScreen(context);
@@ -65,7 +66,7 @@ class ResponsiveDialogHelper {
           final maxWidth = size.maxDesktopWidth;
 
           return Dialog(
-            backgroundColor: Theme.of(context).colorScheme.surface,
+            backgroundColor: backgroundColor ?? Theme.of(context).colorScheme.surface,
             surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
             shadowColor: Theme.of(context).shadowColor,
             elevation: 6.0,
@@ -100,6 +101,7 @@ class ResponsiveDialogHelper {
       }
       return showMaterialModalBottomSheet<T>(
         context: context,
+        backgroundColor: backgroundColor,
         isDismissible: isDismissible,
         enableDrag: enableDrag,
         useRootNavigator: false,
@@ -125,6 +127,7 @@ class ResponsiveDialogHelper {
                   maxHeight: maxHeight,
                 ),
                 child: Material(
+                  color: backgroundColor,
                   borderRadius: BorderRadius.vertical(
                     top: Radius.circular(effectiveConfig.containerBorderRadius),
                   ),
@@ -153,6 +156,7 @@ class ResponsiveDialogHelper {
                 maxHeight: maxHeight,
               ),
               child: Material(
+                color: backgroundColor,
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(effectiveConfig.containerBorderRadius),
                 ),
