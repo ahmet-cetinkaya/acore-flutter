@@ -10,37 +10,37 @@ class CompositeLogger implements ILogger {
   CompositeLogger(List<ILogger> loggers) : _loggers = List.of(loggers);
 
   @override
-  void debug(String message, [Object? error, StackTrace? stackTrace]) {
+  void debug(String message, [Object? error, StackTrace? stackTrace, String? component]) {
     for (final logger in List.of(_loggers)) {
-      logger.debug(message, error, stackTrace);
+      logger.debug(message, error, stackTrace, component);
     }
   }
 
   @override
-  void info(String message, [Object? error, StackTrace? stackTrace]) {
+  void info(String message, [Object? error, StackTrace? stackTrace, String? component]) {
     for (final logger in List.of(_loggers)) {
-      logger.info(message, error, stackTrace);
+      logger.info(message, error, stackTrace, component);
     }
   }
 
   @override
-  void warning(String message, [Object? error, StackTrace? stackTrace]) {
+  void warning(String message, [Object? error, StackTrace? stackTrace, String? component]) {
     for (final logger in List.of(_loggers)) {
-      logger.warning(message, error, stackTrace);
+      logger.warning(message, error, stackTrace, component);
     }
   }
 
   @override
-  void error(String message, [Object? error, StackTrace? stackTrace]) {
+  void error(String message, [Object? error, StackTrace? stackTrace, String? component]) {
     for (final logger in List.of(_loggers)) {
-      logger.error(message, error, stackTrace);
+      logger.error(message, error, stackTrace, component);
     }
   }
 
   @override
-  void fatal(String message, [Object? error, StackTrace? stackTrace]) {
+  void fatal(String message, [Object? error, StackTrace? stackTrace, String? component]) {
     for (final logger in List.of(_loggers)) {
-      logger.fatal(message, error, stackTrace);
+      logger.fatal(message, error, stackTrace, component);
     }
   }
 

@@ -31,32 +31,32 @@ class ConsoleLogger implements ILogger {
         _includeStackTrace = includeStackTrace;
 
   @override
-  void debug(String message, [Object? error, StackTrace? stackTrace]) {
-    _log(LogLevel.debug, message, error, stackTrace);
+  void debug(String message, [Object? error, StackTrace? stackTrace, String? component]) {
+    _log(LogLevel.debug, message, error, stackTrace, component);
   }
 
   @override
-  void info(String message, [Object? error, StackTrace? stackTrace]) {
-    _log(LogLevel.info, message, error, stackTrace);
+  void info(String message, [Object? error, StackTrace? stackTrace, String? component]) {
+    _log(LogLevel.info, message, error, stackTrace, component);
   }
 
   @override
-  void warning(String message, [Object? error, StackTrace? stackTrace]) {
-    _log(LogLevel.warning, message, error, stackTrace);
+  void warning(String message, [Object? error, StackTrace? stackTrace, String? component]) {
+    _log(LogLevel.warning, message, error, stackTrace, component);
   }
 
   @override
-  void error(String message, [Object? error, StackTrace? stackTrace]) {
-    _log(LogLevel.error, message, error, stackTrace);
+  void error(String message, [Object? error, StackTrace? stackTrace, String? component]) {
+    _log(LogLevel.error, message, error, stackTrace, component);
   }
 
   @override
-  void fatal(String message, [Object? error, StackTrace? stackTrace]) {
-    _log(LogLevel.fatal, message, error, stackTrace);
+  void fatal(String message, [Object? error, StackTrace? stackTrace, String? component]) {
+    _log(LogLevel.fatal, message, error, stackTrace, component);
   }
 
   /// Internal method to handle the actual logging logic
-  void _log(LogLevel level, String message, Object? error, StackTrace? stackTrace) {
+  void _log(LogLevel level, String message, Object? error, StackTrace? stackTrace, String? component) {
     // Don't log if below minimum level
     if (!level.isAtLeast(_minLevel)) {
       return;
@@ -73,6 +73,11 @@ class ConsoleLogger implements ILogger {
 
     // Add log level
     buffer.write('[${level.name}] ');
+
+    // Add component if provided
+    if (component != null && component.isNotEmpty) {
+      buffer.write('[$component] ');
+    }
 
     // Add main message
     buffer.write(message);
