@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart' hide DatePickerDialog;
 import '../../time/date_format_service.dart';
 import 'date_picker_dialog.dart' as picker;
-import 'date_time_picker_translation_keys.dart';
-import 'date_picker_types.dart';
-import 'date_time_picker_constants.dart';
+import 'constants/date_time_picker_translation_keys.dart';
+import 'models/date_picker_types.dart';
+import 'constants/date_time_picker_constants.dart';
 
 class DateTimePickerField extends StatelessWidget {
   final TextEditingController controller;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import '../../utils/haptic_feedback_util.dart';
-import 'date_time_picker_translation_keys.dart';
+import '../../../utils/haptic_feedback_util.dart';
+import '../constants/date_time_picker_translation_keys.dart';
 import 'shared_components.dart';
 
 /// Design constants for wheel time picker

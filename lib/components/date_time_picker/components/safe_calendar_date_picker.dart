@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart' hide CalendarDatePicker;
 import 'calendar_date_picker.dart';
-import 'date_time_picker_translation_keys.dart';
+import '../constants/date_time_picker_translation_keys.dart';
 import 'error_boundary.dart';
-import 'date_picker_types.dart';
+import '../models/date_picker_types.dart';
 
 /// A wrapper around CalendarDatePicker with error boundary protection
 ///

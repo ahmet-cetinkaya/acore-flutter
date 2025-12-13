@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'date_time_picker_translation_keys.dart';
-import 'date_picker_types.dart';
-import 'calendar_date_picker.dart' as custom;
+import 'constants/date_time_picker_translation_keys.dart';
+import 'models/date_picker_types.dart';
+import 'components/calendar_date_picker.dart' as custom;
 import '../mobile_action_button.dart';
 import '../../utils/haptic_feedback_util.dart';
-import 'footer_action_base.dart';
-import 'shared_components.dart';
+import 'components/footer_action_base.dart';
+import 'components/shared_components.dart';
 
 class _DateSelectionDialogDesign {
   static const double maxDialogWidth = 500.0;

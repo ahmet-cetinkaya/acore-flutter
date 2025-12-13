@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'date_time_picker_translation_keys.dart';
-import 'wheel_time_picker.dart';
+import 'constants/date_time_picker_translation_keys.dart';
+import 'components/wheel_time_picker.dart';
 import '../../utils/haptic_feedback_util.dart';
 import '../../utils/responsive_dialog_helper.dart';
 import '../../utils/dialog_size.dart';
-import 'time_picker_mobile_content.dart';
+import 'components/time_picker_mobile_content.dart';
 import '../mobile_action_button.dart';
-import 'shared_components.dart';
+import 'components/shared_components.dart';
 
 /// Configuration for the time selection dialog
 class TimeSelectionDialogConfig {

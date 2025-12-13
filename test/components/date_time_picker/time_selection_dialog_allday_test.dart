@@ -1,7 +1,7 @@
+import 'package:acore/components/date_time_picker/components/time_picker_mobile_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:acore/acore.dart';
-import 'package:acore/components/date_time_picker/time_picker_mobile_content.dart';
 
 void main() {
   testWidgets('TimeSelectionDialog responsive mode saves All Day option', (WidgetTester tester) async {

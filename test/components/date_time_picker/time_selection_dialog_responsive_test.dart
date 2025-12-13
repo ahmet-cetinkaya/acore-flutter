@@ -1,7 +1,9 @@
+import 'package:acore/components/date_time_picker/components/time_picker_mobile_content.dart';
+import 'package:acore/components/date_time_picker/constants/date_time_picker_translation_keys.dart';
+import 'package:acore/components/date_time_picker/time_selection_dialog.dart';
+import 'package:acore/utils/dialog_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:acore/acore.dart';
-import 'package:acore/components/date_time_picker/time_picker_mobile_content.dart';
 
 void main() {
   testWidgets('TimeSelectionDialog responsive mode saves selected time', (WidgetTester tester) async {
