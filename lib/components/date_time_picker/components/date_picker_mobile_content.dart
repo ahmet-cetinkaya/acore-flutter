@@ -149,7 +149,6 @@ class _DatePickerMobileContentState extends State<DatePickerMobileContent> {
               ),
             ),
           ),
-          const SizedBox(width: DateTimePickerConstants.sizeLarge),
         ],
       ),
       body: GestureDetector(
