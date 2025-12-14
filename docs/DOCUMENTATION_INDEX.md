@@ -2,7 +2,10 @@
 
 ## 📚 Documentation Overview
 
-This directory contains comprehensive documentation for the **acore-flutter** package - a foundational Flutter library providing common utilities, abstractions, and components. The documentation is organized into a modular structure that mirrors the actual package layout.
+This directory contains comprehensive documentation for the **acore-flutter**
+package - a foundational Flutter library providing common utilities,
+abstractions, and components. The documentation is organized into a modular
+structure that mirrors the actual package layout.
 
 ## 🗂️ Documentation Structure
 
@@ -58,19 +61,24 @@ Start with: **[Quick Reference](./QUICK_REFERENCE.md)** - 5 minute overview
 
 ### 2. Understanding Architecture
 
-Read: **[Comprehensive Documentation](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)** - Architecture and modules overview
+Read:
+**[Comprehensive Documentation](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)** -
+Architecture and modules overview
 
 ### 3. Core Module Details
 
-- **[Dependency Injection](./dependency_injection/README.md)** - IoC container setup
+- **[Dependency Injection](./dependency_injection/README.md)** - IoC container
+  setup
 - **[Repository Pattern](./repository/README.md)** - Data access patterns
 - **[Error Handling](./errors/README.md)** - Exception management
 - **[Logging](./logging/README.md)** - Logging setup and usage
 
 ### 4. UI Components
 
-- **[NumericInput](./components/numeric_input/README.md)** - Numeric input widget
-- **[Date Time Picker](./components/date_time_picker/README.md)** - Date/time selection
+- **[NumericInput](./components/numeric_input/README.md)** - Numeric input
+  widget
+- **[Date Time Picker](./components/date_time_picker/README.md)** - Date/time
+  selection
 
 ### 5. Utility Reference
 
@@ -80,10 +88,14 @@ Read: **[Comprehensive Documentation](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)** 
 
 ### 6. Contributing to ACore
 
-- **[Contributing Guide](./CONTRIBUTING.md)** - Development workflow and guidelines
-- **[Code Style](./CONTRIBUTING.md#code-style-and-standards)** - Coding standards and best practices
-- **[Testing Guidelines](./CONTRIBUTING.md#testing-guidelines)** - Testing requirements and patterns
-- **[Pull Request Process](./CONTRIBUTING.md#pull-request-process)** - Contribution workflow
+- **[Contributing Guide](./CONTRIBUTING.md)** - Development workflow and
+  guidelines
+- **[Code Style](./CONTRIBUTING.md#code-style-and-standards)** - Coding
+  standards and best practices
+- **[Testing Guidelines](./CONTRIBUTING.md#testing-guidelines)** - Testing
+  requirements and patterns
+- **[Pull Request Process](./CONTRIBUTING.md#pull-request-process)** -
+  Contribution workflow
 
 ## 🔍 Quick Navigation
 
@@ -91,15 +103,18 @@ Read: **[Comprehensive Documentation](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)** 
 
 #### Core Infrastructure
 
-- [Dependency Injection](./dependency_injection/README.md) - IoC container and service location
-- [Repository Pattern](./repository/README.md) - Data access with pagination and filtering
+- [Dependency Injection](./dependency_injection/README.md) - IoC container and
+  service location
+- [Repository Pattern](./repository/README.md) - Data access with pagination and
+  filtering
 - [Logging](./logging/README.md) - Structured logging infrastructure
 - [Error Handling](./errors/README.md) - Business exceptions and error codes
 
 #### Data Management
 
 - [BaseEntity](./repository/README.md#baseentity) - Base entity with audit trail
-- [Repository Interface](./repository/README.md#irepository-interface) - Generic repository pattern
+- [Repository Interface](./repository/README.md#irepository-interface) - Generic
+  repository pattern
 - [Storage Abstractions](./storage/README.md) - Type-safe key-value storage
 - [File Services](./file/README.md) - Cross-platform file operations
 - [Object Mapping](./mapper/README.md) - Type-safe object transformations
@@ -107,36 +122,45 @@ Read: **[Comprehensive Documentation](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)** 
 
 #### UI Components
 
-- [NumericInput](./components/numeric_input/README.md) - Numeric input with validation
-- [Date Time Picker](./components/date_time_picker/README.md) - Calendar and time selection
+- [NumericInput](./components/numeric_input/README.md) - Numeric input with
+  validation
+- [Date Time Picker](./components/date_time_picker/README.md) - Calendar and
+  time selection
 - [Responsive Design](./utils/RESPONSIVE_UTIL.md) - Responsive utilities
 
 #### Utilities
 
 - [Async Operations](./utils/ASYNC_UTILS.md) - Async operation patterns
 - [Time Utilities](./time/README.md) - Date/time helpers and locale support
-- [Collection Helpers](./utils/COLLECTION_UTILS.md) - Collection comparison and operations
+- [Collection Helpers](./utils/COLLECTION_UTILS.md) - Collection comparison and
+  operations
 - [LRU Cache](./utils/LRU_CACHE.md) - Least Recently Used cache implementation
 - [Responsive Design](./utils/RESPONSIVE_UTIL.md) - Responsive design utilities
-- [Time Formatting](./utils/TIME_FORMATTING_UTIL.md) - Time display and formatting helpers
-- [Haptic Feedback](./utils/HAPTIC_FEEDBACK_UTIL.md) - Haptic feedback abstraction
+- [Time Formatting](./utils/TIME_FORMATTING_UTIL.md) - Time display and
+  formatting helpers
+- [Haptic Feedback](./utils/HAPTIC_FEEDBACK_UTIL.md) - Haptic feedback
+  abstraction
 
 #### Media and Extensions
 
 - [Audio System](./sounds/README.md) - Cross-platform sound playback
-- [Type Extensions](./extensions/README.md) - Enhanced Flutter and Dart type utilities
+- [Type Extensions](./extensions/README.md) - Enhanced Flutter and Dart type
+  utilities
 
 ### By Use Case
 
 #### Setting Up New Project
 
-1. Read [Architecture Overview](./ACORE_COMPREHENSIVE_DOCUMENTATION.md#architecture)
-2. Configure [Dependency Injection](./dependency_injection/README.md#basic-setup)
+1. Read
+   [Architecture Overview](./ACORE_COMPREHENSIVE_DOCUMENTATION.md#architecture)
+2. Configure
+   [Dependency Injection](./dependency_injection/README.md#basic-setup)
 3. Implement [Repository Pattern](./repository/README.md#usage-examples)
 
 #### Adding UI Components
 
-1. Browse [Component Catalog](./ACORE_COMPREHENSIVE_DOCUMENTATION.md#ui-components)
+1. Browse
+   [Component Catalog](./ACORE_COMPREHENSIVE_DOCUMENTATION.md#ui-components)
 2. Review [Component Documentation](./components/)
 3. Check [Usage Examples](./components/numeric_input/README.md#usage-examples)
 
@@ -156,35 +180,35 @@ Read: **[Comprehensive Documentation](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)** 
 
 ### ✅ Completeness Verification
 
-**Architecture Documentation**
+#### Architecture Documentation
 
 - [x] Overview of design principles
 - [x] Package structure explanation
 - [x] Module relationships
 - [x] Integration patterns
 
-**API Documentation**
+#### API Documentation
 
 - [x] All public interfaces documented
 - [x] Method signatures with parameters
 - [x] Return types and examples
 - [x] Usage patterns and best practices
 
-**Component Documentation**
+#### Component Documentation
 
 - [x] UI component specifications
 - [x] Configuration options
 - [x] Styling and customization
 - [x] Internationalization support
 
-**Utility Documentation**
+#### Utility Documentation
 
 - [x] Helper classes and methods
 - [x] Performance considerations
 - [x] Platform-specific notes
 - [x] Common usage patterns
 
-**Examples and Guides**
+#### Examples and Guides
 
 - [x] Quick start examples
 - [x] Common implementation patterns
@@ -204,43 +228,47 @@ Read: **[Comprehensive Documentation](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)** 
 
 ### 🎯 Target Audiences
 
-**Beginners**
+#### Beginners
 
 - Start with [Quick Reference](./QUICK_REFERENCE.md)
 - Review [Getting Started](./QUICK_REFERENCE.md#getting-started)
 - Check [Common Patterns](./QUICK_REFERENCE.md#common-patterns)
 
-**Intermediate Developers**
+#### Intermediate Developers
 
 - Read [Comprehensive Documentation](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)
-- Review [Integration Guidelines](./ACORE_COMPREHENSIVE_DOCUMENTATION.md#integration-guidelines)
+- Review
+  [Integration Guidelines](./ACORE_COMPREHENSIVE_DOCUMENTATION.md#integration-guidelines)
 - Explore [Core Modules](./dependency_injection/README.md) for advanced patterns
 
-**Advanced Users/Architects**
+#### Advanced Users/Architects
 
-- Study [Architecture Section](./ACORE_COMPREHENSIVE_DOCUMENTATION.md#architecture)
-- Review [Design Principles](./ACORE_COMPREHENSIVE_DOCUMENTATION.md#design-principles)
-- Examine [Best Practices](./ACORE_COMPREHENSIVE_DOCUMENTATION.md#best-practices)
+- Study
+  [Architecture Section](./ACORE_COMPREHENSIVE_DOCUMENTATION.md#architecture)
+- Review
+  [Design Principles](./ACORE_COMPREHENSIVE_DOCUMENTATION.md#design-principles)
+- Examine
+  [Best Practices](./ACORE_COMPREHENSIVE_DOCUMENTATION.md#best-practices)
 
 ## 🔄 Maintaining Documentation
 
 ### Documentation Standards
 
-**Writing Guidelines**
+#### Writing Guidelines
 
 - Use clear, concise language
 - Include code examples
 - Provide context and rationale
 - Maintain consistent formatting
 
-**Content Requirements**
+#### Content Requirements
 
 - All public APIs documented
 - Usage examples for complex patterns
 - Platform-specific considerations
 - Performance and security notes
 
-**Update Process**
+#### Update Process
 
 1. Update code implementation
 2. Update corresponding documentation
@@ -250,7 +278,7 @@ Read: **[Comprehensive Documentation](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)** 
 
 ### Quality Assurance
 
-**Validation Checklist**
+#### Validation Checklist
 
 - [ ] All new features documented
 - [ ] Examples tested and working
@@ -258,7 +286,7 @@ Read: **[Comprehensive Documentation](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)** 
 - [ ] Code examples formatted correctly
 - [ ] Platform notes up to date
 
-**Review Process**
+#### Review Process
 
 - Technical accuracy validation
 - Usability testing of examples
@@ -290,10 +318,13 @@ Read: **[Comprehensive Documentation](./ACORE_COMPREHENSIVE_DOCUMENTATION.md)** 
 
 ### Common Issues
 
-- **Setup Problems**: Check [Quick Reference Setup](./QUICK_REFERENCE.md#basic-setup)
+- **Setup Problems**: Check
+  [Quick Reference Setup](./QUICK_REFERENCE.md#basic-setup)
 - **Import Errors**: Verify [Import Section](./QUICK_REFERENCE.md#import)
-- **Usage Questions**: Review [Common Patterns](./QUICK_REFERENCE.md#common-patterns)
-- **Error Handling**: Check [Error Patterns](./QUICK_REFERENCE.md#error-handling)
+- **Usage Questions**: Review
+  [Common Patterns](./QUICK_REFERENCE.md#common-patterns)
+- **Error Handling**: Check
+  [Error Patterns](./QUICK_REFERENCE.md#error-handling)
 
 ---
 
@@ -335,8 +366,10 @@ The documentation follows the package structure:
 
 ---
 
-**Last Updated**: 2025-01-12
-**Version**: 1.0.0
-**Maintainer**: ACore Flutter Development Team
+**Last Updated**: 2025-01-12 **Version**: 1.0.0 **Maintainer**: ACore Flutter
+Development Team
 
-This documentation index serves as the navigation hub for all acore-flutter package documentation. The modular structure makes it easy to find specific information while maintaining clear connections between related modules and components.
+This documentation index serves as the navigation hub for all acore-flutter
+package documentation. The modular structure makes it easy to find specific
+information while maintaining clear connections between related modules and
+components.

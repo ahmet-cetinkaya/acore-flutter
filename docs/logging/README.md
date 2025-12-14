@@ -2,12 +2,16 @@
 
 ## Overview
 
-The logging module provides a flexible and extensible logging infrastructure with support for multiple log levels, output destinations, and structured logging. It follows a clean architecture pattern with a simple interface that can be implemented by various concrete loggers.
+The logging module provides a flexible and extensible logging infrastructure
+with support for multiple log levels, output destinations, and structured
+logging. It follows a clean architecture pattern with a simple interface that
+can be implemented by various concrete loggers.
 
 ## Features
 
 - 📊 **Multiple Log Levels** - Debug, Info, Warning, Error, Fatal
-- 🎯 **Structured Logging** - Consistent format with error and stack trace support
+- 🎯 **Structured Logging** - Consistent format with error and stack trace
+  support
 - 🔄 **Composite Logging** - Multiple log outputs simultaneously
 - 💾 **Multiple Outputs** - Console, File, Memory, and custom destinations
 - 🔧 **Configurable** - Runtime configuration and filtering
@@ -40,7 +44,8 @@ abstract class ILogger {
 
 ### ConsoleLogger
 
-Outputs log messages to the system console with color-coded levels for better readability.
+Outputs log messages to the system console with color-coded levels for better
+readability.
 
 ```dart
 class ConsoleLogger implements ILogger {
@@ -671,13 +676,13 @@ logger.info("GET /api/users completed in 150ms with status 200");
 
 ---
 
-**Related Documentation**
+### Related Documentation
 
 - [Error Handling](../errors/README.md)
 - [Dependency Injection](../dependency_injection/README.md)
 - [Testing Guide](../utils/testing_guide.md)
 
-**See Also**
+### See Also
 
 - [ConsoleLogger Implementation](./console_logger.md)
 - [FileLogger Implementation](./file_logger.md)

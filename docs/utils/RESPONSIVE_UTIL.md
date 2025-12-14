@@ -2,7 +2,10 @@
 
 ## Overview
 
-The `ResponsiveUtil` provides advanced responsive design utilities that help create adaptive user interfaces for different screen sizes, orientations, and device types. It includes sophisticated landscape orientation handling and device-specific optimizations.
+The `ResponsiveUtil` provides advanced responsive design utilities that help
+create adaptive user interfaces for different screen sizes, orientations, and
+device types. It includes sophisticated landscape orientation handling and
+device-specific optimizations.
 
 ## Features
 
@@ -310,14 +313,17 @@ EdgeInsets getResponsivePadding(BuildContext context) {
 
 ## Performance Considerations
 
-- **Minimal Rebuilds**: Responsive checks are optimized to minimize widget rebuilds
-- **Efficient Breakpoints**: Uses Material Design's efficient breakpoint detection
+- **Minimal Rebuilds**: Responsive checks are optimized to minimize widget
+  rebuilds
+- **Efficient Breakpoints**: Uses Material Design's efficient breakpoint
+  detection
 - **Orientation Caching**: Orientation state is cached to reduce calculations
 
 ## Browser and Platform Support
 
 - **Flutter Web**: Full support with responsive breakpoints
-- **Desktop Platforms**: Windows, macOS, Linux with desktop-specific optimizations
+- **Desktop Platforms**: Windows, macOS, Linux with desktop-specific
+  optimizations
 - **Mobile Platforms**: Android, iOS with orientation-aware layouts
 - **Responsive Testing**: Works across all Flutter-supported platforms
 

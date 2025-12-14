@@ -1,12 +1,16 @@
 # Utils Module
 
-The utils module provides a comprehensive collection of utility classes and helper functions for common Flutter development tasks. These utilities are designed to be reusable across multiple projects and follow Flutter best practices.
+The utils module provides a comprehensive collection of utility classes and
+helper functions for common Flutter development tasks. These utilities are
+designed to be reusable across multiple projects and follow Flutter best
+practices.
 
 ## Available Utilities
 
 ### 📱 [Async Utils](ASYNC_UTILS.md)
 
-Advanced asynchronous programming utilities for handling future operations, stream management, and async state management.
+Advanced asynchronous programming utilities for handling future operations,
+stream management, and async state management.
 
 **Features:**
 
@@ -17,7 +21,8 @@ Advanced asynchronous programming utilities for handling future operations, stre
 
 ### 🎨 [Color Contrast Helper](COLOR_CONTRAST_HELPER.md)
 
-Utilities for calculating and ensuring proper color contrast ratios for accessibility compliance.
+Utilities for calculating and ensuring proper color contrast ratios for
+accessibility compliance.
 
 **Features:**
 
@@ -28,7 +33,8 @@ Utilities for calculating and ensuring proper color contrast ratios for accessib
 
 ### 📋 [Collection Utils](COLLECTION_UTILS.md)
 
-Enhanced collection manipulation utilities extending Dart's built-in collection operations.
+Enhanced collection manipulation utilities extending Dart's built-in collection
+operations.
 
 **Features:**
 
@@ -39,7 +45,8 @@ Enhanced collection manipulation utilities extending Dart's built-in collection 
 
 ### 📏 [Dialog Size](DIALOG_SIZE.md)
 
-Enum defining different dialog sizes for responsive dialogs with platform-specific behaviors.
+Enum defining different dialog sizes for responsive dialogs with
+platform-specific behaviors.
 
 **Features:**
 
@@ -50,7 +57,8 @@ Enum defining different dialog sizes for responsive dialogs with platform-specif
 
 ### 📱 [Haptic Feedback Util](HAPTIC_FEEDBACK_UTIL.md)
 
-Cross-platform haptic feedback utilities for enhanced user experience through tactile responses.
+Cross-platform haptic feedback utilities for enhanced user experience through
+tactile responses.
 
 **Features:**
 
@@ -62,7 +70,8 @@ Cross-platform haptic feedback utilities for enhanced user experience through ta
 
 ### 🔄 [LRU Cache](LRU_CACHE.md)
 
-High-performance Least Recently Used (LRU) cache implementation for efficient memory management.
+High-performance Least Recently Used (LRU) cache implementation for efficient
+memory management.
 
 **Features:**
 
@@ -74,7 +83,8 @@ High-performance Least Recently Used (LRU) cache implementation for efficient me
 
 ### 📐 [Migration Registry](MIGRATION_REGISTRY.md)
 
-Database migration management system for handling schema changes and data transformations.
+Database migration management system for handling schema changes and data
+transformations.
 
 **Features:**
 
@@ -85,7 +95,8 @@ Database migration management system for handling schema changes and data transf
 
 ### 📊 [Order Rank](ORDER_RANK.md)
 
-Utility for managing ordered data structures with efficient ranking and position tracking.
+Utility for managing ordered data structures with efficient ranking and position
+tracking.
 
 **Features:**
 
@@ -96,7 +107,8 @@ Utility for managing ordered data structures with efficient ranking and position
 
 ### 💻 [Platform Utils](PLATFORM_UTILS.md)
 
-Cross-platform utilities for detecting device characteristics and adapting behavior accordingly.
+Cross-platform utilities for detecting device characteristics and adapting
+behavior accordingly.
 
 **Features:**
 
@@ -107,7 +119,8 @@ Cross-platform utilities for detecting device characteristics and adapting behav
 
 ### 📱 [Responsive Dialog Helper](RESPONSIVE_DIALOG_HELPER.md)
 
-Comprehensive utility for showing responsive dialogs that adapt to different screen sizes and platforms.
+Comprehensive utility for showing responsive dialogs that adapt to different
+screen sizes and platforms.
 
 **Features:**
 
@@ -119,7 +132,8 @@ Comprehensive utility for showing responsive dialogs that adapt to different scr
 
 ### 📐 [Responsive Util](RESPONSIVE_UTIL.md)
 
-Advanced responsive design utilities for creating adaptive user interfaces across different screen sizes and orientations.
+Advanced responsive design utilities for creating adaptive user interfaces
+across different screen sizes and orientations.
 
 **Features:**
 
@@ -131,7 +145,8 @@ Advanced responsive design utilities for creating adaptive user interfaces acros
 
 ### ⏰ [Semantic Version](SEMANTIC_VERSION.md)
 
-Semantic versioning utility for parsing, comparing, and managing version numbers according to SemVer specification.
+Semantic versioning utility for parsing, comparing, and managing version numbers
+according to SemVer specification.
 
 **Features:**
 
@@ -142,7 +157,8 @@ Semantic versioning utility for parsing, comparing, and managing version numbers
 
 ### ⏱️ [Time Formatting Util](TIME_FORMATTING_UTIL.md)
 
-Comprehensive time and date formatting utilities with localization support and custom patterns.
+Comprehensive time and date formatting utilities with localization support and
+custom patterns.
 
 **Features:**
 
@@ -426,7 +442,8 @@ ResponsiveDialogHelper.showResponsiveDialog(context: context, child: child);
 
 ### Version Updates
 
-When updating utilities, check the changelog for breaking changes and follow the migration instructions provided.
+When updating utilities, check the changelog for breaking changes and follow the
+migration instructions provided.
 
 ## See Also
 

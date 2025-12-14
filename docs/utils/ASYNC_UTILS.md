@@ -2,11 +2,15 @@
 
 ## Overview
 
-The `AsyncUtils` class provides common async operation patterns with built-in error handling, success/failure callbacks, and cleanup support. It simplifies asynchronous operations and promotes consistent error handling throughout the application.
+The `AsyncUtils` class provides common async operation patterns with built-in
+error handling, success/failure callbacks, and cleanup support. It simplifies
+asynchronous operations and promotes consistent error handling throughout the
+application.
 
 ## Features
 
-- 🔄 **Operation Wrapping** - Execute async operations with consistent error handling
+- 🔄 **Operation Wrapping** - Execute async operations with consistent error
+  handling
 - ✅ **Success Callbacks** - Handle successful results gracefully
 - ❌ **Error Callbacks** - Centralized error handling with stack traces
 - 🧹 **Cleanup Support** - Finally blocks for resource cleanup
@@ -14,9 +18,10 @@ The `AsyncUtils` class provides common async operation patterns with built-in er
 
 ## Core Methods
 
-### executeAsync<T>()
+### `executeAsync<T>()`
 
-Executes an async operation that returns a value and provides callbacks for different outcomes.
+Executes an async operation that returns a value and provides callbacks for
+different outcomes.
 
 ```dart
 static Future<T?> executeAsync<T>({
@@ -538,13 +543,13 @@ await AsyncUtils.executeAsyncVoid(
 
 ---
 
-**Related Documentation**
+### Related Documentation
 
 - [Error Handling](../errors/README.md)
 - [Logging](../logging/README.md)
 - [Testing Guide](./testing_guide.md)
 
-**See Also**
+### See Also
 
 - [Repository Pattern](../repository/README.md)
 - [File Services](../file/README.md)

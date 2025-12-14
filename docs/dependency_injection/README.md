@@ -2,7 +2,9 @@
 
 ## Overview
 
-The dependency injection module provides a lightweight IoC (Inversion of Control) container that manages object creation and lifetime, promoting loose coupling and testability in Flutter applications.
+The dependency injection module provides a lightweight IoC (Inversion of
+Control) container that manages object creation and lifetime, promoting loose
+coupling and testability in Flutter applications.
 
 ## Features
 
@@ -334,7 +336,8 @@ if (!Container.instance.isRegistered<ILogger>()) {
 - **Memory Usage**: Singletons persist for app lifetime
 - **Startup Time**: Dependencies created lazily on first use
 - **Type Safety**: Compile-time checking prevents runtime errors
-- **Thread Safety**: Container is not thread-safe by design (Flutter single-threaded)
+- **Thread Safety**: Container is not thread-safe by design (Flutter
+  single-threaded)
 
 ## Comparison with Alternatives
 
@@ -404,13 +407,13 @@ container.registerSingleton<ILogger>((c) => ConsoleLogger());
 
 ---
 
-**Related Documentation**
+### Related Documentation
 
 - [Repository Pattern](../repository/README.md)
 - [Logging](../logging/README.md)
 - [Error Handling](../errors/README.md)
 
-**See Also**
+### See Also
 
 - [Dependency Injection Best Practices](../QUICK_REFERENCE.md#dependency-injection)
 - [Testing with DI](../utils/testing_guide.md)

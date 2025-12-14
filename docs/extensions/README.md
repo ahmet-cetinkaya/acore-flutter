@@ -2,20 +2,26 @@
 
 ## Overview
 
-The extensions module provides convenient extension methods that enhance the functionality of built-in Dart and Flutter types. These extensions offer additional utility methods for common operations, making code more readable and concise while maintaining type safety and performance.
+The extensions module provides convenient extension methods that enhance the
+functionality of built-in Dart and Flutter types. These extensions offer
+additional utility methods for common operations, making code more readable and
+concise while maintaining type safety and performance.
 
 ## Features
 
 - 🎨 **Color Extensions** - Enhanced color manipulation and conversion utilities
 - 🔧 **Type-Safe Operations** - All extensions maintain compile-time type safety
-- 📱 **Flutter Optimized** - Designed specifically for Flutter development patterns
+- 📱 **Flutter Optimized** - Designed specifically for Flutter development
+  patterns
 - ⚡ **Performance Efficient** - Minimal overhead with optimized implementations
 - 🛠️ **Developer Friendly** - Intuitive method names and clear behavior
 - 🔗 **Chainable Methods** - Methods that can be chained for fluent API usage
 
 ## Color Extensions
 
-The color extensions provide utility methods for working with Flutter's `Color` class, making it easier to convert between different color formats and perform common operations.
+The color extensions provide utility methods for working with Flutter's `Color`
+class, making it easier to convert between different color formats and perform
+common operations.
 
 ### Available Methods
 
@@ -602,7 +608,8 @@ extension PerformanceColorExtensions on Color {
 
 ## Future Extensions
 
-The extensions module is designed to be easily extended with additional utility methods. Potential future extensions include:
+The extensions module is designed to be easily extended with additional utility
+methods. Potential future extensions include:
 
 - **String Extensions**: Enhanced string manipulation and validation
 - **DateTime Extensions**: Date formatting and calculation utilities
@@ -612,7 +619,7 @@ The extensions module is designed to be easily extended with additional utility 
 
 ---
 
-**Related Documentation**
+### Related Documentation
 
 - [Time Utilities](../time/README.md)
 - [Error Handling](../errors/README.md)

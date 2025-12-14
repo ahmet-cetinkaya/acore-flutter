@@ -2,15 +2,19 @@
 
 ## Overview
 
-The `LRUCache` is a generic, efficient implementation of a Least Recently Used (LRU) cache that automatically removes the least recently accessed items when the cache reaches its maximum capacity.
+The `LRUCache` is a generic, efficient implementation of a Least Recently Used
+(LRU) cache that automatically removes the least recently accessed items when
+the cache reaches its maximum capacity.
 
 ## Features
 
 - ⚡ **O(1) Access Time** - Constant time complexity for get and put operations
-- 🔄 **Automatic Eviction** - Removes least recently used items when cache is full
+- 🔄 **Automatic Eviction** - Removes least recently used items when cache is
+  full
 - 📊 **Cache Statistics** - Built-in monitoring and performance metrics
 - 🎯 **Type Safe** - Generic implementation with compile-time type checking
-- 🧹 **Memory Management** - Efficient memory usage with configurable size limits
+- 🧹 **Memory Management** - Efficient memory usage with configurable size
+  limits
 
 ## API Reference
 
@@ -134,7 +138,8 @@ print(cache.stats.utilizationRatio); // 1.0 (100%)
 
 ### Thread Safety
 
-- **Not thread-safe** - use appropriate synchronization for multi-threaded scenarios
+- **Not thread-safe** - use appropriate synchronization for multi-threaded
+  scenarios
 - Designed for single-threaded Flutter UI context
 
 ## Performance Characteristics

@@ -1,17 +1,24 @@
 # Date Time Picker Components Documentation
 
-A comprehensive, accessible, and performant date/time picker component library built with Flutter and following SOLID principles.
+A comprehensive, accessible, and performant date/time picker component library
+built with Flutter and following SOLID principles.
 
 ## Overview
 
-This library provides modular date and time picker components that were extracted from a monolithic `DatePickerDialog` (1,873 lines) into focused, reusable components:
+This library provides modular date and time picker components that were
+extracted from a monolithic `DatePickerDialog` (1,873 lines) into focused,
+reusable components:
 
-- **CalendarDatePicker** (355 lines) - Clean calendar interface with single/range selection
+- **CalendarDatePicker** (355 lines) - Clean calendar interface with
+  single/range selection
 - **TimeSelector** (325 lines) - Efficient time selection with wheel picker
 - **TimeSelectionDialog** (dialog) - Full-screen time picker with wheel selector
-- **QuickRangeSelector** (419 lines) - Quick range selection with predefined ranges
-- **DateValidationDisplay** (262 lines) - Validation handling with real-time feedback
-- **DateTimePickerField** (201 lines) - Complete date-time input field with dialog integration
+- **QuickRangeSelector** (419 lines) - Quick range selection with predefined
+  ranges
+- **DateValidationDisplay** (262 lines) - Validation handling with real-time
+  feedback
+- **DateTimePickerField** (201 lines) - Complete date-time input field with
+  dialog integration
 - **WheelTimePicker** (wheel component) - Native-feeling wheel time picker
 - **SafeCalendarDatePicker** (wrapper) - Error boundary protected calendar
 - **ErrorBoundary** (utility) - Error handling wrapper component
@@ -96,7 +103,8 @@ QuickRangeSelector(
 
 ### Mobile-Optimized Layouts
 
-The date picker components now support mobile-specific layouts with bottom sheet presentations:
+The date picker components now support mobile-specific layouts with bottom sheet
+presentations:
 
 ```dart
 // Mobile bottom sheet layout
@@ -286,7 +294,8 @@ class _RangeDatePickerWidgetState extends State<RangeDatePickerWidget> {
 
 ### 📝 DateTimePickerField
 
-A complete date-time input field that combines a text field with a date-time picker dialog. This is the most commonly used component for date-time input.
+A complete date-time input field that combines a text field with a date-time
+picker dialog. This is the most commonly used component for date-time input.
 
 #### Usage
 
@@ -331,7 +340,8 @@ DateTimePickerField(
 
 #### Features
 
-- **Automatic Formatting**: Uses centralized DateFormatService for consistent date/time formatting
+- **Automatic Formatting**: Uses centralized DateFormatService for consistent
+  date/time formatting
 - **Input Parsing**: Parses existing text in controller to restore selection
 - **Boundary Validation**: Enforces min/max date/time constraints
 - **Accessibility**: Full semantic labels and keyboard navigation
@@ -342,7 +352,8 @@ DateTimePickerField(
 
 ### 📅 CalendarDatePicker
 
-A responsive calendar date picker supporting both single date and date range selection modes.
+A responsive calendar date picker supporting both single date and date range
+selection modes.
 
 #### Usage
 
@@ -399,7 +410,8 @@ enum DateSelectionMode {
 #### Features
 
 - **Accessibility**: Full keyboard navigation and screen reader support
-- **Responsive**: Adapts to mobile (350px), tablet (420px), desktop (480px) widths
+- **Responsive**: Adapts to mobile (350px), tablet (420px), desktop (480px)
+  widths
 - **International**: Supports 22+ languages via translation system
 - **Constraints**: Respects min/max date boundaries with time validation
 - **Performance**: Optimized for large date ranges with efficient rendering
@@ -457,7 +469,8 @@ TimeSelector(
 
 ### ⏰ TimeSelectionDialog
 
-A full-screen time selection dialog with wheel-style picker, perfect for mobile devices and detailed time selection.
+A full-screen time selection dialog with wheel-style picker, perfect for mobile
+devices and detailed time selection.
 
 #### Usage
 
@@ -604,7 +617,8 @@ class QuickDateRange {
 
 ### ⚡ ResponsiveUtil
 
-Centralized responsive design utility for consistent behavior across all components.
+Centralized responsive design utility for consistent behavior across all
+components.
 
 #### Usage
 
@@ -869,9 +883,9 @@ Focus(
 )
 ```
 
-## 📱 Responsive Design
+## 📱 Device-Specific Optimizations
 
-### Device-Specific Optimizations
+### Device-Specific Layouts
 
 #### Mobile (< 600px)
 
@@ -916,7 +930,8 @@ class ResponsiveBreakpoints {
 
 ### Date Formatting Service
 
-The date picker uses a centralized DateFormatService for consistent, efficient date formatting:
+The date picker uses a centralized DateFormatService for consistent, efficient
+date formatting:
 
 - **Locale-Aware**: Respects device locale and format preferences
 - **Type Safety**: Supports different format types (date, time, dateTime)
@@ -1026,14 +1041,16 @@ Column(
 
 ### Accessibility
 
-1. **Provide Translations**: Always include translation strings for all user-facing text
+1. **Provide Translations**: Always include translation strings for all
+   user-facing text
 2. **Semantic Labels**: Use descriptive semantic labels for screen readers
 3. **Keyboard Support**: Test all interactions with keyboard only
 4. **Focus Management**: Ensure proper focus order and visual indicators
 
 ### Responsive Design
 
-1. **Use ResponsiveUtil**: Always use responsive utilities instead of hard-coded values
+1. **Use ResponsiveUtil**: Always use responsive utilities instead of hard-coded
+   values
 2. **Test Multiple Devices**: Verify behavior across mobile, tablet, and desktop
 3. **Touch Targets**: Ensure minimum 44px touch targets on mobile
 4. **Orientation Changes**: Test both portrait and landscape modes
@@ -1144,10 +1161,10 @@ When contributing to date picker components:
 
 ## 📄 License
 
-This component library is part of the WHPH project and follows the same licensing terms.
+This component library is part of the WHPH project and follows the same
+licensing terms.
 
 ---
 
-**Last Updated**: November 2024
-**Version**: 2.0.0 (Enhanced with mobile layouts and DateTimePickerField)
-**Flutter Version**: 3.32.0+
+**Last Updated**: November 2024 **Version**: 2.0.0 (Enhanced with mobile layouts
+and DateTimePickerField) **Flutter Version**: 3.32.0+

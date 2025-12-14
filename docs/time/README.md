@@ -2,7 +2,9 @@
 
 ## Overview
 
-The time utilities module provides comprehensive date and time handling with locale-aware formatting, timezone support, weekday calculations, and common date operations designed for international Flutter applications.
+The time utilities module provides comprehensive date and time handling with
+locale-aware formatting, timezone support, weekday calculations, and common date
+operations designed for international Flutter applications.
 
 ## Features
 
@@ -586,13 +588,13 @@ if (!isValidDateRange(startDate, endDate)) {
 
 ---
 
-**Related Documentation**
+### Related Documentation
 
 - [Date Time Picker Components](../components/date_time_picker/README.md)
 - [Numeric Input](../components/numeric_input/README.md)
 - [Collection Utils](../utils/collection_utils.md)
 
-**See Also**
+### See Also
 
 - [Time Formatting Util](../utils/time_formatting_util.md)
 - [Date Validation Patterns](./date_validation.md)

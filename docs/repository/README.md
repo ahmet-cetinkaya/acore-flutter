@@ -2,7 +2,10 @@
 
 ## Overview
 
-The repository module provides a standardized data access abstraction layer implementing the Repository pattern with built-in support for pagination, filtering, sorting, and soft delete functionality. It promotes clean separation between business logic and data access concerns.
+The repository module provides a standardized data access abstraction layer
+implementing the Repository pattern with built-in support for pagination,
+filtering, sorting, and soft delete functionality. It promotes clean separation
+between business logic and data access concerns.
 
 ## Features
 
@@ -617,14 +620,14 @@ Future<List<Task>> getTasks() async {
 
 ---
 
-**Related Documentation**
+### Related Documentation
 
 - [BaseEntity](./models/base_entity.md)
 - [CustomWhereFilter](./models/custom_where_filter.md)
 - [CustomOrder](./models/custom_order.md)
 - [PaginatedList](./models/paginated_list.md)
 
-**See Also**
+### See Also
 
 - [Dependency Injection](../dependency_injection/README.md)
 - [Error Handling](../errors/README.md)

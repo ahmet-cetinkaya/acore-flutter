@@ -2,15 +2,21 @@
 
 ## Overview
 
-`CollectionUtils` provides static utility methods for comparing collections and detecting changes in complex data structures. It offers type-safe operations for lists, sets, maps, and individual values with proper null handling and deep comparison capabilities.
+`CollectionUtils` provides static utility methods for comparing collections and
+detecting changes in complex data structures. It offers type-safe operations for
+lists, sets, maps, and individual values with proper null handling and deep
+comparison capabilities.
 
 ## Features
 
-- 🔍 **Deep Collection Comparison** - Compare lists and sets by their contents, not just references
-- ⚡ **Change Detection** - Efficiently detect changes between complex data structures
+- 🔍 **Deep Collection Comparison** - Compare lists and sets by their contents,
+  not just references
+- ⚡ **Change Detection** - Efficiently detect changes between complex data
+  structures
 - 🛡️ **Null-Safe Operations** - All methods handle null values gracefully
 - 🎯 **Type Safety** - Generic methods with compile-time type checking
-- 🔄 **Map Change Tracking** - Comprehensive map comparison with nested collection support
+- 🔄 **Map Change Tracking** - Comprehensive map comparison with nested
+  collection support
 - 📊 **Performance Optimized** - Efficient algorithms for large collections
 
 ## Core Methods
@@ -687,7 +693,8 @@ if (!CollectionUtils.hasAnyMapValueChanged(oldData, newData, keys: ['criticalFie
 1. **Use Sets for Lookups**: Convert lists to sets for faster membership testing
 2. **Early Exit**: Return early when differences are detected
 3. **Cache Results**: Cache comparison results for frequently accessed data
-4. **Incremental Updates**: Track changes incrementally rather than full comparisons
+4. **Incremental Updates**: Track changes incrementally rather than full
+   comparisons
 
 ```dart
 class OptimizedCollectionComparator {
@@ -718,7 +725,7 @@ class OptimizedCollectionComparator {
 
 ---
 
-**Related Documentation**
+### Related Documentation
 
 - [Async Utils](./ASYNC_UTILS.md)
 - [LRU Cache](./LRU_CACHE.md)

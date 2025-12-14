@@ -2,7 +2,11 @@
 
 ## Overview
 
-The mapper module provides a simple yet powerful object-to-object mapping system for Flutter applications. It allows you to define transformations between different object types and execute them through a clean, type-safe interface. This is particularly useful for converting between data transfer objects (DTOs), domain entities, and view models.
+The mapper module provides a simple yet powerful object-to-object mapping system
+for Flutter applications. It allows you to define transformations between
+different object types and execute them through a clean, type-safe interface.
+This is particularly useful for converting between data transfer objects (DTOs),
+domain entities, and view models.
 
 ## Features
 
@@ -754,7 +758,7 @@ class UserService {
 
 ---
 
-**Related Documentation**
+### Related Documentation
 
 - [Repository Pattern](../repository/README.md)
 - [Dependency Injection](../dependency_injection/README.md)

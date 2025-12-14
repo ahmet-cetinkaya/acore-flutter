@@ -1,10 +1,13 @@
 # Dialog Size
 
-Enum defining different dialog sizes for responsive dialogs with platform-specific behaviors.
+Enum defining different dialog sizes for responsive dialogs with
+platform-specific behaviors.
 
 ## Overview
 
-The `DialogSize` enum provides predefined size configurations that adapt differently on desktop and mobile platforms, ensuring optimal user experience across all devices.
+The `DialogSize` enum provides predefined size configurations that adapt
+differently on desktop and mobile platforms, ensuring optimal user experience
+across all devices.
 
 ## Enum Values
 
@@ -252,7 +255,8 @@ enum DialogSize {
 
 ## Responsive Behavior
 
-The `ResponsiveDialogHelper` uses these size properties to determine optimal dialog dimensions:
+The `ResponsiveDialogHelper` uses these size properties to determine optimal
+dialog dimensions:
 
 ```dart
 // Desktop sizing logic

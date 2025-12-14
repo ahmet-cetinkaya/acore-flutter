@@ -2,14 +2,18 @@
 
 ## Overview
 
-The `HapticFeedbackUtil` provides platform-specific haptic feedback functionality for Flutter applications. It delivers tactile responses that enhance user interaction and provide physical confirmation for user actions.
+The `HapticFeedbackUtil` provides platform-specific haptic feedback
+functionality for Flutter applications. It delivers tactile responses that
+enhance user interaction and provide physical confirmation for user actions.
 
 ## Features
 
 - 📱 **Cross-Platform Support** - Works on Android, iOS, and supported platforms
-- 🎯 **Action-Specific Feedback** - Different haptic patterns for different interaction types
+- 🎯 **Action-Specific Feedback** - Different haptic patterns for different
+  interaction types
 - 🔧 **Configurable** - Optional haptic feedback with fallback handling
-- ⚡ **Performance Optimized** - Minimal overhead with efficient trigger mechanisms
+- ⚡ **Performance Optimized** - Minimal overhead with efficient trigger
+  mechanisms
 - 🛡️ **Error Safe** - Graceful degradation when haptic feedback isn't available
 
 ## API Reference
@@ -402,10 +406,12 @@ void triggerHapticFeedback(BuildContext context) {
 
 ## Performance Considerations
 
-- **Minimal Overhead**: Efficient trigger mechanisms with minimal performance impact
+- **Minimal Overhead**: Efficient trigger mechanisms with minimal performance
+  impact
 - **Debouncing**: The utility handles rapid successive calls appropriately
 - **Battery Efficiency**: Optimized to minimize battery usage
-- **Background Safety**: Safe to call from background threads with proper context
+- **Background Safety**: Safe to call from background threads with proper
+  context
 
 ## Accessibility Integration
 
@@ -448,9 +454,11 @@ testWidgets('HapticFeedbackUtil triggers correctly', (tester) async {
 
 ### Common Issues
 
-1. **No Haptic Feedback**: Check if device supports haptic feedback and it's enabled in settings
+1. **No Haptic Feedback**: Check if device supports haptic feedback and it's
+   enabled in settings
 2. **Performance Issues**: Avoid triggering haptic feedback in rapid succession
-3. **Platform Differences**: Different platforms may have different feedback intensities
+3. **Platform Differences**: Different platforms may have different feedback
+   intensities
 4. **Context Requirements**: Always provide a valid BuildContext
 
 ### Debug Mode

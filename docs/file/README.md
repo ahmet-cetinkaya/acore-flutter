@@ -2,15 +2,21 @@
 
 ## Overview
 
-The file services module provides a cross-platform abstraction layer for file operations including file picking, reading, writing, and saving. It handles platform-specific differences such as Android's Storage Access Framework and provides a consistent API across all supported platforms.
+The file services module provides a cross-platform abstraction layer for file
+operations including file picking, reading, writing, and saving. It handles
+platform-specific differences such as Android's Storage Access Framework and
+provides a consistent API across all supported platforms.
 
 ## Features
 
-- 📁 **Cross-Platform File Operations** - Unified API for Android, iOS, and Desktop
-- 🎯 **File Picker Integration** - Native file selection dialogs with extension filtering
+- 📁 **Cross-Platform File Operations** - Unified API for Android, iOS, and
+  Desktop
+- 🎯 **File Picker Integration** - Native file selection dialogs with extension
+  filtering
 - 📝 **Text and Binary Support** - Handle both text and binary file operations
 - 💾 **User-Saving Support** - Save files with user-selected locations
-- 🔐 **Permission Handling** - Automatic permission management on different platforms
+- 🔐 **Permission Handling** - Automatic permission management on different
+  platforms
 - 🌍 **Desktop Compatibility** - Traditional file dialogs for desktop platforms
 
 ## Core Interface
@@ -712,7 +718,7 @@ await fileService.saveFile(
 
 ---
 
-**Related Documentation**
+### Related Documentation
 
 - [Storage Abstractions](../storage/README.md)
 - [Error Handling](../errors/README.md)

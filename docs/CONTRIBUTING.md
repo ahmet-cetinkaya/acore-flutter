@@ -1,6 +1,9 @@
 # Contributing to ACore Flutter
 
-Thank you for your interest in contributing to ACore! This comprehensive core package provides reusable implementations, abstractions, and helper code snippets for Flutter applications. Your contributions help make ACore better for the entire Flutter community.
+Thank you for your interest in contributing to ACore! This comprehensive core
+package provides reusable implementations, abstractions, and helper code
+snippets for Flutter applications. Your contributions help make ACore better for
+the entire Flutter community.
 
 ## 🎯 Project Overview
 
@@ -48,13 +51,14 @@ ACore is a minimal-dependency Flutter core package that provides:
    ```
 
 4. **Check Code Formatting**
+
    ```bash
    flutter analyze
    ```
 
 ## 📁 Project Structure
 
-```
+```dart
 lib/
 ├── acore.dart                 # Main export file
 ├── async/                     # Async utilities and helpers
@@ -162,7 +166,8 @@ test/
 
 - Test all public methods and properties
 - Cover edge cases and error conditions
-- Use descriptive test names following `describe('when X', () { it('should Y', () {...}); })` pattern
+- Use descriptive test names following
+  `describe('when X', () { it('should Y', () {...}); })` pattern
 - Mock external dependencies using `mockito` or manual mocks
 
 #### Widget Tests
@@ -449,4 +454,5 @@ For questions or support:
 - **GitHub Discussions**: For general questions and community support
 - **Maintainer**: [ahmetcetinkaya](https://github.com/ahmet-cetinkaya)
 
-Thank you for contributing to ACore! Your efforts help build better Flutter applications for everyone. 🚀
+Thank you for contributing to ACore! Your efforts help build better Flutter
+applications for everyone. 🚀

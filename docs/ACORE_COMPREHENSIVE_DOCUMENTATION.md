@@ -2,11 +2,12 @@
 
 ## Overview
 
-**acore-flutter** is a comprehensive core package that provides common utilities, abstractions, and components for Flutter applications. It serves as the foundational library for the WHPH productivity app, implementing Clean Architecture principles with a focus on reusability and maintainability.
+**acore-flutter** is a comprehensive core package that provides common
+utilities, abstractions, and components for Flutter applications. It serves as
+the foundational library for the WHPH productivity app, implementing Clean
+Architecture principles with a focus on reusability and maintainability.
 
-**Version**: 1.0.0
-**Flutter Compatibility**: >=3.0.0
-**Dart SDK**: ^3.5.3
+**Version**: 1.0.0 **Flutter Compatibility**: >=3.0.0 **Dart SDK**: ^3.5.3
 
 ## Architecture
 
@@ -21,7 +22,7 @@
 
 ### Package Structure
 
-```
+```dart
 lib/
 ├── async/                    # Async utilities and helpers
 ├── components/              # Reusable UI components
@@ -45,15 +46,19 @@ lib/
 
 ### 1. Dependency Injection (`dependency_injection/`)
 
-Provides inversion of control capabilities for loose coupling between components.
+Provides inversion of control capabilities for loose coupling between
+components.
 
-**Key Interface**: `IContainer` with `resolve<T>()` and `registerSingleton<T>()` methods.
+**Key Interface**: `IContainer` with `resolve<T>()` and `registerSingleton<T>()`
+methods.
 
-**📖 Detailed Documentation**: See [Dependency Injection README](./dependency_injection/README.md)
+**📖 Detailed Documentation**: See
+[Dependency Injection README](./dependency_injection/README.md)
 
 ### 2. Repository Pattern (`repository/`)
 
-Standardized data access interface with built-in pagination, filtering, and soft delete support.
+Standardized data access interface with built-in pagination, filtering, and soft
+delete support.
 
 **Key Interfaces**: `IRepository<T, TId>` and `BaseEntity<TId>`
 
@@ -69,7 +74,8 @@ Structured logging with multiple severity levels and output destinations.
 
 ### 4. Error Handling (`errors/`)
 
-Structured business exception handling with error codes and localization support.
+Structured business exception handling with error codes and localization
+support.
 
 **Key Class**: `BusinessException` with message, errorCode, and args properties
 
@@ -79,9 +85,11 @@ Structured business exception handling with error codes and localization support
 
 Common async operation patterns with error handling and cleanup support.
 
-**Key Class**: `AsyncUtils` with `executeAsync<T>()` and `executeAsyncVoid()` methods
+**Key Class**: `AsyncUtils` with `executeAsync<T>()` and `executeAsyncVoid()`
+methods
 
-**📖 Detailed Documentation**: See [Async Utils Documentation](./utils/ASYNC_UTILS.md)
+**📖 Detailed Documentation**: See
+[Async Utils Documentation](./utils/ASYNC_UTILS.md)
 
 ### 6. Time Utilities (`time/`)
 
@@ -95,15 +103,19 @@ Localization-aware date/time utilities with proper locale handling.
 
 ### NumericInput (`components/numeric_input/`)
 
-Reusable numeric input widget with increment/decrement buttons, validation, and internationalization support.
+Reusable numeric input widget with increment/decrement buttons, validation, and
+internationalization support.
 
-**📖 Detailed Documentation**: See [NumericInput README](./components/numeric_input/README.md)
+**📖 Detailed Documentation**: See
+[NumericInput README](./components/numeric_input/README.md)
 
 ### Date Time Picker (`components/date_time_picker/`)
 
-Comprehensive date/time selection components with calendar views, time dialogs, and range support.
+Comprehensive date/time selection components with calendar views, time dialogs,
+and range support.
 
-**📖 Detailed Documentation**: See [Date Time Picker README](./components/date_time_picker/README.md)
+**📖 Detailed Documentation**: See
+[Date Time Picker README](./components/date_time_picker/README.md)
 
 ## Other Core Modules
 
@@ -129,9 +141,11 @@ Object-to-object mapping capabilities with customizable mapping functions
 
 Collection comparison, caching, responsive design, and platform utilities
 
-- Classes: `CollectionUtils`, `LRUCache`, `ResponsiveUtil`, `PlatformUtils`, etc.
+- Classes: `CollectionUtils`, `LRUCache`, `ResponsiveUtil`, `PlatformUtils`,
+  etc.
 
-**📖 Detailed Documentation**: See [Utils Documentation](./DOCUMENTATION_INDEX.md#utility-documentation)
+**📖 Detailed Documentation**: See
+[Utils Documentation](./DOCUMENTATION_INDEX.md#utility-documentation)
 
 ## Quick Start Guide
 
@@ -151,19 +165,24 @@ logger.info("Application started");
 
 ### 2. Common Patterns
 
-**Repository Usage**: See [Repository README](./repository/README.md#usage-examples)
+**Repository Usage**: See
+[Repository README](./repository/README.md#usage-examples)
 
-**Error Handling**: See [Error Handling README](./errors/README.md#usage-examples)
+**Error Handling**: See
+[Error Handling README](./errors/README.md#usage-examples)
 
-**Async Operations**: See [Async Utils Documentation](./utils/ASYNC_UTILS.md#usage-examples)
+**Async Operations**: See
+[Async Utils Documentation](./utils/ASYNC_UTILS.md#usage-examples)
 
 **Time Utilities**: See [Time Utilities README](./time/README.md#usage-examples)
 
 ### 3. UI Components
 
-**NumericInput**: See [NumericInput README](./components/numeric_input/README.md#usage-examples)
+**NumericInput**: See
+[NumericInput README](./components/numeric_input/README.md#usage-examples)
 
-**Date Time Picker**: See [Date Time Picker README](./components/date_time_picker/README.md)
+**Date Time Picker**: See
+[Date Time Picker README](./components/date_time_picker/README.md)
 
 ## Dependencies
 
@@ -193,7 +212,7 @@ logger.info("Application started");
 
 ### Documentation Structure
 
-```
+```dart
 docs/
 ├── README.md                    # Main overview
 ├── API_REFERENCE.md             # Complete API reference
@@ -212,7 +231,7 @@ docs/
 
 ## Quick Reference Links
 
-**Core Modules**
+## Core Modules
 
 - [Dependency Injection](./dependency_injection/README.md)
 - [Repository Pattern](./repository/README.md)
@@ -220,12 +239,12 @@ docs/
 - [Error Handling](./errors/README.md)
 - [Time Utilities](./time/README.md)
 
-**UI Components**
+## UI Component Libraries
 
 - [NumericInput](./components/numeric_input/README.md)
 - [Date Time Picker](./components/date_time_picker/README.md)
 
-**Utilities**
+## Utilities
 
 - [Async Utils](./utils/ASYNC_UTILS.md)
 - [Collection Utils](./utils/COLLECTION_UTILS.md)
@@ -260,11 +279,13 @@ docs/
 
 ### Common Issues
 
-- **Setup Problems**: Check [Dependency Injection](./dependency_injection/README.md)
+- **Setup Problems**: Check
+  [Dependency Injection](./dependency_injection/README.md)
 - **Data Access**: Review [Repository Pattern](./repository/README.md)
 - **Error Handling**: See [Error Handling README](./errors/README.md)
 - **UI Issues**: Check component documentation
 
 ---
 
-**For detailed documentation on specific modules, see the individual README files in their respective directories.**
+**For detailed documentation on specific modules, see the individual README
+files in their respective directories.**

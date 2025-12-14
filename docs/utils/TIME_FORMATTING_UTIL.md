@@ -2,7 +2,9 @@
 
 ## Overview
 
-The `TimeFormattingUtil` provides locale-aware time formatting capabilities using Flutter's MaterialLocalizations. It ensures consistent time display across different locales and follows platform-specific time formatting conventions.
+The `TimeFormattingUtil` provides locale-aware time formatting capabilities
+using Flutter's MaterialLocalizations. It ensures consistent time display across
+different locales and follows platform-specific time formatting conventions.
 
 ## Features
 
@@ -305,7 +307,8 @@ class TimeDisplay {
 
 ## Performance Considerations
 
-- **MaterialLocalizations Access**: The utility efficiently accesses MaterialLocalizations
+- **MaterialLocalizations Access**: The utility efficiently accesses
+  MaterialLocalizations
 - **String Formatting**: Optimized string operations for performance
 - **Context Dependency**: Requires valid BuildContext but minimal overhead
 
@@ -344,6 +347,7 @@ testWidgets('TimeFormattingUtil formats correctly', (tester) async {
 
 ## Accessibility Considerations
 
-- **Screen Reader Support**: Formatted times are properly announced by screen readers
+- **Screen Reader Support**: Formatted times are properly announced by screen
+  readers
 - **Consistent Format**: Uses system-preferred formats for better accessibility
 - **Material Compliance**: Follows Material Design accessibility guidelines

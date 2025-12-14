@@ -2,7 +2,9 @@
 
 ## Overview
 
-The error handling module provides structured exception management with support for business logic errors, error codes, localization, and consistent error reporting throughout the application.
+The error handling module provides structured exception management with support
+for business logic errors, error codes, localization, and consistent error
+reporting throughout the application.
 
 ## Features
 
@@ -549,13 +551,13 @@ try {
 
 ---
 
-**Related Documentation**
+### Related Documentation
 
 - [Logging](../logging/README.md)
 - [Repository Pattern](../repository/README.md)
 - [Async Utils](../utils/async_utils.md)
 
-**See Also**
+### See Also
 
 - [Error Response Format](./error_response.md)
 - [Validation Patterns](./validation_patterns.md)

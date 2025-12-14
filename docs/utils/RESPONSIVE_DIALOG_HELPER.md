@@ -1,17 +1,26 @@
 # Responsive Dialog Helper
 
-A comprehensive utility for showing responsive dialogs that adapt to different screen sizes, displaying as modal dialogs on desktop and bottom sheets on mobile.
+A comprehensive utility for showing responsive dialogs that adapt to different
+screen sizes, displaying as modal dialogs on desktop and bottom sheets on
+mobile.
 
 ## Overview
 
-The `ResponsiveDialogHelper` provides a unified API for creating responsive dialogs that automatically adapt their presentation based on the device/screen size. This ensures optimal user experience across all platforms (desktop, mobile, web).
+The `ResponsiveDialogHelper` provides a unified API for creating responsive
+dialogs that automatically adapt their presentation based on the device/screen
+size. This ensures optimal user experience across all platforms (desktop,
+mobile, web).
 
 ## Features
 
-- 📱 **Responsive Design**: Automatically shows modal dialogs on desktop, bottom sheets on mobile
-- 🎨 **Configurable Styling**: Customizable breakpoints, border radius, and desktop detection
-- ⌨️ **Keyboard Awareness**: Handles keyboard appearance/disappearance gracefully
-- 📏 **Flexible Sizing**: Multiple predefined dialog sizes (min, small, medium, large, max)
+- 📱 **Responsive Design**: Automatically shows modal dialogs on desktop, bottom
+  sheets on mobile
+- 🎨 **Configurable Styling**: Customizable breakpoints, border radius, and
+  desktop detection
+- ⌨️ **Keyboard Awareness**: Handles keyboard appearance/disappearance
+  gracefully
+- 📏 **Flexible Sizing**: Multiple predefined dialog sizes (min, small, medium,
+  large, max)
 - 🔄 **Configuration**: Project-specific configuration support
 - 🎯 **Cross-Platform**: Works on all Flutter-supported platforms
 
@@ -87,7 +96,8 @@ static Future<T?> showResponsiveDialog<T>({
 - `child`: The dialog content widget
 - `size`: Dialog size (default: `DialogSize.medium`)
 - `isScrollable`: Whether content should be scrollable (default: `true`)
-- `isDismissible`: Whether dialog can be dismissed by tapping outside (default: `true`)
+- `isDismissible`: Whether dialog can be dismissed by tapping outside (default:
+  `true`)
 - `enableDrag`: Whether bottom sheet can be dragged (default: `true`)
 - `config`: Optional configuration override
 
@@ -137,7 +147,8 @@ class ResponsiveDialogConfig {
 
 **Properties:**
 
-- `screenMediumBreakpoint`: Width threshold for desktop detection (default: 600px)
+- `screenMediumBreakpoint`: Width threshold for desktop detection (default:
+  600px)
 - `containerBorderRadius`: Border radius for dialog containers (default: 12px)
 - `isDesktopScreen`: Custom function to determine desktop screens
 
@@ -213,7 +224,8 @@ void configureResponsiveDialogs() {
 
 ### Using Legacy Function
 
-For simple use cases, the legacy `showResponsiveBottomSheet` function is available:
+For simple use cases, the legacy `showResponsiveBottomSheet` function is
+available:
 
 ```dart
 showResponsiveBottomSheet(
@@ -256,7 +268,8 @@ if (isDesktop) {
 
 ### Styling
 
-The responsive dialog helper respects your app's theme but allows customization through configuration:
+The responsive dialog helper respects your app's theme but allows customization
+through configuration:
 
 ```dart
 ResponsiveDialogHelper.configure(

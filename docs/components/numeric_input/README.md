@@ -2,14 +2,17 @@
 
 ## Overview
 
-The `NumericInput` component is a specialized input field designed for numeric data entry with built-in validation, formatting, and accessibility support. It provides a consistent user experience across different platforms and locales.
+The `NumericInput` component is a specialized input field designed for numeric
+data entry with built-in validation, formatting, and accessibility support. It
+provides a consistent user experience across different platforms and locales.
 
 ## Features
 
 - 🔢 **Numeric-Only Input** - Automatically filters non-numeric characters
 - 📱 **Platform-Native Keyboard** - Displays numeric keyboard on mobile devices
 - 🎨 **Customizable Styling** - Flexible theming and appearance options
-- ♿ **Accessibility Compliant** - Full screen reader and keyboard navigation support
+- ♿ **Accessibility Compliant** - Full screen reader and keyboard navigation
+  support
 - 🌍 **Locale-Aware** - Respects regional numeric formatting preferences
 - ✅ **Built-in Validation** - Configurable min/max value validation
 - 📐 **Responsive Design** - Adapts to different screen sizes

@@ -2,7 +2,8 @@
 
 ## Overview
 
-Interactive swipe gesture component that prevents accidental confirmations with smooth animations and customizable styling.
+Interactive swipe gesture component that prevents accidental confirmations with
+smooth animations and customizable styling.
 
 ## Features
 
@@ -233,4 +234,5 @@ testWidgets('SwipeToConfirm triggers callback', (tester) async {
 
 ## Accessibility
 
-Provide keyboard/tap alternatives to swipe gestures for screen reader users and keyboard navigation.
+Provide keyboard/tap alternatives to swipe gestures for screen reader users and
+keyboard navigation.

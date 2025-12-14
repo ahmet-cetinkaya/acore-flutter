@@ -2,13 +2,18 @@
 
 ## Overview
 
-The storage module provides a type-safe abstraction layer for key-value data persistence across different platforms. It offers a simple, consistent API for storing and retrieving application data while handling platform-specific implementations such as SharedPreferences, UserDefaults, and browser localStorage.
+The storage module provides a type-safe abstraction layer for key-value data
+persistence across different platforms. It offers a simple, consistent API for
+storing and retrieving application data while handling platform-specific
+implementations such as SharedPreferences, UserDefaults, and browser
+localStorage.
 
 ## Features
 
 - 🔑 **Type-Safe Operations** - Generic storage with compile-time type safety
 - 💾 **Cross-Platform Support** - Works on Android, iOS, Web, and Desktop
-- 🔄 **Async Operations** - Non-blocking storage operations for better performance
+- 🔄 **Async Operations** - Non-blocking storage operations for better
+  performance
 - 🧹 **Simple API** - Minimal interface with just three core methods
 - 🎯 **Dependency Injection Ready** - Easy to mock and test
 - 📱 **Platform Optimizations** - Uses native storage solutions on each platform
@@ -714,7 +719,7 @@ await storage.setValue('large_data', data); // May throw silently
 
 ---
 
-**Related Documentation**
+### Related Documentation
 
 - [File Services](../file/README.md)
 - [Dependency Injection](../dependency_injection/README.md)

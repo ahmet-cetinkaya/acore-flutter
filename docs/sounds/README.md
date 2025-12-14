@@ -2,15 +2,20 @@
 
 ## Overview
 
-The sounds module provides a cross-platform abstraction layer for audio playback in Flutter applications. It offers a simple, consistent API for playing sound effects and audio files while handling platform-specific implementations such as audio focus management, volume control, and playback state management.
+The sounds module provides a cross-platform abstraction layer for audio playback
+in Flutter applications. It offers a simple, consistent API for playing sound
+effects and audio files while handling platform-specific implementations such as
+audio focus management, volume control, and playback state management.
 
 ## Features
 
 - 🎵 **Cross-Platform Audio** - Works on Android, iOS, and Desktop platforms
 - 🎯 **Simple API** - Minimal interface with essential playback controls
-- 🔊 **Audio Focus Management** - Automatic audio focus handling for better user experience
+- 🔊 **Audio Focus Management** - Automatic audio focus handling for better user
+  experience
 - 🎛️ **Volume Control** - Precise volume adjustment support
-- 🔄 **Loop Support** - Enable audio looping for background music or repeated effects
+- 🔄 **Loop Support** - Enable audio looping for background music or repeated
+  effects
 - ⏸️ **Playback Controls** - Play, pause, resume, and stop functionality
 - 🧹 **Resource Management** - Proper cleanup and disposal of audio resources
 
@@ -865,7 +870,7 @@ class SoundPool {
 
 ---
 
-**Related Documentation**
+### Related Documentation
 
 - [File Services](../file/README.md)
 - [Dependency Injection](../dependency_injection/README.md)

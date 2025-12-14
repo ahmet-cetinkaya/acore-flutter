@@ -18,7 +18,8 @@ The Markdown editor provides a full-featured Markdown editing experience with:
 ### Core Functionality
 
 - **Rich Text Editing**: Full Markdown support with live preview
-- **Toolbar Integration**: Common formatting tools (bold, italic, links, lists, etc.)
+- **Toolbar Integration**: Common formatting tools (bold, italic, links, lists,
+  etc.)
 - **Preview Mode**: Toggle between edit and preview modes
 - **Link Handling**: Automatic URL detection and launching
 - **Responsive Design**: Optimized for both mobile and desktop platforms
@@ -33,7 +34,7 @@ The Markdown editor provides a full-featured Markdown editing experience with:
 
 ## Structure
 
-```
+```dart
 markdown_editor/
 ├── markdown_editor.dart           # Main orchestrator widget
 ├── models/

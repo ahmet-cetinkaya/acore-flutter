@@ -1,12 +1,14 @@
 # ACore Flutter Package Documentation
 
-Welcome to the comprehensive documentation for the ACore Flutter package - a core utility and component library for Flutter applications.
+Welcome to the comprehensive documentation for the ACore Flutter package - a
+core utility and component library for Flutter applications.
 
 ## 📚 Documentation Structure
 
 ### Components
 
-Reusable UI components built with accessibility, performance, and internationalization in mind.
+Reusable UI components built with accessibility, performance, and
+internationalization in mind.
 
 #### [Date Time Picker Components](./components/date_time_picker/)
 
@@ -53,7 +55,8 @@ All components follow SOLID principles and include:
 
 ## 📖 Usage Examples
 
-See individual component documentation for detailed usage examples and API references.
+See individual component documentation for detailed usage examples and API
+references.
 
 ## 🏗️ Architecture
 

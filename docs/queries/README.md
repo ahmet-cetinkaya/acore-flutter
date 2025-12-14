@@ -2,13 +2,20 @@
 
 ## Overview
 
-The queries module provides essential query models and utilities for implementing CQRS (Command Query Responsibility Segregation) patterns in Flutter applications. It offers a clean separation between read operations (queries) and write operations (commands), enabling scalable and maintainable data access patterns.
+The queries module provides essential query models and utilities for
+implementing CQRS (Command Query Responsibility Segregation) patterns in Flutter
+applications. It offers a clean separation between read operations (queries) and
+write operations (commands), enabling scalable and maintainable data access
+patterns.
 
 ## Features
 
-- 🔍 **Query-Result Separation** - Clear distinction between query definitions and execution
-- 🎯 **Type-Safe Operations** - Generic query models with compile-time type safety
-- 📊 **Sorting Support** - Flexible sorting with field and direction specification
+- 🔍 **Query-Result Separation** - Clear distinction between query definitions
+  and execution
+- 🎯 **Type-Safe Operations** - Generic query models with compile-time type
+  safety
+- 📊 **Sorting Support** - Flexible sorting with field and direction
+  specification
 - 🏗️ **CQRS Ready** - Built to support Command Query Responsibility Segregation
 - 🔧 **Extensible Design** - Easy to extend with custom query types
 - 🚀 **Performance Focused** - Optimized for read-heavy operations
@@ -17,7 +24,8 @@ The queries module provides essential query models and utilities for implementin
 
 ### SortOption
 
-A generic sorting option that allows you to specify sorting by any field with configurable direction.
+A generic sorting option that allows you to specify sorting by any field with
+configurable direction.
 
 ```dart
 class SortOption<T> {
@@ -680,9 +688,11 @@ class GetUsersInRangeQuery extends ValidatedQuery<List<UserEntity>> {
 ### Query Optimization Tips
 
 1. **Use Pagination**: Always limit results with pagination for large datasets
-2. **Index Sorting Fields**: Ensure database indexes exist for commonly sorted fields
+2. **Index Sorting Fields**: Ensure database indexes exist for commonly sorted
+   fields
 3. **Cache Read-Only Queries**: Cache frequently accessed, read-only data
-4. **Optimize Sort Options**: Sort by indexed fields first in multi-field sorting
+4. **Optimize Sort Options**: Sort by indexed fields first in multi-field
+   sorting
 
 ```dart
 // ✅ Good: Efficient query with pagination and caching
@@ -698,7 +708,7 @@ Future<List<UserEntity>> handle(GetUsersQuery query) async {
 
 ---
 
-**Related Documentation**
+### Related Documentation
 
 - [Repository Pattern](../repository/README.md)
 - [Error Handling](../errors/README.md)
