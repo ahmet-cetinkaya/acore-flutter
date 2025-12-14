@@ -30,7 +30,7 @@ class MarkdownToolbarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final toolbarBgColor = backgroundColor ?? theme.cardTheme.color ?? theme.colorScheme.surface;
+    final toolbarBgColor = backgroundColor ?? theme.colorScheme.surface;
     final toolbarStyle = toolbarConfiguration.configureToolbarStyle(theme, toolbarBgColor);
     final tooltips = toolbarConfiguration.configureTooltipsUsingKeys(translations: translations);
 
@@ -42,7 +42,7 @@ class MarkdownToolbarWidget extends StatelessWidget {
         children: [
           Expanded(
             child: Center(
-              child: _buildToolbar(tooltips, toolbarStyle),
+              child: _buildToolbar(context, tooltips, toolbarStyle, toolbarBgColor),
             ),
           ),
           if (showPreviewToggle) _buildPreviewToggle(theme),
@@ -51,13 +51,14 @@ class MarkdownToolbarWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildToolbar(Map<String, String> tooltips, MarkdownToolbarStyle style) {
+  Widget _buildToolbar(
+      BuildContext context, Map<String, String> tooltips, MarkdownToolbarStyle style, Color toolbarBgColor) {
     final toolbar = MarkdownToolbar(
       controller: controller,
       useIncludedTextField: false,
       focusNode: focusNode,
       collapsable: style.collapsible,
-      backgroundColor: backgroundColor ?? Colors.transparent,
+      backgroundColor: toolbarBgColor,
       borderRadius: style.borderRadius,
       iconColor: style.iconColor,
       iconSize: style.iconSize,
@@ -86,7 +87,15 @@ class MarkdownToolbarWidget extends StatelessWidget {
     final semanticToolbar = Semantics(
       label: 'Markdown formatting toolbar',
       hint: 'Use toolbar buttons to format text',
-      child: toolbar,
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          hoverColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+          focusColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+          highlightColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+          splashColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+        ),
+        child: toolbar,
+      ),
     );
 
     if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
