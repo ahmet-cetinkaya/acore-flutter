@@ -3,6 +3,11 @@ description: A comprehensive core package providing common utilities, abstractio
 version: 1.0.0
 publish_to: "none"
 
+# Scripts for development workflows
+scripts:
+  lint: bash scripts/lint.sh
+  analyze: flutter analyze
+
 environment:
   sdk: ^3.5.3
   flutter: ">=3.0.0"
