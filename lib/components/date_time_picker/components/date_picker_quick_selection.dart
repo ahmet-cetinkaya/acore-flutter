@@ -78,46 +78,95 @@ class DatePickerQuickSelection extends StatelessWidget {
   }
 
   List<Widget> _buildRangeButtons(BuildContext context) {
-    return [
-      _buildButton(
-        context: context,
-        text: DateSelectionUtils.getDayOfWeek(translations),
-        onTap: () => _selectRangeToday(context),
-        type: 'today',
-        isSelected: _isRangeTodaySelected(),
-        label: DateSelectionUtils.getLocalizedText(
-          translations,
-          DateTimePickerTranslationKey.quickSelectionToday,
-          'Today',
+    final buttons = <Widget>[];
+
+    // Use custom quick ranges if provided
+    if (quickRanges != null && quickRanges!.isNotEmpty) {
+      for (final range in quickRanges!) {
+        // Skip "No Date" if it's in the list, we'll add it manually at the end for styling consistency
+        if (range.key == 'no_date') continue;
+
+        IconData? icon;
+        String text = '';
+
+        // Map styles for known keys
+        switch (range.key) {
+          case 'today':
+            text = DateSelectionUtils.getDayOfWeek(translations);
+            break;
+          case 'last_week':
+            text = '7';
+            break;
+          case 'last_month':
+            text = '30';
+            break;
+          case 'up_to_today':
+            icon = Icons.history;
+            break;
+          default:
+            if (range.label.isNotEmpty) {
+              text = range.label.substring(0, range.label.length >= 2 ? 2 : 1).toUpperCase();
+            }
+        }
+
+        buttons.add(_buildButton(
+          context: context,
+          text: text,
+          icon: icon,
+          onTap: () => _selectQuickRange(context, range),
+          type: range.key,
+          isSelected: _isQuickRangeSelected(range),
+          label: range.label,
+        ));
+        buttons.add(const SizedBox(height: _QuickSelectionDesign.spacingXSmall));
+      }
+    } else {
+      // Fallback default buttons
+      buttons.addAll([
+        _buildButton(
+          context: context,
+          text: DateSelectionUtils.getDayOfWeek(translations),
+          onTap: () => _selectRangeToday(context),
+          type: 'today',
+          isSelected: _isRangeTodaySelected(),
+          label: DateSelectionUtils.getLocalizedText(
+            translations,
+            DateTimePickerTranslationKey.quickSelectionToday,
+            'Today',
+          ),
         ),
-      ),
-      const SizedBox(height: _QuickSelectionDesign.spacingXSmall),
-      _buildButton(
-        context: context,
-        text: '7',
-        onTap: () => _select7DaysAgo(context),
-        type: 'weekend',
-        isSelected: _is7DaysAgoSelected(),
-        label: DateSelectionUtils.getLocalizedText(
-          translations,
-          DateTimePickerTranslationKey.quickSelectionLastWeek,
-          'Last Week',
+        const SizedBox(height: _QuickSelectionDesign.spacingXSmall),
+        _buildButton(
+          context: context,
+          text: '7',
+          onTap: () => _select7DaysAgo(context),
+          type: 'weekend',
+          isSelected: _is7DaysAgoSelected(),
+          label: DateSelectionUtils.getLocalizedText(
+            translations,
+            DateTimePickerTranslationKey.quickSelectionLastWeek,
+            'Last Week',
+          ),
         ),
-      ),
-      const SizedBox(height: _QuickSelectionDesign.spacingXSmall),
-      _buildButton(
-        context: context,
-        text: '30',
-        onTap: () => _select30DaysAgo(context),
-        type: 'noDate',
-        isSelected: _is30DaysAgoSelected(),
-        label: DateSelectionUtils.getLocalizedText(
-          translations,
-          DateTimePickerTranslationKey.quickSelectionLastMonth,
-          'Last Month',
+        const SizedBox(height: _QuickSelectionDesign.spacingXSmall),
+        _buildButton(
+          context: context,
+          text: '30',
+          onTap: () => _select30DaysAgo(context),
+          type: 'noDate',
+          isSelected: _is30DaysAgoSelected(),
+          label: DateSelectionUtils.getLocalizedText(
+            translations,
+            DateTimePickerTranslationKey.quickSelectionLastMonth,
+            'Last Month',
+          ),
         ),
-      ),
-      const SizedBox(height: _QuickSelectionDesign.spacingXSmall),
+        const SizedBox(height: _QuickSelectionDesign.spacingXSmall),
+      ]);
+    }
+
+    // Always add "No Date" button at the end
+    buttons.add(
       _buildButton(
         context: context,
         text: 'x',
@@ -131,9 +180,12 @@ class DatePickerQuickSelection extends StatelessWidget {
           'No Date',
         ),
       ),
-      // Refresh checkbox for range selection (only show when date is selected)
-      if (!_isNoDateRangeSelected()) ...[
-        const SizedBox(height: _QuickSelectionDesign.spacingXSmall),
+    );
+
+    // Refresh checkbox for range selection (only show when date is selected)
+    if (!_isNoDateRangeSelected()) {
+      buttons.add(const SizedBox(height: _QuickSelectionDesign.spacingXSmall));
+      buttons.add(
         _buildButton(
           context: context,
           text: refreshEnabled ? '✓' : '↻',
@@ -150,8 +202,10 @@ class DatePickerQuickSelection extends StatelessWidget {
             'Auto-refresh',
           ),
         ),
-      ],
-    ];
+      );
+    }
+
+    return buttons;
   }
 
   List<Widget> _buildSingleButtons(BuildContext context) {
@@ -410,11 +464,22 @@ class DatePickerQuickSelection extends StatelessWidget {
       return;
     }
 
-    final date = range.startDateCalculator();
-    onSelectionChanged(QuickSelectionResult(
-      selectedDate: DateTime(date.year, date.month, date.day, selectedDate?.hour ?? 0, selectedDate?.minute ?? 0),
-      quickSelectionKey: range.key,
-    ));
+    if (selectionMode == DateSelectionMode.range) {
+      final start = range.startDateCalculator();
+      final end = range.endDateCalculator();
+      onSelectionChanged(QuickSelectionResult(
+        startDate: DateTime(start.year, start.month, start.day, 0, 0, 0),
+        endDate: DateTime(end.year, end.month, end.day, 23, 59, 59),
+        quickSelectionKey: range.key,
+        refreshEnabled: refreshEnabled,
+      ));
+    } else {
+      final date = range.startDateCalculator();
+      onSelectionChanged(QuickSelectionResult(
+        selectedDate: DateTime(date.year, date.month, date.day, selectedDate?.hour ?? 0, selectedDate?.minute ?? 0),
+        quickSelectionKey: range.key,
+      ));
+    }
   }
 
   // Selection methods for range
@@ -529,5 +594,20 @@ class DatePickerQuickSelection extends StatelessWidget {
     if (selectedDate == null) return false;
     final date = range.startDateCalculator();
     return DateSelectionUtils.isSameDay(selectedDate!, date);
+  }
+
+  bool _isQuickRangeSelected(quick.QuickDateRange range) {
+    if (selectedStartDate == null || selectedEndDate == null) return false;
+
+    // Calculate expected date range
+    final expectedStart = range.startDateCalculator();
+    final expectedEnd = range.endDateCalculator();
+
+    // Normalize to start/end of day for comparison
+    final normalizedExpectedStart = DateTime(expectedStart.year, expectedStart.month, expectedStart.day, 0, 0, 0);
+    final normalizedExpectedEnd = DateTime(expectedEnd.year, expectedEnd.month, expectedEnd.day, 23, 59, 59);
+
+    return DateSelectionUtils.isSameDay(selectedStartDate!, normalizedExpectedStart) &&
+        DateSelectionUtils.isSameDay(selectedEndDate!, normalizedExpectedEnd);
   }
 }
