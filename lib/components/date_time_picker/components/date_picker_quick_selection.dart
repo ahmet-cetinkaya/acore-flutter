@@ -24,12 +24,14 @@ class QuickSelectionResult {
   final DateTime? startDate;
   final DateTime? endDate;
   final bool refreshEnabled;
+  final String? quickSelectionKey;
 
   const QuickSelectionResult({
     this.selectedDate,
     this.startDate,
     this.endDate,
     this.refreshEnabled = false,
+    this.quickSelectionKey,
   });
 }
 
@@ -121,7 +123,7 @@ class DatePickerQuickSelection extends StatelessWidget {
         text: 'x',
         icon: Icons.close,
         onTap: () => _selectNoDateRange(context),
-        type: 'tomorrow',
+        type: 'noDate',
         isSelected: _isNoDateRangeSelected(),
         label: DateSelectionUtils.getLocalizedText(
           translations,
@@ -339,6 +341,7 @@ class DatePickerQuickSelection extends StatelessWidget {
     final now = DateTime.now();
     onSelectionChanged(QuickSelectionResult(
       selectedDate: DateTime(now.year, now.month, now.day, selectedDate?.hour ?? 0, selectedDate?.minute ?? 0),
+      quickSelectionKey: 'today',
     ));
   }
 
@@ -347,6 +350,7 @@ class DatePickerQuickSelection extends StatelessWidget {
     onSelectionChanged(QuickSelectionResult(
       selectedDate:
           DateTime(tomorrow.year, tomorrow.month, tomorrow.day, selectedDate?.hour ?? 0, selectedDate?.minute ?? 0),
+      quickSelectionKey: 'tomorrow',
     ));
   }
 
@@ -367,6 +371,7 @@ class DatePickerQuickSelection extends StatelessWidget {
         selectedDate?.hour ?? 0,
         selectedDate?.minute ?? 0,
       ),
+      quickSelectionKey: 'weekend',
     ));
   }
 
@@ -383,11 +388,15 @@ class DatePickerQuickSelection extends StatelessWidget {
         selectedDate?.hour ?? 0,
         selectedDate?.minute ?? 0,
       ),
+      quickSelectionKey: 'nextWeek',
     ));
   }
 
   void _selectNoDate(BuildContext context) {
-    onSelectionChanged(const QuickSelectionResult(selectedDate: null));
+    onSelectionChanged(const QuickSelectionResult(
+      selectedDate: null,
+      quickSelectionKey: 'noDate',
+    ));
   }
 
   void _selectQuickRange(BuildContext context, quick.QuickDateRange range) {
@@ -396,6 +405,7 @@ class DatePickerQuickSelection extends StatelessWidget {
         selectedDate: null,
         startDate: null,
         endDate: null,
+        quickSelectionKey: 'noDate',
       ));
       return;
     }
@@ -403,6 +413,7 @@ class DatePickerQuickSelection extends StatelessWidget {
     final date = range.startDateCalculator();
     onSelectionChanged(QuickSelectionResult(
       selectedDate: DateTime(date.year, date.month, date.day, selectedDate?.hour ?? 0, selectedDate?.minute ?? 0),
+      quickSelectionKey: range.key,
     ));
   }
 
@@ -413,6 +424,7 @@ class DatePickerQuickSelection extends StatelessWidget {
       startDate: DateTime(now.year, now.month, now.day, 0, 0, 0),
       endDate: DateTime(now.year, now.month, now.day, 23, 59, 59),
       refreshEnabled: refreshEnabled,
+      quickSelectionKey: 'today',
     ));
   }
 
@@ -425,6 +437,7 @@ class DatePickerQuickSelection extends StatelessWidget {
       startDate: DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0),
       endDate: DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59),
       refreshEnabled: refreshEnabled,
+      quickSelectionKey: '7_days_ago',
     ));
   }
 
@@ -437,6 +450,7 @@ class DatePickerQuickSelection extends StatelessWidget {
       startDate: DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0),
       endDate: DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59),
       refreshEnabled: refreshEnabled,
+      quickSelectionKey: '30_days_ago',
     ));
   }
 
@@ -444,6 +458,7 @@ class DatePickerQuickSelection extends StatelessWidget {
     onSelectionChanged(const QuickSelectionResult(
       startDate: null,
       endDate: null,
+      quickSelectionKey: 'noDate',
     ));
   }
 

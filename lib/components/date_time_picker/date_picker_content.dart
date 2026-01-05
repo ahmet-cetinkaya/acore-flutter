@@ -36,6 +36,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
   late DateTime? _selectedEndDate;
   late bool _refreshEnabled;
   bool _isAllDay = true;
+  String? _quickSelectionKey;
 
   @override
   void initState() {
@@ -56,6 +57,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
       _isAllDay = _selectedStartDate == null || DateSelectionUtils.isAllDayTime(_selectedStartDate!);
     }
     _refreshEnabled = widget.config.initialRefreshEnabled;
+    _quickSelectionKey = null;
   }
 
   void _notifySelectionChanged() {
@@ -66,6 +68,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
         endDate: _selectedEndDate,
         isRefreshEnabled: _refreshEnabled,
         isAllDay: _isAllDay,
+        quickSelectionKey: _quickSelectionKey,
       );
       widget.config.onSelectionChanged!(result);
     }
@@ -73,14 +76,14 @@ class _DatePickerContentState extends State<DatePickerContent> {
 
   void _onQuickSelectionChanged(QuickSelectionResult result) {
     setState(() {
-      if (result.selectedDate != null || (result.startDate == null && result.endDate == null)) {
-        _selectedDate = result.selectedDate;
-      }
-      if (result.startDate != null || result.endDate != null) {
+      if (widget.config.selectionMode == DateSelectionMode.range) {
         _selectedStartDate = result.startDate;
         _selectedEndDate = result.endDate;
+      } else {
+        _selectedDate = result.selectedDate;
       }
       _refreshEnabled = result.refreshEnabled;
+      _quickSelectionKey = result.quickSelectionKey;
     });
     _notifySelectionChanged();
   }
@@ -96,6 +99,9 @@ class _DatePickerContentState extends State<DatePickerContent> {
   void _onTimeChanged(DateTime? dateTime) {
     setState(() {
       _selectedDate = dateTime;
+      if (dateTime != null) {
+        _quickSelectionKey = null; // Clear key on manual time change
+      }
     });
     _notifySelectionChanged();
   }
@@ -143,6 +149,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
       onSingleDateSelected: (DateTime? date) {
         setState(() {
           _selectedDate = date;
+          _quickSelectionKey = null; // Clear key on calendar selection
         });
         _notifySelectionChanged();
       },
@@ -150,6 +157,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
         setState(() {
           _selectedStartDate = startDate;
           _selectedEndDate = endDate;
+          _quickSelectionKey = null; // Clear key on calendar selection
         });
         _notifySelectionChanged();
       },
