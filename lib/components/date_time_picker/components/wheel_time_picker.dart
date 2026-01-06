@@ -174,16 +174,27 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
           ),
 
           // Separator
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: DateTimePickerDesign.spacingSmall),
-            child: Text(
-              ':',
-              style: TextStyle(
-                fontSize: isCompactScreen ? 28 : 32,
-                fontWeight: FontWeight.w300,
-                color: Theme.of(context).colorScheme.onSurface,
+          Column(
+            children: [
+              Expanded(
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: DateTimePickerDesign.spacingSmall),
+                  child: Text(
+                    ':',
+                    style: TextStyle(
+                      fontSize: isCompactScreen ? 28 : 32,
+                      fontWeight: FontWeight.w300,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(
+                  height: DateTimePickerDesign.fontSizeSmall +
+                      DateTimePickerDesign.spacingSmall +
+                      4), // Match label height + padding
+            ],
           ),
 
           // Minute picker
