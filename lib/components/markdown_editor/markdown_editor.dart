@@ -18,16 +18,19 @@ class MarkdownEditor extends StatefulWidget {
   final MarkdownEditorConfig config;
   final MarkdownEditorCallbacks callbacks;
   final TextEditingController? externalController;
+  final FocusNode? externalFocusNode;
 
   const MarkdownEditor({
     super.key,
     required this.config,
     required this.callbacks,
     this.externalController,
+    this.externalFocusNode,
   });
   factory MarkdownEditor.simple({
     Key? key,
     required TextEditingController controller,
+    FocusNode? focusNode,
     void Function(String)? onChanged,
     String? hintText,
     TextStyle? style,
@@ -41,6 +44,7 @@ class MarkdownEditor extends StatefulWidget {
     return MarkdownEditor(
       key: key,
       externalController: controller,
+      externalFocusNode: focusNode,
       config: MarkdownEditorConfig(
         hintText: hintText ?? MarkdownEditorTranslationKeys.hintText,
         style: style,
@@ -85,14 +89,19 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
     final controller = widget.externalController ?? TextEditingController();
     final ownsController = widget.externalController == null;
 
+    final focusNode = widget.externalFocusNode ?? FocusNode();
+    final ownsFocusNode = widget.externalFocusNode == null;
+
     _editorController = MarkdownEditorController(
       textController: controller,
+      focusNode: focusNode,
       config: widget.config,
       callbacks: widget.callbacks,
       linkHandler: _linkHandler,
       styleProvider: _styleProvider,
       toolbarConfiguration: _toolbarConfigurator,
       ownsController: ownsController,
+      ownsFocusNode: ownsFocusNode,
       onStateChanged: () {
         if (mounted) {
           setState(() {});

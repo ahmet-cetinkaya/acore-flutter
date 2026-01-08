@@ -12,6 +12,7 @@ class MarkdownEditorController {
   final IMarkdownStyleProvider styleProvider;
   final IMarkdownToolbarConfiguration toolbarConfiguration;
   final bool _ownsController;
+  final bool _ownsFocusNode;
 
   final MarkdownEditorState _state = MarkdownEditorState();
   VoidCallback? _onStateChanged;
@@ -19,6 +20,7 @@ class MarkdownEditorController {
 
   MarkdownEditorController({
     required this.textController,
+    required this.focusNode,
     required this.config,
     required this.callbacks,
     required this.linkHandler,
@@ -26,8 +28,9 @@ class MarkdownEditorController {
     required this.toolbarConfiguration,
     VoidCallback? onStateChanged,
     bool ownsController = false,
-  })  : focusNode = FocusNode(),
-        _ownsController = ownsController {
+    bool ownsFocusNode = true,
+  })  : _ownsController = ownsController,
+        _ownsFocusNode = ownsFocusNode {
     _onStateChanged = onStateChanged;
     _initialize();
   }
@@ -130,7 +133,9 @@ class MarkdownEditorController {
       textController.dispose();
     }
 
-    // Dispose FocusNode
-    focusNode.dispose();
+    // Dispose FocusNode if we own it
+    if (_ownsFocusNode) {
+      focusNode.dispose();
+    }
   }
 }
