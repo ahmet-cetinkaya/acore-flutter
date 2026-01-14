@@ -216,58 +216,61 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(DateTimePickerDesign.spacingMedium),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Title
-          if (!widget.config.hideTitle) ...[
-            Text(
-              _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
-              style: TextStyle(
-                fontSize: DateTimePickerDesign.fontSizeXLarge,
-                fontWeight: FontWeight.bold,
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Title
+            if (!widget.config.hideTitle) ...[
+              Text(
+                _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
+                style: TextStyle(
+                  fontSize: DateTimePickerDesign.fontSizeXLarge,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: DateTimePickerDesign.spacingMedium),
+              const SizedBox(height: DateTimePickerDesign.spacingMedium),
+            ],
+            // All day toggle
+            _buildAllDayToggle(),
+            // Time picker content
+            if (!_isAllDay) ...[
+              const SizedBox(height: DateTimePickerDesign.spacingMedium),
+              SizedBox(
+                height: 180,
+                child: _buildWheelTimePicker(),
+              ),
+            ],
+            // Action buttons
+            if (!widget.config.hideActionButtons) ...[
+              const SizedBox(height: DateTimePickerDesign.spacingMedium),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  MobileActionButton(
+                    context: context,
+                    onPressed: _onCancel,
+                    text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
+                    icon: Icons.close,
+                    isPrimary: false,
+                    borderRadius: widget.config.actionButtonRadius,
+                  ),
+                  const SizedBox(width: DateTimePickerDesign.spacingSmall),
+                  MobileActionButton(
+                    context: context,
+                    onPressed: _onConfirm,
+                    text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
+                    icon: Icons.check,
+                    isPrimary: true,
+                    borderRadius: widget.config.actionButtonRadius,
+                  ),
+                ],
+              ),
+            ],
           ],
-          // All day toggle
-          _buildAllDayToggle(),
-          // Time picker content
-          if (!_isAllDay) ...[
-            const SizedBox(height: DateTimePickerDesign.spacingMedium),
-            SizedBox(
-              height: 180,
-              child: _buildWheelTimePicker(),
-            ),
-          ],
-          // Action buttons
-          if (!widget.config.hideActionButtons) ...[
-            const SizedBox(height: DateTimePickerDesign.spacingMedium),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                MobileActionButton(
-                  context: context,
-                  onPressed: _onCancel,
-                  text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
-                  icon: Icons.close,
-                  isPrimary: false,
-                  borderRadius: widget.config.actionButtonRadius,
-                ),
-                const SizedBox(width: DateTimePickerDesign.spacingSmall),
-                MobileActionButton(
-                  context: context,
-                  onPressed: _onConfirm,
-                  text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
-                  icon: Icons.check,
-                  isPrimary: true,
-                  borderRadius: widget.config.actionButtonRadius,
-                ),
-              ],
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
@@ -412,54 +415,57 @@ class _TimeSelectionDialogWithCallbackState extends State<_TimeSelectionDialogWi
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(DateTimePickerDesign.spacingMedium),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (!widget.config.hideTitle) ...[
-            Text(
-              _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
-              style: TextStyle(
-                fontSize: DateTimePickerDesign.fontSizeXLarge,
-                fontWeight: FontWeight.bold,
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!widget.config.hideTitle) ...[
+              Text(
+                _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
+                style: TextStyle(
+                  fontSize: DateTimePickerDesign.fontSizeXLarge,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: DateTimePickerDesign.spacingMedium),
+              const SizedBox(height: DateTimePickerDesign.spacingMedium),
+            ],
+            _buildAllDayToggle(),
+            if (!_isAllDay) ...[
+              const SizedBox(height: DateTimePickerDesign.spacingMedium),
+              SizedBox(
+                height: 180,
+                child: _buildWheelTimePicker(),
+              ),
+            ],
+            if (!widget.config.hideActionButtons) ...[
+              const SizedBox(height: DateTimePickerDesign.spacingMedium),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  MobileActionButton(
+                    context: context,
+                    onPressed: _onCancel,
+                    text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
+                    icon: Icons.close,
+                    isPrimary: false,
+                    borderRadius: widget.config.actionButtonRadius,
+                  ),
+                  const SizedBox(width: DateTimePickerDesign.spacingSmall),
+                  MobileActionButton(
+                    context: context,
+                    onPressed: _onConfirm,
+                    text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
+                    icon: Icons.check,
+                    isPrimary: true,
+                    borderRadius: widget.config.actionButtonRadius,
+                  ),
+                ],
+              ),
+            ],
           ],
-          _buildAllDayToggle(),
-          if (!_isAllDay) ...[
-            const SizedBox(height: DateTimePickerDesign.spacingMedium),
-            SizedBox(
-              height: 180,
-              child: _buildWheelTimePicker(),
-            ),
-          ],
-          if (!widget.config.hideActionButtons) ...[
-            const SizedBox(height: DateTimePickerDesign.spacingMedium),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                MobileActionButton(
-                  context: context,
-                  onPressed: _onCancel,
-                  text: _getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel'),
-                  icon: Icons.close,
-                  isPrimary: false,
-                  borderRadius: widget.config.actionButtonRadius,
-                ),
-                const SizedBox(width: DateTimePickerDesign.spacingSmall),
-                MobileActionButton(
-                  context: context,
-                  onPressed: _onConfirm,
-                  text: _getLocalizedText(DateTimePickerTranslationKey.confirm, 'Confirm'),
-                  icon: Icons.check,
-                  isPrimary: true,
-                  borderRadius: widget.config.actionButtonRadius,
-                ),
-              ],
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
