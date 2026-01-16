@@ -22,4 +22,9 @@ class Container implements IContainer {
   bool isRegistered<T>() {
     return _container.isRegistered<T>();
   }
+
+  @override
+  void clear() {
+    _container.clear();
+  }
 }

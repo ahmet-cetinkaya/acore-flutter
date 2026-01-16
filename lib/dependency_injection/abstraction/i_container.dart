@@ -7,4 +7,7 @@ abstract class IContainer {
 
   /// Check if a type is registered in the container
   bool isRegistered<T>();
+
+  /// Clear all registrations in the container
+  void clear();
 }
