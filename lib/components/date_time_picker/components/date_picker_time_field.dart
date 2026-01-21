@@ -69,7 +69,7 @@ class DatePickerTimeField extends StatelessWidget {
         initialIsAllDay: isAllDay,
         useMobileScaffoldLayout: true,
         hideTitle: true,
-        dialogSize: DialogSize.medium,
+        dialogSize: DialogSize.large,
       ),
     );
 

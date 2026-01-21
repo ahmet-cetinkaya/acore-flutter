@@ -6,40 +6,16 @@
 /// - Desktop dialogs maintain comfortable aspect ratios
 /// - Width and height scale proportionally for visual harmony
 enum DialogSize {
-  /// Minimum dialog size - uses default Dialog behavior
-  /// Desktop: Content-based (natural width/height)
-  /// Mobile: Native AlertDialog/BottomSheet behavior
-  /// Use case: Simple confirmations, short forms, alerts
   min,
 
-  /// Small dialog size - focused content
-  /// Desktop: 40% width, 30% height (compact but usable)
-  /// Mobile: 25% screen height (quick interactions)
-  /// Use case: Quick settings, simple inputs, tool tips
   small,
 
-  /// Medium dialog size (default) - balanced content
-  /// Desktop: 60% width, 50% height (golden ratio inspired)
-  /// Mobile: 50% screen height (half-screen interactions)
-  /// Use case: Standard forms, content dialogs, moderate lists
   medium,
 
-  /// Large dialog size - substantial content
-  /// Desktop: 75% width, 65% height (immersive but focused)
-  /// Mobile: 70% screen height (major interactions)
-  /// Use case: Complex forms, detailed content, longer lists
   large,
 
-  /// Extra Large dialog size - near-fullscreen
-  /// Desktop: 85% width, 75% height (maximum focus area)
-  /// Mobile: 85% screen height (immersive interactions)
-  /// Use case: Complex workflows, multi-step processes, rich content
   xLarge,
 
-  /// Fullscreen dialog size - complete focus
-  /// Desktop: 90% width, 85% height (near-fullscreen with padding)
-  /// Mobile: 95% screen height (full immersion)
-  /// Use case: Data entry, content creation, complex applications
   max;
 
   /// Returns the width ratio for desktop dialogs

@@ -8,7 +8,7 @@ import 'components/time_picker_mobile_content.dart';
 import '../mobile_action_button.dart';
 import 'components/shared_components.dart';
 
-/// Configuration for the time selection dialog
+
 class TimeSelectionDialogConfig {
   final DateTime selectedDate;
   final TimeOfDay initialTime;
@@ -34,14 +34,14 @@ class TimeSelectionDialogConfig {
     this.actionButtonRadius,
     this.initialIsAllDay = false,
     this.useResponsiveDialog = false,
-    this.dialogSize = DialogSize.small,
+    this.dialogSize = DialogSize.large,
     this.useMobileScaffoldLayout = false,
     this.hideActionButtons = false,
     this.hideTitle = false,
   });
 }
 
-/// Result returned from the time selection dialog
+
 class TimeSelectionResult {
   final TimeOfDay selectedTime;
   final bool isConfirmed;
@@ -85,7 +85,6 @@ class TimeSelectionDialog extends StatefulWidget {
   @override
   State<TimeSelectionDialog> createState() => _TimeSelectionDialogState();
 
-  /// Shows the time selection dialog
   static Future<TimeSelectionResult?> show({
     required BuildContext context,
     required TimeSelectionDialogConfig config,
@@ -221,7 +220,7 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Title
+
             if (!widget.config.hideTitle) ...[
               Text(
                 _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
@@ -233,8 +232,10 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
               ),
               const SizedBox(height: DateTimePickerDesign.spacingMedium),
             ],
+
             // All day toggle
             _buildAllDayToggle(),
+
             // Time picker content
             if (!_isAllDay) ...[
               const SizedBox(height: DateTimePickerDesign.spacingMedium),
@@ -243,6 +244,7 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
                 child: _buildWheelTimePicker(),
               ),
             ],
+
             // Action buttons
             if (!widget.config.hideActionButtons) ...[
               const SizedBox(height: DateTimePickerDesign.spacingMedium),
@@ -276,7 +278,7 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
   }
 
   Widget _buildAllDayToggle() {
-    // Using surfaceContainer (Material 3) or surface
+
     final surface1 = Theme.of(context).colorScheme.surface;
 
     return Card(
@@ -420,6 +422,7 @@ class _TimeSelectionDialogWithCallbackState extends State<_TimeSelectionDialogWi
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Title
             if (!widget.config.hideTitle) ...[
               Text(
                 _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),

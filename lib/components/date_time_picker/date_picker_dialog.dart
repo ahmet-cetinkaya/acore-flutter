@@ -34,7 +34,7 @@ class DatePickerDialog extends StatefulWidget {
     return await ResponsiveDialogHelper.showResponsiveDialog<DatePickerResult>(
       context: context,
       child: DatePickerDialog(config: config),
-      size: config.dialogSize ?? DialogSize.medium,
+      size: config.dialogSize ?? DialogSize.large,
       isScrollable: false, // Content handles scrolling
       isDismissible: true,
       enableDrag: true,
@@ -146,7 +146,7 @@ class DatePickerDialog extends StatefulWidget {
       context: context,
       child: desktopContent,
       mobileChild: mobileContent,
-      size: config.dialogSize ?? DialogSize.medium,
+      size: config.dialogSize ?? DialogSize.large,
       isScrollable: false, // Disable scrolling since content handles it
       isDismissible: true,
       enableDrag: true,

@@ -29,20 +29,17 @@ class ResponsiveDialogConfig {
 class ResponsiveDialogHelper {
   static ResponsiveDialogConfig _config = const ResponsiveDialogConfig();
 
-  /// Configure the responsive dialog behavior
   static void configure(ResponsiveDialogConfig config) {
     _config = config;
   }
 
-  /// Get current configuration
   static ResponsiveDialogConfig get config => _config;
 
-  /// Shows a details page responsively.
   static Future<T?> showResponsiveDialog<T>({
     required BuildContext context,
     required Widget child,
     Widget? mobileChild,
-    DialogSize size = DialogSize.medium,
+    DialogSize size = DialogSize.large,
     bool isScrollable = true,
     bool isDismissible = true,
     bool enableDrag = true,
@@ -218,7 +215,7 @@ void showResponsiveBottomSheet(
       padding: const EdgeInsets.all(24.0),
       child: child,
     ),
-    size: DialogSize.medium,
+    size: DialogSize.large,
     isScrollable: true,
     config: config,
   );
