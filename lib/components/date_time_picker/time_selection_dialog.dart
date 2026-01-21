@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'constants/date_time_picker_translation_keys.dart';
-import 'components/wheel_time_picker.dart';
+
 import '../../utils/haptic_feedback_util.dart';
 import '../../utils/responsive_dialog_helper.dart';
 import '../../utils/dialog_size.dart';
 import 'components/time_picker_mobile_content.dart';
 import '../mobile_action_button.dart';
 import 'components/shared_components.dart';
-
 
 class TimeSelectionDialogConfig {
   final DateTime selectedDate;
@@ -41,7 +40,6 @@ class TimeSelectionDialogConfig {
   });
 }
 
-
 class TimeSelectionResult {
   final TimeOfDay selectedTime;
   final bool isConfirmed;
@@ -70,10 +68,6 @@ class TimeSelectionResult {
   }
 }
 
-/// Mobile-optimized time selection dialog
-///
-/// This dialog provides a dedicated time selection interface with iOS-style picker wheels,
-/// designed specifically for better mobile experience compared to accordion-style interfaces.
 class TimeSelectionDialog extends StatefulWidget {
   final TimeSelectionDialogConfig config;
 
@@ -91,7 +85,7 @@ class TimeSelectionDialog extends StatefulWidget {
   }) async {
     return await showDialog<TimeSelectionResult>(
       context: context,
-      barrierDismissible: true, // Allow dismissal by tapping outside
+      barrierDismissible: true,
       builder: (context) => TimeSelectionDialog(config: config),
     );
   }
@@ -104,8 +98,6 @@ class TimeSelectionDialog extends StatefulWidget {
     TimeSelectionResult? capturedResult;
 
     if (config.useMobileScaffoldLayout) {
-      // Create a modified config that hides title and action buttons
-      // since TimePickerMobileContent handles them in its AppBar
       final mobileConfig = TimeSelectionDialogConfig(
         selectedDate: config.selectedDate,
         initialTime: config.initialTime,
@@ -116,9 +108,9 @@ class TimeSelectionDialog extends StatefulWidget {
         initialIsAllDay: config.initialIsAllDay,
         useResponsiveDialog: config.useResponsiveDialog,
         dialogSize: config.dialogSize,
-        useMobileScaffoldLayout: false, // Don't nest layouts
-        hideActionButtons: true, // Hide content action buttons
-        hideTitle: true, // Hide content title
+        useMobileScaffoldLayout: false,
+        hideActionButtons: true,
+        hideTitle: true,
       );
 
       mobileChild = TimePickerMobileContent(
@@ -148,9 +140,9 @@ class TimeSelectionDialog extends StatefulWidget {
     return await ResponsiveDialogHelper.showResponsiveDialog<TimeSelectionResult>(
       context: context,
       size: config.dialogSize,
-      isDismissible: true, // Allow dismissal by tapping outside
+      isDismissible: true,
       enableDrag: true,
-      isScrollable: false, // Disable scrolling to prevent conflict with Scaffold
+      isScrollable: false,
       child: config.useMobileScaffoldLayout && mobileChild != null ? mobileChild : TimeSelectionDialog(config: config),
       mobileChild: mobileChild,
     );
@@ -176,8 +168,6 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
   void initState() {
     super.initState();
     _selectedTime = widget.config.initialTime;
-    // Always start with time picker visible when dialog is explicitly opened
-    // Users can toggle all-day mode using the checkbox if needed
     _isAllDay = false;
   }
 
@@ -197,17 +187,59 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
     Navigator.of(context).pop(TimeSelectionResult.cancelled());
   }
 
-  Widget _buildWheelTimePicker() {
-    return WheelTimePicker(
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
       initialTime: _selectedTime,
-      translations: widget.config.translations,
-      onTimeChanged: (newTime) {
+    );
+    if (picked != null) {
+      if (mounted) {
         setState(() {
-          _selectedTime = newTime;
+          _selectedTime = picked;
+          _isAllDay = false;
         });
         _triggerHapticFeedback();
-      },
-      onHapticFeedback: _triggerHapticFeedback,
+      }
+    }
+  }
+
+  Widget _buildTimeSelector() {
+    final theme = Theme.of(context);
+    final surfaceColor = theme.colorScheme.surfaceContainerLow;
+
+    return InkWell(
+      onTap: () => _selectTime(context),
+      borderRadius: BorderRadius.circular(DateTimePickerDesign.radiusLarge),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: DateTimePickerDesign.spacingLarge, vertical: DateTimePickerDesign.spacingLarge),
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(DateTimePickerDesign.radiusLarge),
+        ),
+        child: Row(
+          children: [
+            StyledIcon(Icons.access_time_filled, isActive: true),
+            const SizedBox(width: DateTimePickerDesign.spacingLarge),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}',
+                    style: theme.textTheme.headlineLarge?.copyWith(fontSize: 32),
+                  ),
+                  Text(
+                    _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.edit, color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.5)),
+          ],
+        ),
+      ),
     );
   }
 
@@ -220,7 +252,6 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-
             if (!widget.config.hideTitle) ...[
               Text(
                 _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
@@ -232,20 +263,11 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
               ),
               const SizedBox(height: DateTimePickerDesign.spacingMedium),
             ],
-
-            // All day toggle
             _buildAllDayToggle(),
-
-            // Time picker content
             if (!_isAllDay) ...[
               const SizedBox(height: DateTimePickerDesign.spacingMedium),
-              SizedBox(
-                height: 180,
-                child: _buildWheelTimePicker(),
-              ),
+              _buildTimeSelector(),
             ],
-
-            // Action buttons
             if (!widget.config.hideActionButtons) ...[
               const SizedBox(height: DateTimePickerDesign.spacingMedium),
               Row(
@@ -278,7 +300,6 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
   }
 
   Widget _buildAllDayToggle() {
-
     final surface1 = Theme.of(context).colorScheme.surface;
 
     return Card(
@@ -305,7 +326,7 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
         ),
         secondary: StyledIcon(
           Icons.access_time,
-          isActive: !_isAllDay, // Active when NOT all day (meaning time is relevant)
+          isActive: !_isAllDay,
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       ),
@@ -313,7 +334,6 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
   }
 }
 
-/// Internal wrapper class that captures the result from TimeSelectionDialog
 class _TimeSelectionDialogWithCallback extends StatefulWidget {
   final TimeSelectionDialogConfig config;
   final void Function(TimeSelectionResult) onResult;
@@ -339,8 +359,6 @@ class _TimeSelectionDialogWithCallbackState extends State<_TimeSelectionDialogWi
   void initState() {
     super.initState();
     _selectedTime = widget.config.initialTime;
-    // Always start with time picker visible when dialog is explicitly opened
-    // Users can toggle all-day mode using the checkbox if needed
     _isAllDay = false;
   }
 
@@ -362,23 +380,64 @@ class _TimeSelectionDialogWithCallbackState extends State<_TimeSelectionDialogWi
     widget.onResult(result);
   }
 
-  Widget _buildWheelTimePicker() {
-    return WheelTimePicker(
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
       initialTime: _selectedTime,
-      translations: widget.config.translations,
-      onTimeChanged: (time) {
+    );
+    if (picked != null) {
+      if (mounted) {
         setState(() {
-          _selectedTime = time;
+          _selectedTime = picked;
           _isAllDay = false;
         });
-        widget.onTimeChanged?.call(time);
+        widget.onTimeChanged?.call(picked);
         _triggerHapticFeedback();
-      },
+      }
+    }
+  }
+
+  Widget _buildTimeSelector() {
+    final theme = Theme.of(context);
+    final surfaceColor = theme.colorScheme.surfaceContainerLow;
+
+    return InkWell(
+      onTap: () => _selectTime(context),
+      borderRadius: BorderRadius.circular(DateTimePickerDesign.radiusLarge),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: DateTimePickerDesign.spacingLarge, vertical: DateTimePickerDesign.spacingLarge),
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(DateTimePickerDesign.radiusLarge),
+        ),
+        child: Row(
+          children: [
+            StyledIcon(Icons.access_time_filled, isActive: true),
+            const SizedBox(width: DateTimePickerDesign.spacingLarge),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}',
+                    style: theme.textTheme.headlineLarge?.copyWith(fontSize: 32),
+                  ),
+                  Text(
+                    _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.edit, color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.5)),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildAllDayToggle() {
-    // Using surfaceContainer (Material 3) or surface
     final surface1 = Theme.of(context).colorScheme.surface;
 
     return Card(
@@ -422,7 +481,6 @@ class _TimeSelectionDialogWithCallbackState extends State<_TimeSelectionDialogWi
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Title
             if (!widget.config.hideTitle) ...[
               Text(
                 _getLocalizedText(DateTimePickerTranslationKey.selectTimeTitle, 'Select Time'),
@@ -437,10 +495,7 @@ class _TimeSelectionDialogWithCallbackState extends State<_TimeSelectionDialogWi
             _buildAllDayToggle(),
             if (!_isAllDay) ...[
               const SizedBox(height: DateTimePickerDesign.spacingMedium),
-              SizedBox(
-                height: 180,
-                child: _buildWheelTimePicker(),
-              ),
+              _buildTimeSelector(),
             ],
             if (!widget.config.hideActionButtons) ...[
               const SizedBox(height: DateTimePickerDesign.spacingMedium),
