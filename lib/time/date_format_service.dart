@@ -44,12 +44,12 @@ class DateFormatService {
     switch (type) {
       case DateFormatType.dateTime:
         return useShortFormat
-            ? DateTimeHelper.formatDateTime(localDateTime, locale: locale)
+            ? DateTimeHelper.formatDateTimeShortSmart(localDateTime, locale: locale)
             : DateTimeHelper.formatDateTimeMedium(localDateTime, locale: locale);
 
       case DateFormatType.date:
         return useShortFormat
-            ? DateTimeHelper.formatDate(localDateTime, locale: locale)
+            ? DateTimeHelper.formatDateShortSmart(localDateTime, locale: locale)
             : DateTimeHelper.formatDateMedium(localDateTime, locale: locale);
 
       case DateFormatType.time:

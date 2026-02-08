@@ -262,6 +262,44 @@ class DateTimeHelper {
     return DateFormat.yMMMd(locale?.toString()).format(localDateTime);
   }
 
+  /// Formats date with short smart locale-aware format (omits year if current year)
+  static String formatDateShortSmart(DateTime? dateTime, {Locale? locale}) {
+    if (dateTime == null) return '';
+
+    return _getSmartDatePart(dateTime, locale: locale);
+  }
+
+  /// Formats date/time with short smart locale-aware format (omits year if current year)
+  static String formatDateTimeShortSmart(DateTime? dateTime, {Locale? locale}) {
+    if (dateTime == null) return '';
+
+    final datePart = _getSmartDatePart(dateTime, locale: locale);
+    final timePattern = is24HourFormat(locale) ? 'HH:mm' : 'h:mm a';
+    final timePart = DateFormat(timePattern, locale?.toString()).format(toLocalDateTime(dateTime));
+
+    return '$datePart $timePart';
+  }
+
+  /// Private helper for common smart date logic
+  static String _getSmartDatePart(DateTime dateTime, {Locale? locale}) {
+    final localDateTime = toLocalDateTime(dateTime);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final difference = localDateTime.difference(today).inDays;
+
+    if (difference >= 0 && difference < 7) {
+      if (difference == 0) return 'Today';
+      if (difference == 1) return 'Tomorrow';
+      return getWeekday(localDateTime.weekday, locale);
+    }
+
+    if (localDateTime.year == now.year) {
+      return DateFormat('dd.MM', locale?.toString()).format(localDateTime);
+    }
+
+    return DateFormat('dd.MM.yy', locale?.toString()).format(localDateTime);
+  }
+
   /// Gets default datetime format for locale
   static String _getDefaultDateTimeFormat(String localeName) {
     // Use 24-hour or 12-hour format based on locale
