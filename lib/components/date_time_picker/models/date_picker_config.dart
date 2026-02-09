@@ -41,6 +41,7 @@ class DatePickerConfig {
   final DialogSize? dialogSize;
   final List<DatePickerFooterAction>? footerActions;
   final VoidCallback? onRebuild;
+  final List<Widget>? headerActions;
 
   const DatePickerConfig({
     required this.selectionMode,
@@ -75,6 +76,7 @@ class DatePickerConfig {
     this.dialogSize,
     this.footerActions,
     this.onRebuild,
+    this.headerActions,
   });
 
   DatePickerConfig copyWith({
@@ -110,6 +112,7 @@ class DatePickerConfig {
     DialogSize? dialogSize,
     List<DatePickerFooterAction>? footerActions,
     VoidCallback? onRebuild,
+    List<Widget>? headerActions,
   }) {
     return DatePickerConfig(
       selectionMode: selectionMode ?? this.selectionMode,
@@ -144,6 +147,7 @@ class DatePickerConfig {
       dialogSize: dialogSize ?? this.dialogSize,
       footerActions: footerActions ?? this.footerActions,
       onRebuild: onRebuild ?? this.onRebuild,
+      headerActions: headerActions ?? this.headerActions,
     );
   }
 }

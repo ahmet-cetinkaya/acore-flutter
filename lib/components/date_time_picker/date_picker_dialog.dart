@@ -341,6 +341,7 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
             tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           ),
           actions: [
+            ...?widget.config.headerActions,
             TextButton(
               key: const Key('date_picker_done_button'),
               onPressed: _handleConfirm,
@@ -555,6 +556,7 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
             tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           ),
           actions: [
+            ...?widget.config.headerActions,
             TextButton(
               key: const Key('date_picker_done_button'),
               onPressed: _handleConfirm,
