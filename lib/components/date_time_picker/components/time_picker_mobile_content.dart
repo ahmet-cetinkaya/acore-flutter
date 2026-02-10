@@ -59,7 +59,6 @@ class TimePickerMobileContent extends StatelessWidget {
       ),
       body: SizedBox(
         width: double.infinity,
-        // Removed explicit color to use default scaffold/theme background
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: timeSelectionDialog,

@@ -129,7 +129,7 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
                           widget.onTimeChanged?.call(_selectedTime);
                         },
                         childDelegate: ListWheelChildBuilderDelegate(
-                          childCount: 24 * 3, // Allow infinite scrolling
+                          childCount: 24 * 3,
                           builder: (context, index) {
                             final hour = index % 24;
                             final isSelected = hour == _selectedTime.hour;
@@ -190,10 +190,7 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
                   ),
                 ),
               ),
-              const SizedBox(
-                  height: DateTimePickerDesign.fontSizeSmall +
-                      DateTimePickerDesign.spacingSmall +
-                      4), // Match label height + padding
+              const SizedBox(height: DateTimePickerDesign.fontSizeSmall + DateTimePickerDesign.spacingSmall + 4),
             ],
           ),
 
@@ -228,7 +225,7 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
                           widget.onTimeChanged?.call(_selectedTime);
                         },
                         childDelegate: ListWheelChildBuilderDelegate(
-                          childCount: 60 * 3, // Allow infinite scrolling
+                          childCount: 60 * 3,
                           builder: (context, index) {
                             final minute = index % 60;
                             final isSelected = minute == _selectedTime.minute;

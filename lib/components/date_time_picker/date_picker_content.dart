@@ -100,7 +100,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
     setState(() {
       _selectedDate = dateTime;
       if (dateTime != null) {
-        _quickSelectionKey = null; // Clear key on manual time change
+        _quickSelectionKey = null;
       }
     });
     _notifySelectionChanged();
@@ -149,7 +149,7 @@ class _DatePickerContentState extends State<DatePickerContent> {
       onSingleDateSelected: (DateTime? date) {
         setState(() {
           _selectedDate = date;
-          _quickSelectionKey = null; // Clear key on calendar selection
+          _quickSelectionKey = null;
         });
         _notifySelectionChanged();
       },

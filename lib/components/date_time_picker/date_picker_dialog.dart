@@ -30,25 +30,21 @@ class DatePickerDialog extends StatefulWidget {
     required BuildContext context,
     required DatePickerConfig config,
   }) async {
-    // Use ResponsiveDialogHelper to show the dialog
     return await ResponsiveDialogHelper.showResponsiveDialog<DatePickerResult>(
       context: context,
       child: DatePickerDialog(config: config),
       size: config.dialogSize ?? DialogSize.large,
-      isScrollable: false, // Content handles scrolling
+      isScrollable: false,
       isDismissible: true,
       enableDrag: true,
     );
   }
 
   /// Shows the unified date picker dialog with responsive behavior
-  /// On desktop: shows as modal dialog
-  /// On mobile: shows as bottom sheet with mobile-optimized AppBar
   static Future<DatePickerResult?> showResponsive({
     required BuildContext context,
     required DatePickerConfig config,
   }) async {
-    // Create desktop content with Scaffold structure
     final desktopContent = _ResponsiveDialogContent(
       config: config,
       onComplete: (result) {
@@ -71,7 +67,6 @@ class DatePickerDialog extends StatefulWidget {
       },
     );
 
-    // Helper to get localized text
     String getLocalizedText(DateTimePickerTranslationKey key, String fallback) {
       if (config.translations != null) {
         return config.translations![key] ?? fallback;
@@ -79,7 +74,6 @@ class DatePickerDialog extends StatefulWidget {
       return fallback;
     }
 
-    // Resolve title
     String appBarTitle;
     if (config.selectionMode == DateSelectionMode.single) {
       appBarTitle = config.singleDateTitle ??
@@ -95,7 +89,6 @@ class DatePickerDialog extends StatefulWidget {
     final doneButtonText = config.doneButtonText ?? getLocalizedText(DateTimePickerTranslationKey.confirm, 'Done');
     final cancelButtonText = config.cancelButtonText ?? getLocalizedText(DateTimePickerTranslationKey.cancel, 'Cancel');
 
-    // Create mobile content (with AppBar)
     final mobileContent = DatePickerMobileContent(
       appBarTitle: appBarTitle,
       doneButtonText: doneButtonText,
@@ -141,13 +134,12 @@ class DatePickerDialog extends StatefulWidget {
       },
     );
 
-    // Use ResponsiveDialogHelper for proper responsive behavior
     return await ResponsiveDialogHelper.showResponsiveDialog<DatePickerResult>(
       context: context,
       child: desktopContent,
       mobileChild: mobileContent,
       size: config.dialogSize ?? DialogSize.large,
-      isScrollable: false, // Disable scrolling since content handles it
+      isScrollable: false,
       isDismissible: true,
       enableDrag: true,
     );
@@ -169,7 +161,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   }
 
   void _initializeResult() {
-    // Initialize result with initial configuration
     if (widget.config.selectionMode == DateSelectionMode.single) {
       if (widget.config.initialDate != null) {
         _currentResult = DatePickerResult.single(
@@ -193,7 +184,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   }
 
   void _handleSelectionChanged(DatePickerContentResult result) {
-    // Update current result when selection changes
     final datePickerResult = DatePickerResult(
       selectedDate: result.selectedDate,
       startDate: result.startDate,
@@ -263,7 +253,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     final theme = widget.config.theme ?? Theme.of(context);
     final isCompactScreen = _isCompactScreen(context);
 
-    // Create content config for DatePickerContent
     final contentConfig = DatePickerContentConfig(
       selectionMode: widget.config.selectionMode,
       initialDate: widget.config.initialDate,
@@ -290,7 +279,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
       // Force validation at top if using mobile scaffold layout
       validationErrorAtTop: widget.config.useMobileScaffoldLayout || widget.config.validationErrorAtTop,
       onSelectionChanged: _handleSelectionChanged,
-      // Add footer actions with callback support
       footerActions: widget.config.footerActions
           ?.map((action) => DatePickerContentFooterAction(
                 icon: action.icon,
@@ -301,7 +289,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
                 listenable: action.listenable,
               ))
           .toList(),
-      // Add rebuild callback
       onRebuildRequest: () {
         if (mounted) {
           setState(() {});
@@ -399,7 +386,6 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
   }
 
   void _initializeResult() {
-    // Initialize result with initial configuration
     if (widget.config.selectionMode == DateSelectionMode.single) {
       if (widget.config.initialDate != null) {
         _currentResult = DatePickerResult.single(
@@ -423,7 +409,6 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
   }
 
   void _handleSelectionChanged(DatePickerContentResult result) {
-    // Update current result when selection changes
     final datePickerResult = DatePickerResult(
       selectedDate: result.selectedDate,
       startDate: result.startDate,
@@ -488,7 +473,6 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
     final screenHeight = MediaQuery.of(context).size.height;
     final maxHeight = widget.config.showTime ? screenHeight * 0.95 : screenHeight * 0.9;
 
-    // Create content config for DatePickerContent
     final contentConfig = DatePickerContentConfig(
       selectionMode: widget.config.selectionMode,
       initialDate: widget.config.initialDate,
@@ -524,7 +508,6 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
                 listenable: action.listenable,
               ))
           .toList(),
-      // Add rebuild callback
       onRebuildRequest: () {
         if (mounted) {
           setState(() {});
@@ -532,7 +515,6 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
       },
     );
 
-    // Use Scaffold with AppBar for consistent desktop layout
     return Container(
       constraints: BoxConstraints(
         maxHeight: maxHeight,

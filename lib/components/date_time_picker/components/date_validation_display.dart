@@ -131,20 +131,17 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
     List<String> validationErrors = [];
 
     if (widget.selectionMode == DateSelectionMode.single) {
-      // Check if selection is required but not provided
       if (widget.selectedDate == null) {
         if (!widget.allowNullConfirm) {
           validationErrors
               .add(_getLocalizedText(DateTimePickerTranslationKey.noDateSelected, 'A date must be selected.'));
         }
-        return validationErrors; // Return early if no selection
+        return validationErrors;
       }
 
-      // Check custom validator
       if (widget.dateTimeValidator != null) {
         final validationResult = widget.dateTimeValidator!(widget.selectedDate);
         if (validationResult == null) {
-          // Validator returned null, meaning the date is invalid
           if (widget.validationErrorMessage != null) {
             validationErrors.add(widget.validationErrorMessage!);
           } else {
@@ -152,10 +149,8 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
                 DateTimePickerTranslationKey.selectedDateMustBeAtOrBefore, 'Selected date is invalid'));
           }
         }
-        // If validator returns a DateTime, consider it valid (no error)
       }
 
-      // Check min/max date constraints (ensure consistent timezone handling)
       final selectedLocal = widget.selectedDate!.toLocal();
       final minLocal = widget.minDate?.toLocal();
       final maxLocal = widget.maxDate?.toLocal();
@@ -173,13 +168,12 @@ class _DateValidationDisplayState extends State<DateValidationDisplay> {
             .replaceAll('{date}', dateStr));
       }
     } else {
-      // Range selection validation
       if (widget.selectedStartDate == null || widget.selectedEndDate == null) {
         if (!widget.allowNullConfirm) {
           validationErrors
               .add(_getLocalizedText(DateTimePickerTranslationKey.noDatesSelected, 'A date range must be selected.'));
         }
-        return validationErrors; // Return early if incomplete range
+        return validationErrors;
       }
 
       final startLocal = widget.selectedStartDate!.toLocal();

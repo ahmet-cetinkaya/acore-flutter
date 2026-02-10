@@ -6,7 +6,6 @@ abstract class ILogger {
   /// Logs debug messages - used for detailed information during development
   void debug(String message, [Object? error, StackTrace? stackTrace, String? component]);
 
-  /// Logs informational messages - general information about application flow
   void info(String message, [Object? error, StackTrace? stackTrace, String? component]);
 
   /// Logs warning messages - potentially harmful situations that are not errors

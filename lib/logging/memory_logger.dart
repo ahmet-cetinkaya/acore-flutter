@@ -90,40 +90,32 @@ class MemoryLogger implements ILogger {
 
     final buffer = StringBuffer();
 
-    // Add timestamp if enabled
     if (_includeTimestamp) {
       final now = DateTime.now();
       final timestamp = now.toIso8601String();
       buffer.write('[$timestamp] ');
     }
 
-    // Add log level
     buffer.write('[${level.name}] ');
 
-    // Add component if provided
     if (component != null && component.isNotEmpty) {
       buffer.write('[$component] ');
     }
 
-    // Add main message
     buffer.write(message);
 
-    // Add error information if provided
     if (error != null) {
       buffer.write(' | Error: $error');
     }
 
-    // Add stack trace if enabled and provided
     if (_includeStackTrace && stackTrace != null) {
       buffer.write('\nStack trace:\n$stackTrace');
     }
 
     final logEntry = (buffer..writeln()).toString();
 
-    // Add to queue
     _logEntries.add(logEntry);
 
-    // Remove oldest entries if we exceed the maximum
     while (_logEntries.length > _maxEntries) {
       _logEntries.removeFirst();
     }

@@ -42,40 +42,28 @@ class OrderRank {
       return initialStep;
     }
 
-    // Sort to ensure we're working with ordered data
     existingOrders.sort();
 
-    // Handle special cases
     if (targetPosition <= 0) {
-      // Place at beginning - need to be smaller than first item
       final firstOrder = existingOrders.first;
-
-      // For any first order value, subtract initialStep to ensure it comes first
-      // This handles all cases: positive, negative, zero, or extremely small values
       return firstOrder - initialStep;
     }
 
     if (targetPosition >= existingOrders.length) {
-      // Place at end - add a significant step to the last order to ensure it comes last
       final result = existingOrders.last + initialStep * 2;
       return result;
     }
 
-    // Get orders before and after target position
     final beforeOrder = existingOrders[targetPosition - 1];
     final afterOrder = existingOrders[targetPosition];
     try {
-      // Try to place in between
       final result = between(beforeOrder, afterOrder);
       return result;
     } catch (e) {
-      // If the gap is too small, create a larger gap
       if (targetPosition < existingOrders.length - 1) {
-        // Not at the end, place closer to the next item
         final result = afterOrder - (minimumOrderGap / 2);
         return result;
       } else {
-        // At the end, place after the last item
         final result = beforeOrder + initialStep;
         return result;
       }

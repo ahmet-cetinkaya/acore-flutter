@@ -54,7 +54,6 @@ class DatePickerTimeField extends StatelessWidget {
   Future<void> _openTimeSelectionDialog(BuildContext context) async {
     if (selectedDate == null) return;
 
-    // Use current time or a default time (09:00) if all-day is currently selected
     final initialTime = isAllDay ? const TimeOfDay(hour: 9, minute: 0) : TimeOfDay.fromDateTime(selectedDate!);
 
     final result = await TimeSelectionDialog.showResponsive(

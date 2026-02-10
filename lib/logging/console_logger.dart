@@ -64,32 +64,26 @@ class ConsoleLogger implements ILogger {
 
     final buffer = StringBuffer();
 
-    // Add timestamp if enabled
     if (_includeTimestamp) {
       final now = DateTime.now();
       final timestamp = now.toIso8601String();
       buffer.write('[$timestamp] ');
     }
 
-    // Add log level
     buffer.write('[${level.name}] ');
 
-    // Add component if provided
     if (component != null && component.isNotEmpty) {
       buffer.write('[$component] ');
     }
 
-    // Add main message
     buffer.write(message);
 
-    // Add error information if provided
     if (error != null) {
       buffer.write(' | Error: $error');
     }
 
     final logMessage = buffer.toString();
 
-    // Use dart:developer log for better integration with Flutter DevTools
     developer.log(
       logMessage,
       level: _getDeveloperLogLevel(level),

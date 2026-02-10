@@ -7,7 +7,7 @@ import 'quick_range_selector.dart' as quick;
 /// Provides static methods for weekday calculations, date comparisons,
 /// and quick selection helpers used by DatePickerContent and related components.
 class DateSelectionUtils {
-  DateSelectionUtils._(); // Private constructor to prevent instantiation
+  DateSelectionUtils._();
 
   /// Weekday translation keys - consistently ordered (Mon-Sun)
   static const List<DateTimePickerTranslationKey> weekdayKeys = [
@@ -38,29 +38,21 @@ class DateSelectionUtils {
     return getLocalizedText(translations, weekdayKeys[now.weekday - 1], 'Mon');
   }
 
-  /// Get tomorrow's day of week abbreviation
   static String getTomorrowDayOfWeek(Map<DateTimePickerTranslationKey, String>? translations) {
     final tomorrow = DateTime.now().add(const Duration(days: 1));
     return getLocalizedText(translations, weekdayKeys[tomorrow.weekday - 1], 'Tue');
   }
 
-  /// Get next week's day of week abbreviation (next Monday)
   static String getNextWeekDayOfWeek(Map<DateTimePickerTranslationKey, String>? translations) {
     final now = DateTime.now();
-    // Calculate days until next Monday (where Monday is 1)
-    // If today is Monday (1), we want next Monday, not today: (8 - 1) = 7 days
-    // If today is Tuesday (2), we want next Monday: (8 - 2) = 6 days
-    // If today is Sunday (7), we want next Monday: (8 - 7) = 1 day
     final daysUntilNextMonday = now.weekday == DateTime.monday ? 7 : (8 - now.weekday);
     final nextMonday = now.add(Duration(days: daysUntilNextMonday));
 
     return getLocalizedText(translations, weekdayKeys[nextMonday.weekday - 1], 'Mon');
   }
 
-  /// Get the weekend day of week abbreviation (Saturday)
   static String getWeekendDayOfWeek(Map<DateTimePickerTranslationKey, String>? translations) {
     final now = DateTime.now();
-    // Find the next Saturday
     DateTime saturday = now;
     while (saturday.weekday != DateTime.saturday) {
       saturday = saturday.add(const Duration(days: 1));
@@ -68,30 +60,24 @@ class DateSelectionUtils {
     return getLocalizedText(translations, weekdayKeys[saturday.weekday - 1], 'Sat');
   }
 
-  /// Check if current day is weekend (Saturday or Sunday)
   static bool isCurrentlyWeekend() {
     final now = DateTime.now();
     return now.weekday == DateTime.saturday || now.weekday == DateTime.sunday;
   }
 
-  /// Check if tomorrow should be hidden to avoid duplication with weekend option
   static bool shouldHideTomorrow() {
     final tomorrow = DateTime.now().add(const Duration(days: 1));
-    // Hide tomorrow when it's Monday (existing logic) OR Saturday (new logic)
     return tomorrow.weekday == DateTime.monday || tomorrow.weekday == DateTime.saturday;
   }
 
-  /// Get the appropriate weekend/weekday button text based on current day
   static String getWeekendButtonText(Map<DateTimePickerTranslationKey, String>? translations) {
     return isCurrentlyWeekend()
         ? getLocalizedText(translations, DateTimePickerTranslationKey.quickSelectionNextWeekday, 'Next Weekday')
         : getLocalizedText(translations, DateTimePickerTranslationKey.quickSelectionWeekend, 'Weekend');
   }
 
-  /// Get the appropriate weekend/weekday display text based on current day
   static String getWeekendDisplayText(Map<DateTimePickerTranslationKey, String>? translations) {
     if (isCurrentlyWeekend()) {
-      // For weekend users, show Monday
       final now = DateTime.now();
       DateTime monday = now;
       while (monday.weekday != DateTime.monday) {
@@ -99,7 +85,6 @@ class DateSelectionUtils {
       }
       return getLocalizedText(translations, weekdayKeys[monday.weekday - 1], 'Mon');
     } else {
-      // For weekday users, show Saturday
       return getWeekendDayOfWeek(translations);
     }
   }
@@ -124,7 +109,7 @@ class DateSelectionUtils {
       case 'weekend':
         return getWeekendDayOfWeek(translations);
       case 'no_date':
-        return noDateSymbol; // Clear/close symbol to represent "No Date"
+        return noDateSymbol;
       default:
         return range.label.isNotEmpty ? range.label.substring(0, 1).toUpperCase() : '';
     }

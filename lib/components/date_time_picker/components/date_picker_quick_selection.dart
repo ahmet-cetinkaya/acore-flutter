@@ -80,16 +80,13 @@ class DatePickerQuickSelection extends StatelessWidget {
   List<Widget> _buildRangeButtons(BuildContext context) {
     final buttons = <Widget>[];
 
-    // Use custom quick ranges if provided
     if (quickRanges != null && quickRanges!.isNotEmpty) {
       for (final range in quickRanges!) {
-        // Skip "No Date" if it's in the list, we'll add it manually at the end for styling consistency
         if (range.key == 'no_date') continue;
 
         IconData? icon;
         String text = '';
 
-        // Map styles for known keys
         switch (range.key) {
           case 'today':
             text = DateSelectionUtils.getDayOfWeek(translations);
@@ -121,7 +118,6 @@ class DatePickerQuickSelection extends StatelessWidget {
         buttons.add(const SizedBox(height: _QuickSelectionDesign.spacingXSmall));
       }
     } else {
-      // Fallback default buttons
       buttons.addAll([
         _buildButton(
           context: context,
@@ -165,7 +161,6 @@ class DatePickerQuickSelection extends StatelessWidget {
       ]);
     }
 
-    // Always add "No Date" button at the end
     buttons.add(
       _buildButton(
         context: context,

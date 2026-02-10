@@ -20,25 +20,20 @@ class SemanticVersion extends Equatable {
   ///
   /// Supports formats: "1.0.0", "1.2.3-alpha", "1.2.3-alpha+build.1"
   factory SemanticVersion.parse(String version) {
-    // Remove 'v' prefix if present
     if (version.startsWith('v')) {
       version = version.substring(1);
     }
 
-    // Split by '+' to separate build metadata
     final buildSplit = version.split('+');
     final versionWithoutBuild = buildSplit[0];
     final build = buildSplit.length > 1 ? buildSplit[1] : null;
 
-    // Split by '-' to separate pre-release
     final preReleaseSplit = versionWithoutBuild.split('-');
     final versionCore = preReleaseSplit[0];
     final preRelease = preReleaseSplit.length > 1 ? preReleaseSplit.skip(1).join('-') : null;
 
-    // Parse major.minor.patch
     final parts = versionCore.split('.');
     if (parts.length < 3) {
-      // Pad with zeros if needed
       while (parts.length < 3) {
         parts.add('0');
       }

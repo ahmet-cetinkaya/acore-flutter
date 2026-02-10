@@ -42,7 +42,6 @@ class _DatePickerMobileContentState extends State<DatePickerMobileContent> {
   }
 
   void _initializeResult() {
-    // Initialize result with initial configuration
     if (widget.config.selectionMode == DateSelectionMode.single) {
       if (widget.config.initialDate != null) {
         _currentResult = DatePickerResult.single(
@@ -75,8 +74,6 @@ class _DatePickerMobileContentState extends State<DatePickerMobileContent> {
   }
 
   void _handleConfirm() {
-    // If onConfirm is provided, call it (legacy behavior)
-    // But we also want to return the result
     if (widget.onConfirm != null) {
       widget.onConfirm!();
     } else {
@@ -88,7 +85,6 @@ class _DatePickerMobileContentState extends State<DatePickerMobileContent> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Create a modified config that includes our selection listener
     final contentConfig = DatePickerContentConfig(
       selectionMode: widget.config.selectionMode,
       initialDate: widget.config.initialDate,
@@ -118,7 +114,6 @@ class _DatePickerMobileContentState extends State<DatePickerMobileContent> {
       footerActions: widget.config.footerActions,
     );
 
-    // Use Scaffold with AppBar styling to match other dialog content (e.g., PrioritySelectionDialogContent)
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -157,7 +152,6 @@ class _DatePickerMobileContentState extends State<DatePickerMobileContent> {
           child: DatePickerContent(
             config: contentConfig,
             onComplete: (result) {
-              // Convert DatePickerContentResult back to DatePickerResult for compatibility
               if (result != null) {
                 final datePickerResult = DatePickerResult(
                   selectedDate: result.selectedDate,
@@ -167,7 +161,6 @@ class _DatePickerMobileContentState extends State<DatePickerMobileContent> {
                   quickSelectionKey: result.quickSelectionKey,
                   isAllDay: result.isAllDay,
                 );
-                // Update current result before confirming
                 _currentResult = datePickerResult;
                 _handleConfirm();
               }

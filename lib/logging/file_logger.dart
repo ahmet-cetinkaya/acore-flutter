@@ -57,10 +57,8 @@ class FileLogger implements ILogger {
         _includeStackTrace = includeStackTrace,
         _maxFileSizeBytes = maxFileSizeBytes,
         _maxBackupFiles = maxBackupFiles {
-    // Initialize the log file immediately
     _initializeLogFile();
 
-    // Start periodic flush timer (flush every 5 seconds)
     _flushTimer = Timer.periodic(const Duration(seconds: 5), (_) => _flushBuffer());
   }
 
@@ -109,67 +107,52 @@ class FileLogger implements ILogger {
       final file = File(_filePath);
       final directory = file.parent;
 
-      // Create directories if they don't exist
       if (!await directory.exists()) {
         await directory.create(recursive: true);
       }
 
-      // Create log file if it doesn't exist
       if (!await file.exists()) {
         await file.create();
 
-        // Write an initial log entry to indicate the file was created
         final timestamp = DateTime.now().toIso8601String();
         await file.writeAsString('[$timestamp] [INFO] Debug logging initialized\n');
       }
-    } catch (e) {
-      // If initialization fails, we'll continue without the file logger
-      // The _flushBuffer method will handle creating the file later if needed
-    }
+    } catch (e) {}
   }
 
   /// Internal method to handle the actual logging logic
   void _log(LogLevel level, String message, Object? error, StackTrace? stackTrace, String? component) {
-    // Don't log if below minimum level
     if (!level.isAtLeast(_minLevel)) {
       return;
     }
 
-    // Add timestamp if enabled
     if (_includeTimestamp) {
       final now = DateTime.now();
       final timestamp = now.toIso8601String();
       _buffer.write('[$timestamp] ');
     }
 
-    // Add log level with standardized format
     _buffer.write('[${level.name.toUpperCase()}] ');
 
-    // Add component if provided
     if (component != null && component.isNotEmpty) {
       _buffer.write('[$component] ');
     }
 
-    // Add main message
     _buffer.write(message);
 
-    // Add error information if provided
     if (error != null) {
       _buffer.write(' | Error: $error');
     }
 
-    // Add stack trace if enabled and provided
     if (_includeStackTrace && stackTrace != null) {
       _buffer.write('\nStack trace:\n$stackTrace');
     }
 
-    // Add newline
     _buffer.writeln();
   }
 
   /// Flushes the buffer to the file
   Future<void> _flushBuffer() async {
-    // Chain this operation to run after the previous one completes.
     _fileLock = _fileLock.then((_) async {
       if (_buffer.isEmpty) return;
 
@@ -177,14 +160,12 @@ class FileLogger implements ILogger {
       _buffer.clear();
 
       try {
-        // Create file and directories if they don't exist
         final file = File(_filePath);
         final directory = file.parent;
         if (!await directory.exists()) {
           await directory.create(recursive: true);
         }
 
-        // Check if file rotation is needed
         if (await file.exists()) {
           final fileSize = await file.length();
           if (fileSize >= _maxFileSizeBytes) {
@@ -192,15 +173,10 @@ class FileLogger implements ILogger {
           }
         }
 
-        // Write to file
         await file.writeAsString(content, mode: FileMode.append, flush: true);
-      } catch (e) {
-        // If file writing fails, we'll just ignore the error to prevent logging loops
-        // In a production app, you might want to handle this more gracefully
-      }
+      } catch (e) {}
     });
 
-    // Await the completion of the chained future.
     return _fileLock;
   }
 
@@ -214,13 +190,11 @@ class FileLogger implements ILogger {
         return;
       }
 
-      // Delete the oldest backup file if it exists
       final oldestBackup = File('$_filePath.$_maxBackupFiles');
       if (await oldestBackup.exists()) {
         await oldestBackup.delete();
       }
 
-      // Move existing backup files up by one index
       for (int i = _maxBackupFiles - 1; i >= 1; i--) {
         final currentBackup = File('$_filePath.$i');
         if (await currentBackup.exists()) {
@@ -229,13 +203,9 @@ class FileLogger implements ILogger {
         }
       }
 
-      // Move current log file to .1 backup
       if (await currentFile.exists()) {
         await currentFile.rename('$_filePath.1');
       }
-    } catch (e) {
-      // If rotation fails, continue without rotation
-      // In a production app, you might want to handle this more gracefully
-    }
+    } catch (e) {}
   }
 }
