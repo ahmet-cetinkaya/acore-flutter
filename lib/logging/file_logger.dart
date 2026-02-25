@@ -117,7 +117,10 @@ class FileLogger implements ILogger {
         final timestamp = DateTime.now().toIso8601String();
         await file.writeAsString('[$timestamp] [INFO] Debug logging initialized\n');
       }
-    } catch (e) {}
+    } on FileSystemException catch (e) {
+      // Write to console instead of ignoring
+      stderr.writeln('FileLogger initialization error: $e');
+    }
   }
 
   /// Internal method to handle the actual logging logic
@@ -174,7 +177,10 @@ class FileLogger implements ILogger {
         }
 
         await file.writeAsString(content, mode: FileMode.append, flush: true);
-      } catch (e) {}
+      } on FileSystemException catch (e) {
+        // Write to console instead of ignoring
+        stderr.writeln('FileLogger flush error: $e');
+      }
     });
 
     return _fileLock;
@@ -206,6 +212,9 @@ class FileLogger implements ILogger {
       if (await currentFile.exists()) {
         await currentFile.rename('$_filePath.1');
       }
-    } catch (e) {}
+    } on FileSystemException catch (e) {
+      // Write to console instead of ignoring
+      stderr.writeln('FileLogger rotation error: $e');
+    }
   }
 }
