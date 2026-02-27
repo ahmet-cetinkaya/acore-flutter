@@ -68,6 +68,8 @@ class MarkdownEditor extends StatefulWidget {
 }
 
 class _MarkdownEditorState extends State<MarkdownEditor> {
+  static const double _minimumUnboundedEditorHeight = 160.0;
+
   late final MarkdownEditorController _editorController;
   late final IMarkdownToolbarConfiguration _toolbarConfigurator;
   late final IMarkdownLinkHandler _linkHandler;
@@ -139,52 +141,84 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
       );
     }
 
-    final editorContent = Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (widget.config.showToolbar)
-          MarkdownToolbarWidget(
-            controller: _editorController.textController,
-            focusNode: _editorController.focusNode,
-            backgroundColor: widget.config.toolbarBackground,
-            showPreviewToggle: widget.config.enablePreviewMode,
-            isPreviewMode: _editorController.isPreviewMode,
-            onPreviewToggle: widget.config.enablePreviewMode ? _editorController.togglePreviewMode : null,
-            toolbarConfiguration: _toolbarConfigurator,
-            translations: widget.config.translations,
-          ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final expandsToAvailableHeight = _hasBoundedHeight(constraints);
 
-        // Editor Section
-        if (widget.config.height != null)
-          SizedBox(
-            height: widget.config.height,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.transparent,
-              ),
-              child: _buildEditorContent(),
-            ),
-          )
-        else
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.transparent,
-            ),
-            child: _buildEditorContent(),
-          ),
-      ],
+        return Column(
+          mainAxisSize:
+              expandsToAvailableHeight ? MainAxisSize.max : MainAxisSize.min,
+          children: [
+            if (widget.config.showToolbar) _buildToolbar(),
+            _buildEditorViewport(
+                expandsToAvailableHeight: expandsToAvailableHeight),
+          ],
+        );
+      },
     );
-
-    return editorContent;
   }
 
-  Widget _buildEditorContent() {
+  /// Returns `true` when this editor can safely expand to the parent's full height.
+  bool _hasBoundedHeight(BoxConstraints constraints) {
+    return constraints.hasBoundedHeight && constraints.maxHeight.isFinite;
+  }
+
+  Widget _buildToolbar() {
+    return MarkdownToolbarWidget(
+      controller: _editorController.textController,
+      focusNode: _editorController.focusNode,
+      backgroundColor: widget.config.toolbarBackground,
+      showPreviewToggle: widget.config.enablePreviewMode,
+      isPreviewMode: _editorController.isPreviewMode,
+      onPreviewToggle: widget.config.enablePreviewMode
+          ? _editorController.togglePreviewMode
+          : null,
+      toolbarConfiguration: _toolbarConfigurator,
+      translations: widget.config.translations,
+    );
+  }
+
+  /// Creates an editor viewport that fills bounded parent height while preserving
+  /// compatibility for unbounded layouts.
+  Widget _buildEditorViewport({required bool expandsToAvailableHeight}) {
+    final editorContent = _buildEditorContainer(
+      expandsToAvailableHeight: expandsToAvailableHeight,
+    );
+
+    if (expandsToAvailableHeight) {
+      return Expanded(child: editorContent);
+    }
+
+    final configuredHeight = widget.config.height;
+    if (configuredHeight != null && configuredHeight > 0) {
+      return SizedBox(height: configuredHeight, child: editorContent);
+    }
+
+    return ConstrainedBox(
+      constraints:
+          const BoxConstraints(minHeight: _minimumUnboundedEditorHeight),
+      child: editorContent,
+    );
+  }
+
+  Widget _buildEditorContainer({required bool expandsToAvailableHeight}) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.transparent,
+      ),
+      child: _buildEditorContent(
+          expandsToAvailableHeight: expandsToAvailableHeight),
+    );
+  }
+
+  Widget _buildEditorContent({required bool expandsToAvailableHeight}) {
     return MarkdownEditorWidget(
       controller: _editorController.textController,
       focusNode: _editorController.focusNode,
       hintText: widget.config.hintText,
       style: widget.config.style,
       onTap: _editorController.requestFocus,
+      expandsToAvailableSpace: expandsToAvailableHeight,
     );
   }
 
@@ -214,7 +248,9 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
             color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
           ),
           onPressed: _editorController.togglePreviewMode,
-          tooltip: widget.config.translations?[MarkdownEditorTranslationKeys.editTooltip] ?? 'Edit',
+          tooltip: widget.config
+                  .translations?[MarkdownEditorTranslationKeys.editTooltip] ??
+              'Edit',
           padding: const EdgeInsets.all(4),
           constraints: const BoxConstraints(
             minWidth: 32,

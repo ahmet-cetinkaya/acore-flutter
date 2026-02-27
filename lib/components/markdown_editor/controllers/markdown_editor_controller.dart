@@ -67,22 +67,35 @@ class MarkdownEditorController {
     }
   }
 
+  /// Handles text updates with debouncing to protect against rapid input bursts.
   void _onTextChanged() {
     if (_state.isInitializing) return;
 
-    // Cancel previous debounce timer
     _debounceTimer?.cancel();
 
-    // Schedule new callback with debounce
-    _debounceTimer = Timer(config.textChangeDebounce, () {
-      try {
-        callbacks.onChanged?.call(textController.text);
-      } catch (e) {
-        // Log user callback errors but don't crash the editor
-        debugPrint('Error in onChanged callback: $e');
-        rethrow;
-      }
-    });
+    if (config.textChangeDebounce.inMilliseconds <= 0) {
+      _notifyTextChangedSafely();
+      return;
+    }
+
+    _debounceTimer = Timer(config.textChangeDebounce, _notifyTextChangedSafely);
+  }
+
+  /// Triggers the consumer `onChanged` callback while isolating callback failures.
+  void _notifyTextChangedSafely() {
+    try {
+      callbacks.onChanged?.call(textController.text);
+    } catch (error, stackTrace) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'markdown_editor',
+          context: ErrorDescription(
+              'while executing MarkdownEditor onChanged callback'),
+        ),
+      );
+    }
   }
 
   void togglePreviewMode() {
@@ -124,6 +137,7 @@ class MarkdownEditorController {
   void dispose() {
     // Cancel debounce timer to prevent memory leaks
     _debounceTimer?.cancel();
+    _debounceTimer = null;
 
     // Remove text change listener
     _removeTextChangeListener();

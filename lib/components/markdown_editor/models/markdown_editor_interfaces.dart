@@ -6,6 +6,12 @@ class MarkdownEditorConfig {
   final String? hintText;
   final TextStyle? style;
   final Color? toolbarBackground;
+
+  /// Optional fallback height used when the editor is placed in an
+  /// unbounded vertical layout (for example, directly inside a scroll view).
+  ///
+  /// In bounded parents, the editor expands to fill available height.
+  /// In unbounded parents, this value is treated as a fixed height.
   final double? height;
   final bool enableLinkHandling;
   final bool showToolbar;
@@ -79,8 +85,10 @@ abstract class IMarkdownStyleProvider {
 }
 
 abstract class IMarkdownToolbarConfiguration {
-  Map<String, String> configureTooltipsUsingKeys({Map<String, String>? translations});
-  MarkdownToolbarStyle configureToolbarStyle(ThemeData theme, Color? backgroundColor);
+  Map<String, String> configureTooltipsUsingKeys(
+      {Map<String, String>? translations});
+  MarkdownToolbarStyle configureToolbarStyle(
+      ThemeData theme, Color? backgroundColor);
 }
 
 class MarkdownToolbarStyle {
