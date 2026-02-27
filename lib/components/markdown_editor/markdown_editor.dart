@@ -39,6 +39,7 @@ class MarkdownEditor extends StatefulWidget {
     double? height,
     Color? toolbarBackground,
     bool enablePreviewMode = true,
+    bool initialPreviewMode = false,
     Map<String, String>? translations,
   }) {
     return MarkdownEditor(
@@ -52,6 +53,7 @@ class MarkdownEditor extends StatefulWidget {
         height: height,
         enableLinkHandling: enableLinkHandling,
         enablePreviewMode: enablePreviewMode,
+        initialPreviewMode: initialPreviewMode,
         translations: translations,
       ),
       callbacks: MarkdownEditorCallbacks(
@@ -128,42 +130,52 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxHeight: widget.config.height ?? 400,
-      ),
-      child: Column(
+    if (_editorController.isPreviewMode) {
+      return Stack(
         children: [
-          if (widget.config.showToolbar && !_editorController.isPreviewMode)
-            MarkdownToolbarWidget(
-              controller: _editorController.textController,
-              focusNode: _editorController.focusNode,
-              backgroundColor: widget.config.toolbarBackground,
-              showPreviewToggle: widget.config.enablePreviewMode,
-              isPreviewMode: _editorController.isPreviewMode,
-              onPreviewToggle: widget.config.enablePreviewMode ? _editorController.togglePreviewMode : null,
-              toolbarConfiguration: _toolbarConfigurator,
-              translations: widget.config.translations,
-            ),
+          _buildPreviewContent(),
+          if (widget.config.enablePreviewMode) _buildFloatingEditButton(theme),
+        ],
+      );
+    }
 
-          // Editor/Preview Section
-          Expanded(
+    final editorContent = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (widget.config.showToolbar)
+          MarkdownToolbarWidget(
+            controller: _editorController.textController,
+            focusNode: _editorController.focusNode,
+            backgroundColor: widget.config.toolbarBackground,
+            showPreviewToggle: widget.config.enablePreviewMode,
+            isPreviewMode: _editorController.isPreviewMode,
+            onPreviewToggle: widget.config.enablePreviewMode ? _editorController.togglePreviewMode : null,
+            toolbarConfiguration: _toolbarConfigurator,
+            translations: widget.config.translations,
+          ),
+
+        // Editor Section
+        if (widget.config.height != null)
+          SizedBox(
+            height: widget.config.height,
             child: Container(
               decoration: const BoxDecoration(
                 color: Colors.transparent,
               ),
-              child: Stack(
-                children: [
-                  if (_editorController.isPreviewMode) _buildPreviewContent() else _buildEditorContent(),
-                  if (widget.config.enablePreviewMode && _editorController.isPreviewMode)
-                    _buildFloatingEditButton(theme),
-                ],
-              ),
+              child: _buildEditorContent(),
             ),
+          )
+        else
+          Container(
+            decoration: const BoxDecoration(
+              color: Colors.transparent,
+            ),
+            child: _buildEditorContent(),
           ),
-        ],
-      ),
+      ],
     );
+
+    return editorContent;
   }
 
   Widget _buildEditorContent() {

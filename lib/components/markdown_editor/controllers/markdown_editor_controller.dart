@@ -41,7 +41,7 @@ class MarkdownEditorController {
   bool get isInitializing => _state.isInitializing;
 
   void _initialize() {
-    _state.setPreviewMode(false);
+    _state.setPreviewMode(config.initialPreviewMode);
 
     _state.onStateChanged = () {
       callbacks.onPreviewModeChanged?.call(_state.isPreviewMode);

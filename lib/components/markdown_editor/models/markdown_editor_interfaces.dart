@@ -10,6 +10,7 @@ class MarkdownEditorConfig {
   final bool enableLinkHandling;
   final bool showToolbar;
   final bool enablePreviewMode;
+  final bool initialPreviewMode;
   final Map<String, String>? translations;
   final Duration textChangeDebounce;
 
@@ -21,6 +22,7 @@ class MarkdownEditorConfig {
     this.enableLinkHandling = true,
     this.showToolbar = true,
     this.enablePreviewMode = true,
+    this.initialPreviewMode = false,
     this.translations,
     this.textChangeDebounce = const Duration(milliseconds: 300),
   });
@@ -33,6 +35,7 @@ class MarkdownEditorConfig {
     bool? enableLinkHandling,
     bool? showToolbar,
     bool? enablePreviewMode,
+    bool? initialPreviewMode,
     Map<String, String>? translations,
     Duration? textChangeDebounce,
   }) {
@@ -44,6 +47,7 @@ class MarkdownEditorConfig {
       enableLinkHandling: enableLinkHandling ?? this.enableLinkHandling,
       showToolbar: showToolbar ?? this.showToolbar,
       enablePreviewMode: enablePreviewMode ?? this.enablePreviewMode,
+      initialPreviewMode: initialPreviewMode ?? this.initialPreviewMode,
       translations: translations ?? this.translations,
       textChangeDebounce: textChangeDebounce ?? this.textChangeDebounce,
     );
