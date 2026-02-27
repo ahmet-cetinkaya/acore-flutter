@@ -168,7 +168,7 @@ class _TimeSelectionDialogState extends State<TimeSelectionDialog> {
   void initState() {
     super.initState();
     _selectedTime = widget.config.initialTime;
-    _isAllDay = false;
+    _isAllDay = widget.config.initialIsAllDay;
   }
 
   void _triggerHapticFeedback() {
@@ -359,7 +359,7 @@ class _TimeSelectionDialogWithCallbackState extends State<_TimeSelectionDialogWi
   void initState() {
     super.initState();
     _selectedTime = widget.config.initialTime;
-    _isAllDay = false;
+    _isAllDay = widget.config.initialIsAllDay;
   }
 
   void _triggerHapticFeedback() {
