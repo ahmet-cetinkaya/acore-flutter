@@ -55,8 +55,7 @@ class MarkdownStyleProvider implements IMarkdownStyleProvider {
           width: 1,
         ),
       ),
-      listBullet: TextStyle(
-        fontSize: 24.0,
+      listBullet: theme.textTheme.bodyMedium?.copyWith(
         color: theme.colorScheme.onSurface,
       ),
       blockquote: theme.textTheme.bodyMedium?.copyWith(
