@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Comprehensive linting script for Acore Package
 # Runs Flutter analyze, dart_unused_files, and markdownlint
