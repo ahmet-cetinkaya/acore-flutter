@@ -17,6 +17,7 @@ class DatePickerMobileContent extends StatefulWidget {
   final String? cancelButtonText;
   final VoidCallback? onConfirm;
   final VoidCallback? onCancel;
+  final List<Widget>? headerActions;
 
   const DatePickerMobileContent({
     super.key,
@@ -26,6 +27,7 @@ class DatePickerMobileContent extends StatefulWidget {
     this.cancelButtonText,
     this.onConfirm,
     this.onCancel,
+    this.headerActions,
   });
 
   @override
@@ -132,6 +134,7 @@ class _DatePickerMobileContentState extends State<DatePickerMobileContent> {
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         ),
         actions: [
+          ...?widget.headerActions,
           TextButton(
             key: const Key('date_picker_done_button'),
             onPressed: _handleConfirm,

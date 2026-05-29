@@ -93,6 +93,7 @@ class DatePickerDialog extends StatefulWidget {
       appBarTitle: appBarTitle,
       doneButtonText: doneButtonText,
       cancelButtonText: cancelButtonText,
+      headerActions: config.headerActions,
       config: DatePickerContentConfig(
         validationErrorAtTop: true,
         selectionMode: config.selectionMode,
