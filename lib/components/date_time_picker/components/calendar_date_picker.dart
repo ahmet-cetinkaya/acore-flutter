@@ -111,7 +111,14 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
   Future<void> _selectTime(DateTime date, bool isStartDate) async {
     if (!widget.showTime) return;
 
-    TimeOfDay? initialTime = TimeOfDay.fromDateTime(date);
+    // Default to 00:00 (All Day) for fresh selections, not current time
+    // Only use existing time if it was explicitly set before (not just current time from calendar)
+    final now = DateTime.now();
+    final isFreshSelection = (date.hour == now.hour && date.minute == now.minute);
+    
+    TimeOfDay? initialTime = isFreshSelection
+        ? const TimeOfDay(hour: 0, minute: 0)
+        : TimeOfDay.fromDateTime(date);
     TimeOfDay? earliestTime;
     TimeOfDay? latestTime;
 
