@@ -43,6 +43,7 @@ class ResponsiveDialogHelper {
     bool isScrollable = true,
     bool isDismissible = true,
     bool enableDrag = true,
+    bool useRootNavigator = false,
     ResponsiveDialogConfig? config,
     Color? backgroundColor,
   }) async {
@@ -54,6 +55,7 @@ class ResponsiveDialogHelper {
       return showDialog<T>(
         context: context,
         barrierDismissible: isDismissible,
+        useRootNavigator: useRootNavigator,
         builder: (BuildContext context) {
           if (size == DialogSize.min) {
             return child;
@@ -91,6 +93,7 @@ class ResponsiveDialogHelper {
         return showDialog<T>(
           context: context,
           barrierDismissible: isDismissible,
+          useRootNavigator: useRootNavigator,
           builder: (BuildContext context) {
             return effectiveMobileChild;
           },
@@ -101,7 +104,7 @@ class ResponsiveDialogHelper {
         backgroundColor: backgroundColor,
         isDismissible: isDismissible,
         enableDrag: enableDrag,
-        useRootNavigator: false,
+        useRootNavigator: useRootNavigator,
         expand: false,
         builder: (BuildContext context) {
           final mediaQuery = MediaQuery.of(context);

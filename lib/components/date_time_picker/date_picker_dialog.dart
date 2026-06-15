@@ -29,6 +29,7 @@ class DatePickerDialog extends StatefulWidget {
   static Future<DatePickerResult?> show({
     required BuildContext context,
     required DatePickerConfig config,
+    bool useRootNavigator = true,
   }) async {
     return await ResponsiveDialogHelper.showResponsiveDialog<DatePickerResult>(
       context: context,
@@ -37,6 +38,7 @@ class DatePickerDialog extends StatefulWidget {
       isScrollable: false,
       isDismissible: true,
       enableDrag: true,
+      useRootNavigator: useRootNavigator,
     );
   }
 
@@ -44,6 +46,7 @@ class DatePickerDialog extends StatefulWidget {
   static Future<DatePickerResult?> showResponsive({
     required BuildContext context,
     required DatePickerConfig config,
+    bool useRootNavigator = true,
   }) async {
     final desktopContent = _ResponsiveDialogContent(
       config: config,
@@ -143,6 +146,7 @@ class DatePickerDialog extends StatefulWidget {
       isScrollable: false,
       isDismissible: true,
       enableDrag: true,
+      useRootNavigator: useRootNavigator,
     );
   }
 }
@@ -202,11 +206,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     Navigator.of(context).pop(DatePickerResult.cancelled());
   }
 
-  /// Check if the screen is compact (for mobile UI adjustments)
-  bool _isCompactScreen(BuildContext context) {
-    return MediaQuery.of(context).size.width < 600;
-  }
-
   /// Get localized text with fallback
   String _getLocalizedText(DateTimePickerTranslationKey key, String fallback) {
     if (widget.config.translations != null) {
@@ -252,7 +251,6 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = widget.config.theme ?? Theme.of(context);
-    final isCompactScreen = _isCompactScreen(context);
 
     final contentConfig = DatePickerContentConfig(
       selectionMode: widget.config.selectionMode,
@@ -298,18 +296,14 @@ class _DatePickerDialogState extends State<DatePickerDialog> {
     );
 
     // Use Scaffold structure for both mobile (if requested) and desktop (inside Dialog)
-    final dialogWidth = isCompactScreen ? _DatePickerDesign.compactDialogWidth : _DatePickerDesign.maxDialogWidth;
     final appBarTitle = _getDialogTitle();
 
     // Use dynamic height based on whether time picker is shown
     final screenHeight = MediaQuery.of(context).size.height;
     final maxHeight = widget.config.showTime ? screenHeight * 0.95 : screenHeight * 0.85;
 
-    return Container(
-      width: dialogWidth,
-      constraints: BoxConstraints(
-        maxHeight: maxHeight,
-      ),
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: maxHeight),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.transparent,
@@ -572,14 +566,3 @@ class _ResponsiveDialogContentState extends State<_ResponsiveDialogContent> {
   }
 }
 
-/// Mobile-optimized design constants for date picker
-class _DatePickerDesign {
-  // Border radius
-
-  // Dialog sizing
-  static const double maxDialogWidth = 600.0;
-  static const double compactDialogWidth = 320.0;
-
-  // Prevent instantiation
-  _DatePickerDesign._();
-}

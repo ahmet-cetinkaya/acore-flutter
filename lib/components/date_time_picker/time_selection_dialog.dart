@@ -82,10 +82,12 @@ class TimeSelectionDialog extends StatefulWidget {
   static Future<TimeSelectionResult?> show({
     required BuildContext context,
     required TimeSelectionDialogConfig config,
+    bool useRootNavigator = true,
   }) async {
     return await showDialog<TimeSelectionResult>(
       context: context,
       barrierDismissible: true,
+      useRootNavigator: useRootNavigator,
       builder: (context) => TimeSelectionDialog(config: config),
     );
   }
@@ -93,6 +95,7 @@ class TimeSelectionDialog extends StatefulWidget {
   static Future<TimeSelectionResult?> showResponsive({
     required BuildContext context,
     required TimeSelectionDialogConfig config,
+    bool useRootNavigator = true,
   }) async {
     Widget? mobileChild;
     TimeSelectionResult? capturedResult;
@@ -143,6 +146,7 @@ class TimeSelectionDialog extends StatefulWidget {
       isDismissible: true,
       enableDrag: true,
       isScrollable: false,
+      useRootNavigator: useRootNavigator,
       child: config.useMobileScaffoldLayout && mobileChild != null ? mobileChild : TimeSelectionDialog(config: config),
       mobileChild: mobileChild,
     );
@@ -151,11 +155,12 @@ class TimeSelectionDialog extends StatefulWidget {
   static Future<TimeSelectionResult?> showAuto({
     required BuildContext context,
     required TimeSelectionDialogConfig config,
+    bool useRootNavigator = true,
   }) async {
     if (config.useResponsiveDialog) {
-      return await showResponsive(context: context, config: config);
+      return await showResponsive(context: context, config: config, useRootNavigator: useRootNavigator);
     } else {
-      return await show(context: context, config: config);
+      return await show(context: context, config: config, useRootNavigator: useRootNavigator);
     }
   }
 }
