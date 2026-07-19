@@ -36,6 +36,33 @@ class OrderRank {
     return result;
   }
 
+  /// Computes a gap-safe order value that positions an item strictly between
+  /// [beforeOrder] and [afterOrder].
+  ///
+  /// Both bounds are optional:
+  /// - [beforeOrder] `null` means "insert at the very beginning" (before the
+  ///   first sibling with order [afterOrder]).
+  /// - [afterOrder] `null` means "insert at the very end" (after the last
+  ///   sibling with order [beforeOrder]).
+  /// - Both `null` means the list is empty; returns [initialStep].
+  ///
+  /// Throws [RankGapTooSmallException] when the two neighbors are too close (or
+  /// equal/inverted) to fit a value between them. Callers are expected to catch
+  /// this and renormalize the whole sibling set, then retry positionally.
+  static double neighborRank({double? beforeOrder, double? afterOrder}) {
+    if (beforeOrder == null && afterOrder == null) {
+      return initialStep;
+    }
+    if (beforeOrder == null) {
+      return before(afterOrder!);
+    }
+    if (afterOrder == null) {
+      return after(beforeOrder);
+    }
+    // Both bounds present - place strictly between them.
+    return between(beforeOrder, afterOrder);
+  }
+
   // Find target order for moving an item to a specific position
   static double getTargetOrder(List<double> existingOrders, int targetPosition) {
     if (existingOrders.isEmpty) {
@@ -68,6 +95,24 @@ class OrderRank {
         return result;
       }
     }
+  }
+
+  /// Returns `true` when [orders] contains any duplicate values or any adjacent
+  /// gap smaller than [minimumOrderGap] once sorted, or any non-positive value.
+  /// Such a set can no longer accept reliable midpoint insertions and must be
+  /// renormalized before the next reorder.
+  static bool needsNormalization(List<double> orders) {
+    if (orders.isEmpty) return false;
+
+    final sorted = List<double>.from(orders)..sort();
+    if (sorted.first <= minOrder) return true;
+
+    for (int i = 1; i < sorted.length; i++) {
+      if ((sorted[i] - sorted[i - 1]) < minimumOrderGap) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // Normalize all orders when gaps get too small
