@@ -1,159 +1,142 @@
-/// Utilities for computing collision-safe fractional `order` values used to
-/// persist a user-defined custom ordering of items (drag-and-drop reordering).
-///
-/// The core idea: items carry a `double order`; inserting between two items
-/// takes the midpoint of their orders. Repeated midpoint insertions eventually
-/// collapse the gap below [minimumOrderGap], at which point the whole set must
-/// be renormalized to clean [initialStep] multiples. [needsNormalization]
-/// detects that state; [neighborRank] computes a single gap-safe insertion.
+/// Utilities for canonical, lexicographically sortable fractional order ranks.
 class OrderRank {
-  /// Smallest legal order value. Values at or below this are treated as
-  /// invalid/uninitialized and force a renormalization.
-  static const double minOrder = 0;
+  static const _alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  static const _base = _alphabet.length;
+  static const initialRank = 'U';
+  static const maxRankLength = 32;
 
-  /// Largest order value before appending must renormalize to avoid overflow.
-  static const double maxOrder = 1000000;
-
-  /// Default spacing between consecutive items after normalization.
-  static const double initialStep = 1000;
-
-  /// Minimum spacing two neighbors must have for a midpoint to be insertable.
-  static const double minimumOrderGap = 1;
-
-  /// Absolute tolerance below which a positive order is considered effectively
-  /// zero (uninitialized / precision-collapsed) and needs normalization.
-  static const double nearZeroTolerance = 1e-6;
-
-  /// Computes a gap-safe order value that positions an item strictly between
-  /// [beforeOrder] and [afterOrder].
-  ///
-  /// Both bounds are optional:
-  /// - [beforeOrder] `null` means "insert at the very beginning" (before the
-  ///   first sibling with order [afterOrder]).
-  /// - [afterOrder] `null` means "insert at the very end" (after the last
-  ///   sibling with order [beforeOrder]).
-  /// - Both `null` means the list is empty; returns [initialStep].
-  ///
-  /// Throws [InvalidNeighborOrderException] when `beforeOrder >= afterOrder`
-  /// (the caller supplied an inverted/degenerate pair — a programming error,
-  /// distinct from the data-driven gap-too-small case).
-  ///
-  /// Throws [RankGapTooSmallException] when the two neighbors are correctly
-  /// ordered but too close to fit a value between them. Callers are expected to
-  /// catch this and renormalize the whole sibling set, then retry positionally.
-  static double neighborRank({double? beforeOrder, double? afterOrder}) {
-    if (beforeOrder == null && afterOrder == null) {
-      return initialStep;
-    }
-    if (beforeOrder == null) {
-      return _before(afterOrder!);
-    }
-    if (afterOrder == null) {
-      return _after(beforeOrder);
-    }
-    if (beforeOrder >= afterOrder) {
+  static String neighborRank({String? beforeOrder, String? afterOrder}) {
+    if (!_isCanonical(beforeOrder) || !_isCanonical(afterOrder))
       throw InvalidNeighborOrderException(beforeOrder, afterOrder);
-    }
-    if ((afterOrder - beforeOrder) < minimumOrderGap) {
-      throw RankGapTooSmallException();
-    }
-    return beforeOrder + ((afterOrder - beforeOrder) / 2);
+    if (beforeOrder != null && afterOrder != null && beforeOrder.compareTo(afterOrder) >= 0)
+      throw InvalidNeighborOrderException(beforeOrder, afterOrder);
+    if (beforeOrder == null && afterOrder == null) return initialRank;
+
+    final rank = _midpoint(beforeOrder ?? '', afterOrder);
+    if (rank.length > maxRankLength) throw RankGapTooSmallException();
+    return rank;
   }
 
-  /// Whether a value cannot be inserted between [beforeOrder] and [afterOrder]
-  /// without first renormalizing. `true` when the neighbors are inverted/equal,
-  /// too close together, or when appending ([afterOrder] `null`) would overflow
-  /// past [maxOrder]. Open-ended lower insertions (before the first item) are
-  /// always fittable via bisection toward zero.
-  static bool cannotFit({double? beforeOrder, double? afterOrder}) {
-    // Appending at the tail: only unfittable if we'd overflow maxOrder.
-    if (afterOrder == null) {
-      if (beforeOrder == null) return false;
-      return beforeOrder >= maxOrder - initialStep;
-    }
-    // Prepending at the head is always fittable (bisect toward zero).
-    if (beforeOrder == null) return false;
-    // Both present: unfittable if inverted/equal or gap too small.
-    return (afterOrder - beforeOrder) < minimumOrderGap;
+  static bool cannotFit({String? beforeOrder, String? afterOrder}) {
+    if (!_isCanonical(beforeOrder) || !_isCanonical(afterOrder)) return true;
+    if (beforeOrder != null && afterOrder != null && beforeOrder.compareTo(afterOrder) >= 0)
+      return true;
+    if (beforeOrder == null && afterOrder == null) return false;
+    return _midpoint(beforeOrder ?? '', afterOrder).length > maxRankLength;
   }
 
-  /// Returns `true` when [orders] can no longer accept reliable midpoint
-  /// insertions and should be renormalized: any non-positive/near-zero value,
-  /// any duplicate, any adjacent gap below [minimumOrderGap], or any value at
-  /// or beyond [maxOrder].
-  static bool needsNormalization(List<double> orders) {
-    if (orders.isEmpty) return false;
-
-    final sorted = List<double>.from(orders)..sort();
-    if (sorted.first <= minOrder || sorted.first.abs() < nearZeroTolerance) return true;
-    if (sorted.last >= maxOrder) return true;
-
-    for (int i = 1; i < sorted.length; i++) {
-      if ((sorted[i] - sorted[i - 1]) < minimumOrderGap) {
-        return true;
-      }
+  static bool needsNormalization(List<String> orders) {
+    String? previous;
+    for (final order in orders) {
+      if (!_isCanonical(order) || order.length > maxRankLength) return true;
+      if (previous != null && previous.compareTo(order) >= 0) return true;
+      previous = order;
     }
     return false;
   }
 
-  /// Returns `true` when any order is effectively zero (uninitialized) or
-  /// positive-but-below [nearZeroTolerance] (precision collapsed toward zero).
-  static bool hasNearZeroOrder(List<double> orders) {
-    return orders.any((order) => order.abs() < 1e-10 || (order > 0 && order < nearZeroTolerance));
+  static String fromLegacyDouble(double value) {
+    if (!value.isFinite) return initialRank;
+
+    var fraction = value.clamp(0, 1000000).toDouble() / 1000001;
+    final digits = StringBuffer();
+    for (var index = 0; index < 6; index++) {
+      fraction *= _base;
+      final digit = fraction.floor();
+      digits.write(_alphabet[digit]);
+      fraction -= digit;
+    }
+
+    final rank = digits.toString().replaceFirst(RegExp(r'0+$'), '');
+    return rank.isEmpty ? '0000001' : rank;
   }
 
-  /// Assigns clean, evenly spaced [initialStep] multiples to [items] in their
-  /// current order via [setOrder]. Returns the order assigned to the item for
-  /// which [isPlaced] returns `true` (the moved item), or [initialStep] if none.
-  static double assignSequential<T>(
+  static String assignSequential<T>(
     List<T> items, {
-    required void Function(T item, double order) setOrder,
-    bool Function(T item)? isPlaced,
+    required void Function(T, String) setOrder,
+    bool Function(T)? isPlaced,
   }) {
-    double step = initialStep;
-    double placedOrder = initialStep;
-    for (final item in items) {
-      setOrder(item, step);
-      if (isPlaced != null && isPlaced(item)) placedOrder = step;
-      step += initialStep;
+    if (items.isEmpty) return initialRank;
+
+    final width = _sequentialWidth(items.length);
+    final capacity = _power(_base, width);
+    String placedRank = initialRank;
+    for (var index = 0; index < items.length; index++) {
+      final rank = _canonicalInteger((index + 1) * capacity ~/ (items.length + 1), width);
+      setOrder(items[index], rank);
+      if (isPlaced?.call(items[index]) ?? false) placedRank = rank;
     }
-    return placedOrder;
+    return placedRank;
   }
 
-  // Midpoint toward zero for prepending before the first item.
-  static double _before(double currentOrder) {
-    if (currentOrder <= initialStep) {
-      return currentOrder / 2;
+  static String _midpoint(String lower, String? upper) {
+    final prefix = StringBuffer();
+    var upperIsAbsent = upper == null;
+    for (var index = 0;; index++) {
+      final lowerDigit = index < lower.length ? _digitValue(lower[index]) : 0;
+      final upperDigit = upperIsAbsent
+          ? _base
+          : index < upper!.length
+          ? _digitValue(upper[index])
+          : 0;
+      final gap = upperDigit - lowerDigit;
+      if (gap >= 2) return '$prefix${_alphabet[lowerDigit + gap ~/ 2]}';
+      prefix.write(_alphabet[lowerDigit]);
+      if (gap == 1) upperIsAbsent = true;
     }
-    return currentOrder - initialStep;
   }
 
-  // Next slot after the last item; throws if it would overflow maxOrder.
-  static double _after(double currentOrder) {
-    if (currentOrder >= maxOrder - initialStep) {
-      throw RankGapTooSmallException();
+  static bool _isCanonical(String? rank) {
+    if (rank == null) return true;
+    if (rank.isEmpty || rank.endsWith('0')) return false;
+    var hasNonZeroDigit = false;
+    for (final codeUnit in rank.codeUnits) {
+      final digit = _alphabet.indexOf(String.fromCharCode(codeUnit));
+      if (digit < 0) return false;
+      hasNonZeroDigit |= digit > 0;
     }
-    return currentOrder + initialStep;
+    return hasNonZeroDigit;
+  }
+
+  static int _digitValue(String digit) => _alphabet.indexOf(digit);
+
+  static int _sequentialWidth(int itemCount) {
+    var width = 1;
+    var capacity = _base;
+    while (capacity <= itemCount) {
+      width++;
+      capacity *= _base;
+    }
+    return width;
+  }
+
+  static int _power(int base, int exponent) {
+    var result = 1;
+    for (var index = 0; index < exponent; index++) result *= base;
+    return result;
+  }
+
+  static String _canonicalInteger(int value, int width) {
+    final digits = List.filled(width, '0');
+    for (var index = width - 1; index >= 0; index--) {
+      digits[index] = _alphabet[value % _base];
+      value ~/= _base;
+    }
+    return digits.join().replaceFirst(RegExp(r'0+$'), '');
   }
 }
 
-/// Thrown when a caller passes an inverted or equal neighbor pair to
-/// [OrderRank.neighborRank] (`beforeOrder >= afterOrder`). Indicates a
-/// programming error at the call site, distinct from the data-driven
-/// [RankGapTooSmallException].
 class InvalidNeighborOrderException implements Exception {
-  final double beforeOrder;
-  final double afterOrder;
+  final String? beforeOrder;
+  final String? afterOrder;
 
   InvalidNeighborOrderException(this.beforeOrder, this.afterOrder);
 
-  String get message =>
-      'Invalid neighbor order: beforeOrder ($beforeOrder) must be strictly less than afterOrder ($afterOrder)';
-
   @override
-  String toString() => 'InvalidNeighborOrderException: $message';
+  String toString() => 'InvalidNeighborOrderException: invalid rank bounds';
 }
 
 class RankGapTooSmallException implements Exception {
-  final String message = 'Reordering needed - gaps between items too small';
+  @override
+  String toString() => 'RankGapTooSmallException: rank exceeds maximum length';
 }
