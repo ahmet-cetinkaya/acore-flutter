@@ -1,91 +1,142 @@
+/// Utilities for canonical, lexicographically sortable fractional order ranks.
 class OrderRank {
-  static const double minOrder = 0;
-  static const double maxOrder = 1000000;
-  static const double initialStep = 1000;
-  static const double minimumOrderGap = 1;
+  static const _alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  static const _base = _alphabet.length;
+  static const initialRank = 'U';
+  static const maxRankLength = 32;
 
-  // Calculate midpoint between two orders
-  static double between(double beforeOrder, double afterOrder) {
-    if (beforeOrder >= afterOrder || (afterOrder - beforeOrder) < minimumOrderGap) {
-      throw RankGapTooSmallException();
+  static String neighborRank({String? beforeOrder, String? afterOrder}) {
+    if (!_isCanonical(beforeOrder) || !_isCanonical(afterOrder))
+      throw InvalidNeighborOrderException(beforeOrder, afterOrder);
+    if (beforeOrder != null && afterOrder != null && beforeOrder.compareTo(afterOrder) >= 0)
+      throw InvalidNeighborOrderException(beforeOrder, afterOrder);
+    if (beforeOrder == null && afterOrder == null) return initialRank;
+
+    final rank = _midpoint(beforeOrder ?? '', afterOrder);
+    if (rank.length > maxRankLength) throw RankGapTooSmallException();
+    return rank;
+  }
+
+  static bool cannotFit({String? beforeOrder, String? afterOrder}) {
+    if (!_isCanonical(beforeOrder) || !_isCanonical(afterOrder)) return true;
+    if (beforeOrder != null && afterOrder != null && beforeOrder.compareTo(afterOrder) >= 0)
+      return true;
+    if (beforeOrder == null && afterOrder == null) return false;
+    return _midpoint(beforeOrder ?? '', afterOrder).length > maxRankLength;
+  }
+
+  static bool needsNormalization(List<String> orders) {
+    String? previous;
+    for (final order in orders) {
+      if (!_isCanonical(order) || order.length > maxRankLength) return true;
+      if (previous != null && previous.compareTo(order) >= 0) return true;
+      previous = order;
     }
-    final result = beforeOrder + ((afterOrder - beforeOrder) / 2);
+    return false;
+  }
+
+  static String fromLegacyDouble(double value) {
+    if (!value.isFinite) return initialRank;
+
+    var fraction = value.clamp(0, 1000000).toDouble() / 1000001;
+    final digits = StringBuffer();
+    for (var index = 0; index < 6; index++) {
+      fraction *= _base;
+      final digit = fraction.floor();
+      digits.write(_alphabet[digit]);
+      fraction -= digit;
+    }
+
+    final rank = digits.toString().replaceFirst(RegExp(r'0+$'), '');
+    return rank.isEmpty ? '0000001' : rank;
+  }
+
+  static String assignSequential<T>(
+    List<T> items, {
+    required void Function(T, String) setOrder,
+    bool Function(T)? isPlaced,
+  }) {
+    if (items.isEmpty) return initialRank;
+
+    final width = _sequentialWidth(items.length);
+    final capacity = _power(_base, width);
+    String placedRank = initialRank;
+    for (var index = 0; index < items.length; index++) {
+      final rank = _canonicalInteger((index + 1) * capacity ~/ (items.length + 1), width);
+      setOrder(items[index], rank);
+      if (isPlaced?.call(items[index]) ?? false) placedRank = rank;
+    }
+    return placedRank;
+  }
+
+  static String _midpoint(String lower, String? upper) {
+    final prefix = StringBuffer();
+    var upperIsAbsent = upper == null;
+    for (var index = 0;; index++) {
+      final lowerDigit = index < lower.length ? _digitValue(lower[index]) : 0;
+      final upperDigit = upperIsAbsent
+          ? _base
+          : index < upper!.length
+          ? _digitValue(upper[index])
+          : 0;
+      final gap = upperDigit - lowerDigit;
+      if (gap >= 2) return '$prefix${_alphabet[lowerDigit + gap ~/ 2]}';
+      prefix.write(_alphabet[lowerDigit]);
+      if (gap == 1) upperIsAbsent = true;
+    }
+  }
+
+  static bool _isCanonical(String? rank) {
+    if (rank == null) return true;
+    if (rank.isEmpty || rank.endsWith('0')) return false;
+    var hasNonZeroDigit = false;
+    for (final codeUnit in rank.codeUnits) {
+      final digit = _alphabet.indexOf(String.fromCharCode(codeUnit));
+      if (digit < 0) return false;
+      hasNonZeroDigit |= digit > 0;
+    }
+    return hasNonZeroDigit;
+  }
+
+  static int _digitValue(String digit) => _alphabet.indexOf(digit);
+
+  static int _sequentialWidth(int itemCount) {
+    var width = 1;
+    var capacity = _base;
+    while (capacity <= itemCount) {
+      width++;
+      capacity *= _base;
+    }
+    return width;
+  }
+
+  static int _power(int base, int exponent) {
+    var result = 1;
+    for (var index = 0; index < exponent; index++) result *= base;
     return result;
   }
 
-  // Get order value for first position
-  static double first() {
-    return initialStep;
-  }
-
-  // Get next available order after the given one
-  static double after(double currentOrder) {
-    if (currentOrder >= maxOrder - initialStep) {
-      throw RankGapTooSmallException();
+  static String _canonicalInteger(int value, int width) {
+    final digits = List.filled(width, '0');
+    for (var index = width - 1; index >= 0; index--) {
+      digits[index] = _alphabet[value % _base];
+      value ~/= _base;
     }
-    final result = currentOrder + initialStep;
-    return result;
-  }
-
-  // Get next available order before the given one
-  static double before(double currentOrder) {
-    if (currentOrder <= initialStep) {
-      return currentOrder / 2;
-    }
-    final result = currentOrder - initialStep;
-    return result;
-  }
-
-  // Find target order for moving an item to a specific position
-  static double getTargetOrder(List<double> existingOrders, int targetPosition) {
-    if (existingOrders.isEmpty) {
-      return initialStep;
-    }
-
-    existingOrders.sort();
-
-    if (targetPosition <= 0) {
-      final firstOrder = existingOrders.first;
-      return firstOrder - initialStep;
-    }
-
-    if (targetPosition >= existingOrders.length) {
-      final result = existingOrders.last + initialStep * 2;
-      return result;
-    }
-
-    final beforeOrder = existingOrders[targetPosition - 1];
-    final afterOrder = existingOrders[targetPosition];
-    try {
-      final result = between(beforeOrder, afterOrder);
-      return result;
-    } catch (e) {
-      if (targetPosition < existingOrders.length - 1) {
-        final result = afterOrder - (minimumOrderGap / 2);
-        return result;
-      } else {
-        final result = beforeOrder + initialStep;
-        return result;
-      }
-    }
-  }
-
-  // Normalize all orders when gaps get too small
-  static List<double> normalize(List<double> currentOrders) {
-    if (currentOrders.isEmpty) return [];
-
-    List<double> newOrders = [];
-    double step = initialStep;
-
-    for (int i = 0; i < currentOrders.length; i++) {
-      newOrders.add(step);
-      step += initialStep;
-    }
-
-    return newOrders;
+    return digits.join().replaceFirst(RegExp(r'0+$'), '');
   }
 }
 
+class InvalidNeighborOrderException implements Exception {
+  final String? beforeOrder;
+  final String? afterOrder;
+
+  InvalidNeighborOrderException(this.beforeOrder, this.afterOrder);
+
+  @override
+  String toString() => 'InvalidNeighborOrderException: invalid rank bounds';
+}
+
 class RankGapTooSmallException implements Exception {
-  final String message = 'Reordering needed - gaps between items too small';
+  @override
+  String toString() => 'RankGapTooSmallException: rank exceeds maximum length';
 }
